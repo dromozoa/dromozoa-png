@@ -15,40 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DROMOZOA_COMMON_HPP
-#define DROMOZOA_COMMON_HPP
-
-#include <png.h>
-
-#include <stdexcept>
-
-#include <dromozoa/bind.hpp>
+#include "common.hpp"
 
 namespace dromozoa {
-  class png_runtime_error : public std::runtime_error {
-  public:
-    explicit png_runtime_error(const char* what);
-    virtual ~png_runtime_error() throw();
-  };
+  png_runtime_error::png_runtime_error(const char* what) : std::runtime_error(what) {}
 
-  void throw_png_runtime_error(png_structp, const char* what);
+  png_runtime_error::~png_runtime_error() throw() {}
 
-  class reader_impl;
-
-  class reader {
-  public:
-    static reader_impl* create();
-    explicit reader(reader_impl* impl);
-    ~reader();
-    void destroy();
-    png_structp png() const;
-    png_infop info() const;
-    png_infop end() const;
-  private:
-    scoped_ptr<reader_impl> impl_;
-    reader(const reader&);
-    reader& operator=(const reader&);
-  };
+  void throw_png_runtime_error(png_structp, const char* what) {
+    throw png_runtime_error(what);
+  }
 }
-
-#endif
