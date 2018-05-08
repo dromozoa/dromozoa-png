@@ -18,16 +18,16 @@
 #include "common.hpp"
 
 namespace dromozoa {
-  class reader_impl {
+  class reader_handle_impl {
   public:
-    reader_impl() : png_(), info_(), end_() {
+    reader_handle_impl() : png_(), info_(), end_() {
       png_ = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, throw_png_runtime_error, 0);
       if (!png_) {
         throw png_runtime_error("png_create_read_struct failed");
       }
     }
 
-    ~reader_impl() {
+    ~reader_handle_impl() {
       if (png_) {
         destroy();
       }
@@ -65,33 +65,33 @@ namespace dromozoa {
     png_structp png_;
     png_infop info_;
     png_infop end_;
-    reader_impl(const reader_impl&);
-    reader_impl& operator=(const reader_impl&);
+    reader_handle_impl(const reader_handle_impl&);
+    reader_handle_impl& operator=(const reader_handle_impl&);
   };
 
-  reader_impl* reader::create() {
-    scoped_ptr<reader_impl> impl(new reader_impl());
+  reader_handle_impl* reader_handle::create() {
+    scoped_ptr<reader_handle_impl> impl(new reader_handle_impl());
     impl->create();
     return impl.release();
   }
 
-  reader::reader(reader_impl* impl) : impl_(impl) {}
+  reader_handle::reader_handle(reader_handle_impl* impl) : impl_(impl) {}
 
-  reader::~reader() {}
+  reader_handle::~reader_handle() {}
 
-  void reader::destroy() {
+  void reader_handle::destroy() {
     impl_->destroy();
   }
 
-  png_structp reader::png() const {
+  png_structp reader_handle::png() const {
     return impl_->png();
   }
 
-  png_infop reader::info() const {
+  png_infop reader_handle::info() const {
     return impl_->info();
   }
 
-  png_infop reader::end() const {
+  png_infop reader_handle::end() const {
     return impl_->end();
   }
 }

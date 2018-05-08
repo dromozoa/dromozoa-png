@@ -33,21 +33,21 @@ namespace dromozoa {
 
   void throw_png_runtime_error(png_structp, const char* what);
 
-  class reader_impl;
+  class reader_handle_impl;
 
-  class reader {
+  class reader_handle {
   public:
-    static reader_impl* create();
-    explicit reader(reader_impl* impl);
-    ~reader();
+    static reader_handle_impl* create();
+    explicit reader_handle(reader_handle_impl* impl);
+    ~reader_handle();
     void destroy();
     png_structp png() const;
     png_infop info() const;
     png_infop end() const;
   private:
-    scoped_ptr<reader_impl> impl_;
-    reader(const reader&);
-    reader& operator=(const reader&);
+    scoped_ptr<reader_handle_impl> impl_;
+    reader_handle(const reader_handle&);
+    reader_handle& operator=(const reader_handle&);
   };
 }
 
