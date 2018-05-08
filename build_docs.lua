@@ -26,6 +26,56 @@ local function find(data, pattern, i)
   end
 end
 
+local out = assert(io.open("docs/png.h.html", "w"))
+out:write [[
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>png.h</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+pre.prettyprint > ol.linenums {
+  padding-left: 4em;
+}
+pre.prettyprint > ol.linenums > li {
+  list-style-type: decimal;
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>png.h</h1>
+
+<pre class="prettyprint lang-c linenums">]]
+
+local escape_table = { ["&"] = "&amp;", ["<"] = "&lt;", [">"] = "&gt;" }
+for line in io.lines "docs/png.h" do
+  out:write(line:gsub("[&<>]", escape_table), "\n")
+end
+
+out:write [[</pre>
+</div>
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</body>
+</html>
+]]
+out:close()
+
 local lines = {}
 for line in io.lines "docs/libpng-manual.txt" do
   lines[#lines + 1] = line
