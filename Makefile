@@ -23,6 +23,7 @@ LDLIBS += -lpng -ldl
 OBJS = \
 	error.o \
 	module.o \
+	reader.o \
 	reader_handle.o
 TARGET = png.so
 

@@ -18,7 +18,10 @@
 #include "common.hpp"
 
 namespace dromozoa {
+  void initialize_reader(lua_State* L);
+
   void initialize(lua_State* L) {
+    initialize_reader(L);
   }
 }
 
