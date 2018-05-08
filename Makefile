@@ -22,6 +22,7 @@ LDLIBS += -lpng -ldl
 
 OBJS = \
 	error.o \
+	main.o \
 	module.o \
 	reader.o \
 	reader_handle.o

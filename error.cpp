@@ -18,11 +18,23 @@
 #include "common.hpp"
 
 namespace dromozoa {
-  png_runtime_error::png_runtime_error(const char* what) : std::runtime_error(what) {}
+  namespace {
+    class failure : public luaX_failure<> {
+    public:
+      explicit failure(const char* what) : what_(what) {}
 
-  png_runtime_error::~png_runtime_error() throw() {}
+      virtual ~failure() throw() {}
 
-  void throw_png_runtime_error(png_structp, png_const_charp what) {
-    throw png_runtime_error(what);
+      virtual const char* what() const throw() {
+        return what_.c_str();
+      }
+
+    private:
+      std::string what_;
+    };
+  }
+
+  void error(png_structp, png_const_charp what) {
+    throw failure(what);
   }
 }

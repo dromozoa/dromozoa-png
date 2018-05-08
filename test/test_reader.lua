@@ -19,17 +19,17 @@ local png = require "dromozoa.png"
 
 local reader = assert(png.reader())
 
-local filename = ...
-local handle
-if filename then
-  handle = assert(io.open(filename, "rb"))
-end
-
+local handle = assert(io.open("docs/lenna.png", "rb"))
 reader:set_read_fn(function (n)
-  -- return handle:read(n)
-  return ""
+  return handle:read(n)
 end)
-assert(reader:read_info())
--- reader:read_info()
 
+assert(reader:read_info())
+assert(reader:get_image_width() == 271)
+assert(reader:get_image_height() == 580)
+assert(reader:get_bit_depth() == 8)
+assert(reader:get_color_type() == png.PNG_COLOR_TYPE_RGB_ALPHA)
+assert(reader:get_interlace_type() == png.PNG_INTERLACE_NONE)
+assert(reader:get_compression_type() == png.PNG_COMPRESSION_TYPE_BASE)
+assert(reader:get_filter_type() == png.PNG_FILTER_TYPE_BASE)
 

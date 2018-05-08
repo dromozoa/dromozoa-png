@@ -25,9 +25,9 @@ namespace dromozoa {
   class reader_handle_impl {
   public:
     reader_handle_impl() : png_(), info_(), end_() {
-      png_ = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, throw_png_runtime_error, 0);
+      png_ = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, error, 0);
       if (!png_) {
-        throw png_runtime_error("png_create_read_struct failed");
+        error(0, "png_create_read_struct failed");
       }
     }
 
@@ -85,32 +85,26 @@ namespace dromozoa {
 
     void read(png_bytep data, png_size_t length) {
       lua_State* L = read_ref_.state();
-      int top = lua_gettop(L);
-      try {
-        {
-          read_ref_.get_field(L);
-          luaX_push(L, length);
-          int r = lua_pcall(L, 1, 1, 0);
-          if (r == 0) {
-            size_t result = 0;
-            if (const char* ptr = lua_tolstring(L, -1, &result)) {
-              if (result == length) {
-                memcpy(data, ptr, result);
-              } else {
-                png_error(png_, "read error");
-              }
+      luaX_top_saver save_top(L);
+      {
+        read_ref_.get_field(L);
+        luaX_push(L, length);
+        int r = lua_pcall(L, 1, 1, 0);
+        if (r == 0) {
+          size_t result = 0;
+          if (const char* ptr = lua_tolstring(L, -1, &result)) {
+            if (result == length) {
+              memcpy(data, ptr, result);
             } else {
               png_error(png_, "read error");
             }
           } else {
-            png_error(png_, lua_tostring(L, -1));
+            png_error(png_, "read error");
           }
+        } else {
+          png_error(png_, lua_tostring(L, -1));
         }
-      } catch (...) {
-        lua_settop(L, top);
-        throw;
       }
-      lua_settop(L, top);
     }
   };
 

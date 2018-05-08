@@ -28,13 +28,8 @@ namespace dromozoa {
     }
 
     void impl_call(lua_State* L) {
-      try {
-        luaX_new<reader_handle>(L, reader_handle::create());
-        luaX_set_metatable(L, "dromozoa.png.reader");
-      } catch (const png_runtime_error& e) {
-        luaX_push(L, luaX_nil);
-        luaX_push(L, e.what());
-      }
+      luaX_new<reader_handle>(L, reader_handle::create());
+      luaX_set_metatable(L, "dromozoa.png.reader");
     }
 
     void impl_destroy(lua_State* L) {
@@ -48,14 +43,44 @@ namespace dromozoa {
     }
 
     void impl_read_info(lua_State* L) {
-      try {
-        reader_handle* self = check_reader_handle(L, 1);
-        png_read_info(self->png(), self->info());
-        luaX_push_success(L);
-      } catch (const png_runtime_error& e) {
-        luaX_push(L, luaX_nil);
-        luaX_push(L, e.what());
-      }
+      reader_handle* self = check_reader_handle(L, 1);
+      png_read_info(self->png(), self->info());
+      luaX_push_success(L);
+    }
+
+    void impl_get_image_width(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_image_width(self->png(), self->info()));
+    }
+
+    void impl_get_image_height(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_image_height(self->png(), self->info()));
+    }
+
+    void impl_get_bit_depth(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_bit_depth(self->png(), self->info()));
+    }
+
+    void impl_get_color_type(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_color_type(self->png(), self->info()));
+    }
+
+    void impl_get_interlace_type(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_interlace_type(self->png(), self->info()));
+    }
+
+    void impl_get_compression_type(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_compression_type(self->png(), self->info()));
+    }
+
+    void impl_get_filter_type(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_filter_type(self->png(), self->info()));
     }
   }
 
@@ -72,6 +97,13 @@ namespace dromozoa {
       luaX_set_field(L, -1, "destroy", impl_destroy);
       luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
       luaX_set_field(L, -1, "read_info", impl_read_info);
+      luaX_set_field(L, -1, "get_image_width", impl_get_image_width);
+      luaX_set_field(L, -1, "get_image_height", impl_get_image_height);
+      luaX_set_field(L, -1, "get_bit_depth", impl_get_bit_depth);
+      luaX_set_field(L, -1, "get_color_type", impl_get_color_type);
+      luaX_set_field(L, -1, "get_interlace_type", impl_get_interlace_type);
+      luaX_set_field(L, -1, "get_compression_type", impl_get_compression_type);
+      luaX_set_field(L, -1, "get_filter_type", impl_get_filter_type);
     }
     luaX_set_field(L, -2, "reader");
   }

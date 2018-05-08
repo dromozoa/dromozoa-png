@@ -20,18 +20,10 @@
 
 #include <png.h>
 
-#include <stdexcept>
-
 #include <dromozoa/bind.hpp>
 
 namespace dromozoa {
-  class png_runtime_error : public std::runtime_error {
-  public:
-    explicit png_runtime_error(const char* what);
-    virtual ~png_runtime_error() throw();
-  };
-
-  void throw_png_runtime_error(png_structp, png_const_charp what);
+  void error(png_structp, png_const_charp what);
 
   class reader_handle_impl;
 
