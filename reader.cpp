@@ -48,6 +48,33 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_get_valid(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      int flag = luaX_check_integer<png_uint_32>(L, 2);
+      luaX_push(L, png_get_valid(self->png(), self->info(), flag) != 0);
+    }
+
+    void impl_get_IHDR(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_uint_32 width = 0;
+      png_uint_32 height = 0;
+      int bit_depth = 0;
+      int color_type = 0;
+      int interlace_type = 0;
+      int compression_type = 0;
+      int filter_type = 0;
+      if (png_get_IHDR(self->png(), self->info(), &width, &height, &bit_depth, &color_type, &interlace_type, &compression_type, &filter_type) != 0) {
+        lua_newtable(L);
+        luaX_set_field(L, -1, "width", width);
+        luaX_set_field(L, -1, "height", height);
+        luaX_set_field(L, -1, "bit_depth", bit_depth);
+        luaX_set_field(L, -1, "color_type", color_type);
+        luaX_set_field(L, -1, "interlace_type", interlace_type);
+        luaX_set_field(L, -1, "compression_type", compression_type);
+        luaX_set_field(L, -1, "filter_type", filter_type);
+      }
+    }
+
     void impl_get_image_width(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       luaX_push(L, png_get_image_width(self->png(), self->info()));
@@ -82,6 +109,32 @@ namespace dromozoa {
       reader_handle* self = check_reader_handle(L, 1);
       luaX_push(L, png_get_filter_type(self->png(), self->info()));
     }
+
+    void impl_set_pallete_to_rgb(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_set_palette_to_rgb(self->png());
+      luaX_push_success(L);
+    }
+
+    void impl_set_tRNS_to_alpha(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_set_tRNS_to_alpha(self->png());
+      luaX_push_success(L);
+    }
+
+    void impl_set_expand_gray_1_2_4_to_8(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_set_expand_gray_1_2_4_to_8(self->png());
+      luaX_push_success(L);
+    }
+
+#if PNG_LIBPNG_VER >= 10502
+    void impl_set_expand_16(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_set_expand_16(self->png());
+      luaX_push_success(L);
+    }
+#endif
   }
 
   void initialize_reader(lua_State* L) {
@@ -97,6 +150,8 @@ namespace dromozoa {
       luaX_set_field(L, -1, "destroy", impl_destroy);
       luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
       luaX_set_field(L, -1, "read_info", impl_read_info);
+      luaX_set_field(L, -1, "get_valid", impl_get_valid);
+      luaX_set_field(L, -1, "get_IHDR", impl_get_IHDR);
       luaX_set_field(L, -1, "get_image_width", impl_get_image_width);
       luaX_set_field(L, -1, "get_image_height", impl_get_image_height);
       luaX_set_field(L, -1, "get_bit_depth", impl_get_bit_depth);
@@ -104,6 +159,12 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_interlace_type", impl_get_interlace_type);
       luaX_set_field(L, -1, "get_compression_type", impl_get_compression_type);
       luaX_set_field(L, -1, "get_filter_type", impl_get_filter_type);
+      luaX_set_field(L, -1, "set_pallete_to_rgb", impl_set_pallete_to_rgb);
+      luaX_set_field(L, -1, "set_tRNS_to_alpha", impl_set_tRNS_to_alpha);
+      luaX_set_field(L, -1, "set_expand_gray_1_2_4_to_8", impl_set_expand_gray_1_2_4_to_8);
+#if PNG_LIBPNG_VER >= 10502
+      luaX_set_field(L, -1, "set_expand_16", impl_set_expand_16);
+#endif
     }
     luaX_set_field(L, -2, "reader");
   }

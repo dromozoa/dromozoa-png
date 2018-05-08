@@ -19,6 +19,26 @@
 
 namespace dromozoa {
   void initialize_main(lua_State* L) {
+    luaX_set_field(L, -1, "PNG_INFO_gAMA", PNG_INFO_gAMA);
+    luaX_set_field(L, -1, "PNG_INFO_sBIT", PNG_INFO_sBIT);
+    luaX_set_field(L, -1, "PNG_INFO_cHRM", PNG_INFO_cHRM);
+    luaX_set_field(L, -1, "PNG_INFO_PLTE", PNG_INFO_PLTE);
+    luaX_set_field(L, -1, "PNG_INFO_tRNS", PNG_INFO_tRNS);
+    luaX_set_field(L, -1, "PNG_INFO_bKGD", PNG_INFO_bKGD);
+    luaX_set_field(L, -1, "PNG_INFO_hIST", PNG_INFO_hIST);
+    luaX_set_field(L, -1, "PNG_INFO_pHYs", PNG_INFO_pHYs);
+    luaX_set_field(L, -1, "PNG_INFO_oFFs", PNG_INFO_oFFs);
+    luaX_set_field(L, -1, "PNG_INFO_tIME", PNG_INFO_tIME);
+    luaX_set_field(L, -1, "PNG_INFO_pCAL", PNG_INFO_pCAL);
+    luaX_set_field(L, -1, "PNG_INFO_sRGB", PNG_INFO_sRGB);
+    luaX_set_field(L, -1, "PNG_INFO_iCCP", PNG_INFO_iCCP);
+    luaX_set_field(L, -1, "PNG_INFO_sPLT", PNG_INFO_sPLT);
+    luaX_set_field(L, -1, "PNG_INFO_sCAL", PNG_INFO_sCAL);
+    luaX_set_field(L, -1, "PNG_INFO_IDAT", PNG_INFO_IDAT);
+#ifdef PNG_INFO_eXIf
+    luaX_set_field(L, -1, "PNG_INFO_eXIf", PNG_INFO_eXIf);
+#endif
+
     luaX_set_field(L, -1, "PNG_COLOR_TYPE_GRAY", PNG_COLOR_TYPE_GRAY);
     luaX_set_field(L, -1, "PNG_COLOR_TYPE_GRAY_ALPHA", PNG_COLOR_TYPE_GRAY_ALPHA);
     luaX_set_field(L, -1, "PNG_COLOR_TYPE_PALETTE", PNG_COLOR_TYPE_PALETTE);
