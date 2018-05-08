@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <string.h>
+
 #include "common.hpp"
 
 namespace dromozoa {
@@ -36,12 +38,12 @@ namespace dromozoa {
     void create() {
       info_ = png_create_info_struct(png_);
       if (!info_) {
-        throw png_runtime_error("png_create_info_struct failed");
+        png_error(png_, "png_create_info_struct failed");
       }
 
       end_ = png_create_info_struct(png_);
-      if (!info_) {
-        throw png_runtime_error("png_create_info_struct failed");
+      if (!end_) {
+        png_error(png_, "png_create_info_struct failed");
       }
     }
 
@@ -61,12 +63,48 @@ namespace dromozoa {
       return end_;
     }
 
+    void set_read_fn(lua_State* L, int index) {
+      luaX_reference<>(L, index).swap(read_ref_);
+      png_set_read_fn(png_, this, read_fn);
+    }
+
   private:
     png_structp png_;
     png_infop info_;
     png_infop end_;
+    luaX_reference<> read_ref_;
+
     reader_handle_impl(const reader_handle_impl&);
     reader_handle_impl& operator=(const reader_handle_impl&);
+
+    static void read_fn(png_structp png, png_bytep data, png_size_t length) {
+      static_cast<reader_handle_impl*>(png_get_io_ptr(png))->read(data, length);
+    }
+
+    void read(png_bytep data, png_size_t length) {
+      lua_State* L = read_ref_.state();
+      int top = lua_gettop(L);
+      {
+        read_ref_.get_field(L);
+        luaX_push(L, length);
+        int r = lua_pcall(L, 1, 1, 0);
+        if (r == 0) {
+          size_t result = 0;
+          if (const char* ptr = lua_tolstring(L, -1, &result)) {
+            if (length == result) {
+              memcpy(data, ptr, result);
+            } else {
+              png_error(png_, "read error");
+            }
+          } else {
+            png_error(png_, "read error");
+          }
+        } else {
+          png_error(png_, lua_tostring(L, -1));
+        }
+      }
+      lua_settop(L, top);
+    }
   };
 
   reader_handle_impl* reader_handle::create() {
@@ -93,5 +131,9 @@ namespace dromozoa {
 
   png_infop reader_handle::end() const {
     return impl_->end();
+  }
+
+  void reader_handle::set_read_fn(lua_State* L, int index) {
+    impl_->set_read_fn(L, index);
   }
 }

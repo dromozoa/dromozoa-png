@@ -31,7 +31,7 @@ namespace dromozoa {
     virtual ~png_runtime_error() throw();
   };
 
-  void throw_png_runtime_error(png_structp, const char* what);
+  void throw_png_runtime_error(png_structp, png_const_charp what);
 
   class reader_handle_impl;
 
@@ -44,6 +44,7 @@ namespace dromozoa {
     png_structp png() const;
     png_infop info() const;
     png_infop end() const;
+    void set_read_fn(lua_State* L, int index);
   private:
     scoped_ptr<reader_handle_impl> impl_;
     reader_handle(const reader_handle&);

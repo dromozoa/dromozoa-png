@@ -22,7 +22,7 @@ namespace dromozoa {
 
   png_runtime_error::~png_runtime_error() throw() {}
 
-  void throw_png_runtime_error(png_structp, const char* what) {
+  void throw_png_runtime_error(png_structp, png_const_charp what) {
     throw png_runtime_error(what);
   }
 }

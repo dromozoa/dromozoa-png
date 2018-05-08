@@ -41,6 +41,22 @@ namespace dromozoa {
       check_reader_handle(L, 1)->destroy();
       luaX_push_success(L);
     }
+
+    void impl_set_read_fn(lua_State* L) {
+      check_reader_handle(L, 1)->set_read_fn(L, 2);
+      luaX_push_success(L);
+    }
+
+    void impl_read_info(lua_State* L) {
+      try {
+        reader_handle* self = check_reader_handle(L, 1);
+        png_read_info(self->png(), self->info());
+        luaX_push_success(L);
+      } catch (const png_runtime_error& e) {
+        luaX_push(L, luaX_nil);
+        luaX_push(L, e.what());
+      }
+    }
   }
 
   void initialize_reader(lua_State* L) {
@@ -54,6 +70,8 @@ namespace dromozoa {
 
       luaX_set_metafield(L, -1, "__call", impl_call);
       luaX_set_field(L, -1, "destroy", impl_destroy);
+      luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
+      luaX_set_field(L, -1, "read_info", impl_read_info);
     }
     luaX_set_field(L, -2, "reader");
   }
