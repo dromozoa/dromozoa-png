@@ -19,10 +19,17 @@ local png = require "dromozoa.png"
 
 local reader = assert(png.reader())
 
+local filename = ...
+local handle
+if filename then
+  handle = assert(io.open(filename, "rb"))
+end
+
 reader:set_read_fn(function (n)
+  -- return handle:read(n)
   return ""
 end)
--- assert(reader:read_info())
-reader:read_info()
+assert(reader:read_info())
+-- reader:read_info()
 
 

@@ -17,6 +17,8 @@
 
 #include <string.h>
 
+#include <exception>
+
 #include "common.hpp"
 
 namespace dromozoa {
@@ -84,24 +86,29 @@ namespace dromozoa {
     void read(png_bytep data, png_size_t length) {
       lua_State* L = read_ref_.state();
       int top = lua_gettop(L);
-      {
-        read_ref_.get_field(L);
-        luaX_push(L, length);
-        int r = lua_pcall(L, 1, 1, 0);
-        if (r == 0) {
-          size_t result = 0;
-          if (const char* ptr = lua_tolstring(L, -1, &result)) {
-            if (length == result) {
-              memcpy(data, ptr, result);
+      try {
+        {
+          read_ref_.get_field(L);
+          luaX_push(L, length);
+          int r = lua_pcall(L, 1, 1, 0);
+          if (r == 0) {
+            size_t result = 0;
+            if (const char* ptr = lua_tolstring(L, -1, &result)) {
+              if (result == length) {
+                memcpy(data, ptr, result);
+              } else {
+                png_error(png_, "read error");
+              }
             } else {
               png_error(png_, "read error");
             }
           } else {
-            png_error(png_, "read error");
+            png_error(png_, lua_tostring(L, -1));
           }
-        } else {
-          png_error(png_, lua_tostring(L, -1));
         }
+      } catch (...) {
+        lua_settop(L, top);
+        throw;
       }
       lua_settop(L, top);
     }
