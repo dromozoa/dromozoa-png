@@ -26,6 +26,69 @@ local function find(data, pattern, i)
   end
 end
 
+local escape_table = { ["&"] = "&amp;", ["<"] = "&lt;", [">"] = "&gt;" }
+local function escape(source)
+  return (source:gsub("[&<>]", escape_table))
+end
+
+local function write_manual_html(section_number, section_title, data, i, j, symbol_table, toc_start, toc_end)
+  local out = assert(io.open(("docs/libpng-manual%02d.html"):format(section_number), "w"))
+  out:write(([[
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>%s</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>%s</h1>
+
+<pre>]]):format(escape(section_title), escape(section_title)))
+
+  for i = i, j do
+    local line = escape(data[i])
+    if toc_start <= i and i <= toc_end then
+      line = line:gsub("^(%s*)(.*)", function(wsp, title)
+        return ([[%s<a href="libpng-manual%02d.html">%s</a>]]):format(wsp, i - toc_start + 1, title)
+      end)
+    end
+    line = line:gsub("[Pp][Nn][Gg]_[%w_]+", function (symbol)
+      local number = symbol_table[symbol] 
+      if number then
+        return ([[<a href="png.h.html#L%d">%s</a>]]):format(number, symbol)
+      end
+    end)
+    out:write(line, "\n")
+  end
+
+  out:write[[</pre>
+</div>
+</body>
+</html>
+]]
+  out:close()
+end
+
+local symbol_table = {}
+
 local out = assert(io.open("docs/png.h.html", "w"))
 out:write [[
 <!DOCTYPE html>
@@ -52,6 +115,7 @@ pre.prettyprint > ol.linenums {
   padding-left: 4em;
 }
 pre.prettyprint > ol.linenums > li {
+  color: #C6C6C6;
   list-style-type: decimal;
 }
 </style>
@@ -63,9 +127,18 @@ pre.prettyprint > ol.linenums > li {
 
 <pre class="prettyprint lang-c linenums">]]
 
-local escape_table = { ["&"] = "&amp;", ["<"] = "&lt;", [">"] = "&gt;" }
+local i = 0
 for line in io.lines "docs/png.h" do
-  out:write(line:gsub("[&<>]", escape_table), "\n")
+  i = i + 1
+  out:write(escape(line), "\n")
+  local symbol = line:match "PNG_EXPORT%(%d+, [^,]+, (png_[%w_]+),"
+  if symbol then
+    symbol_table[symbol] = i
+  end
+  local symbol = line:match "# *define (PNG_[%w_]+)"
+  if symbol then
+    symbol_table[symbol] = i
+  end
 end
 
 out:write [[</pre>
@@ -81,28 +154,21 @@ for line in io.lines "docs/libpng-manual.txt" do
   lines[#lines + 1] = line
 end
 
-local head_patterns = {}
+local section_titles = { [0] = "TABLE OF CONTENTS" }
+local section_patterns = {}
 
-local i = assert(find(lines, "^ *TABLE OF CONTENTS$")) + 2
-local j = assert(find(lines, "^$", i)) - 1
-for i = i, j do
-  local _, title = assert(lines[i]:match "^ *([IVX]+)%.%s+(.*)")
-  head_patterns[#head_patterns + 1] = "^[IVX]+%.%s+" .. title:gsub("[%.]", "%%%1"):gsub("%s+", "%%s+") .. "$"
+local toc_start = assert(find(lines, "^ *TABLE OF CONTENTS$")) + 2
+local toc_end = assert(find(lines, "^$", toc_start)) - 1
+for i = toc_start, toc_end do
+  local number, title = assert(lines[i]:match "^ *([IVX]+)%.%s+(.*)")
+  section_titles[#section_titles + 1] = number .. ". " .. title
+  section_patterns[#section_patterns + 1] = "^[IVX]+%.%s+" .. title:gsub("[%.]", "%%%1"):gsub("%s+", "%%s+") .. "$"
 end
 
 local i = 1
-for k = 1, #head_patterns do
-  local j = assert(find(lines, head_patterns[k], i, true), head_patterns[k])
-  local out = assert(io.open(("docs/libpng-manual%02d.txt"):format(k - 1), "w"))
-  for j = i, j - 1 do
-    out:write(lines[j], "\n")
-  end
-  out:close()
+for k = 1, #section_patterns do
+  local j = assert(find(lines, section_patterns[k], i, true), section_patterns[k])
+  write_manual_html(k - 1, section_titles[k - 1], lines, i, j -1, symbol_table, toc_start, toc_end)
   i = j
 end
-
-local out = assert(io.open(("docs/libpng-manual%02d.txt"):format(#head_patterns), "w"))
-for i = i, #lines do
-  out:write(lines[i], "\n")
-end
-out:close()
+write_manual_html(#section_titles, section_titles[#section_titles], lines, i, #lines, symbol_table, toc_start, toc_end)
