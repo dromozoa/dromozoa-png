@@ -17,14 +17,12 @@
 
 #include <string.h>
 
-#include <exception>
-
 #include "common.hpp"
 
 namespace dromozoa {
   class reader_handle_impl {
   public:
-    reader_handle_impl() : png_(), info_(), end_() {
+    reader_handle_impl() : png_(), info_() {
       png_ = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, error_fn, 0);
       if (!png_) {
         error_fn(0, "png_create_read_struct failed");
@@ -42,15 +40,10 @@ namespace dromozoa {
       if (!info_) {
         png_error(png_, "png_create_info_struct failed");
       }
-
-      end_ = png_create_info_struct(png_);
-      if (!end_) {
-        png_error(png_, "png_create_info_struct failed");
-      }
     }
 
     void destroy() {
-      png_destroy_read_struct(&png_, &info_, &end_);
+      png_destroy_read_struct(&png_, &info_, 0);
     }
 
     png_structp png() const {
@@ -61,20 +54,15 @@ namespace dromozoa {
       return info_;
     }
 
-    png_infop end() const {
-      return end_;
-    }
-
-    void set_read_fn(lua_State* L, int index_read) {
-      luaX_reference<>(L, index_read).swap(read_fn_);
+    void set_read_fn(lua_State* L, int index) {
+      luaX_reference<>(L, index).swap(ref_);
       png_set_read_fn(png_, this, read_fn);
     }
 
   private:
     png_structp png_;
     png_infop info_;
-    png_infop end_;
-    luaX_reference<> read_fn_;
+    luaX_reference<> ref_;
 
     reader_handle_impl(const reader_handle_impl&);
     reader_handle_impl& operator=(const reader_handle_impl&);
@@ -84,13 +72,12 @@ namespace dromozoa {
     }
 
     void read(png_bytep data, png_size_t length) {
-      lua_State* L = read_fn_.state();
+      lua_State* L = ref_.state();
       luaX_top_saver save_top(L);
       {
-        read_fn_.get_field(L);
+        ref_.get_field(L);
         luaX_push(L, length);
-        int r = lua_pcall(L, 1, 1, 0);
-        if (r == 0) {
+        if (lua_pcall(L, 1, 1, 0) == 0) {
           size_t result = 0;
           if (const char* ptr = lua_tolstring(L, -1, &result)) {
             if (result == length) {
@@ -130,11 +117,7 @@ namespace dromozoa {
     return impl_->info();
   }
 
-  png_infop reader_handle::end() const {
-    return impl_->end();
-  }
-
-  void reader_handle::set_read_fn(lua_State* L, int index_read) {
-    impl_->set_read_fn(L, index_read);
+  void reader_handle::set_read_fn(lua_State* L, int index) {
+    impl_->set_read_fn(L, index);
   }
 }

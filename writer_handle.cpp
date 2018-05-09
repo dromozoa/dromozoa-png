@@ -54,8 +54,8 @@ namespace dromozoa {
       return info_;
     }
 
-    void set_write_fn(lua_State* L, int index_write, int index_flush) {
-      luaX_reference<2>(L, index_write, index_flush).swap(write_fn_);
+    void set_write_fn(lua_State* L, int index, int index_flush) {
+      luaX_reference<2>(L, index, index_flush).swap(ref_);
       png_set_write_fn(png_, this, write_fn, flush_fn);
     }
 
@@ -71,7 +71,7 @@ namespace dromozoa {
   private:
     png_structp png_;
     png_infop info_;
-    luaX_reference<2> write_fn_;
+    luaX_reference<2> ref_;
     std::vector<png_byte> row_storage_;
     std::vector<png_bytep> row_pointers_;
 
@@ -87,13 +87,12 @@ namespace dromozoa {
     }
 
     void write(png_bytep data, png_size_t length) {
-      lua_State* L = write_fn_.state();
+      lua_State* L = ref_.state();
       luaX_top_saver save_top(L);
       {
-        write_fn_.get_field(L);
+        ref_.get_field(L);
         lua_pushlstring(L, reinterpret_cast<const char*>(data), length);
-        int r = lua_pcall(L, 1, 1, 0);
-        if (r == 0) {
+        if (lua_pcall(L, 1, 1, 0) == 0) {
           if (luaX_is_integer(L, -1)) {
             if (static_cast<png_size_t>(lua_tointeger(L, -1)) != length) {
               png_error(png_, "write error");
@@ -106,13 +105,12 @@ namespace dromozoa {
     }
 
     void flush() {
-      lua_State* L = write_fn_.state();
+      lua_State* L = ref_.state();
       luaX_top_saver save_top(L);
       {
-        write_fn_.get_field(L, 1);
+        ref_.get_field(L, 1);
         if (!lua_isnil(L, -1)) {
-          int r = lua_pcall(L, 0, 0, 0);
-          if (r != 0) {
+          if (lua_pcall(L, 0, 0, 0) != 0) {
             png_error(png_, lua_tostring(L, -1));
           }
         }
@@ -142,8 +140,8 @@ namespace dromozoa {
     return impl_->info();
   }
 
-  void writer_handle::set_write_fn(lua_State* L, int index_write, int index_flush) {
-    impl_->set_write_fn(L, index_write, index_flush);
+  void writer_handle::set_write_fn(lua_State* L, int index, int index_flush) {
+    impl_->set_write_fn(L, index, index_flush);
   }
 
   png_bytepp writer_handle::create_rows(png_uint_32 height, size_t rowbytes) {
