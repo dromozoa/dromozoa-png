@@ -41,3 +41,25 @@ assert(png.PNG_LIBPNG_VER_MAJOR == 1)
 assert(type(png.PNG_LIBPNG_VER_MINOR) == "number")
 assert(type(png.PNG_LIBPNG_VER_RELEASE) == "number")
 assert(png.PNG_LIBPNG_VER == version_number)
+
+if verbose then
+  local names = {}
+  local name_max = 0
+  for name, value in pairs(png) do
+    if name:find "^PNG_" and type(value) == "number" then
+      names[#names + 1] = name
+      if name_max < #name then
+        name_max = #name
+      end
+    end
+  end
+
+  table.sort(names)
+
+  local format = "%-" .. name_max .. "s | %10d | 0x%08x\n"
+  io.stderr:write(("-"):rep(70), "\n")
+  for i = 1, #names do
+    local name = names[i]
+    io.stderr:write(format:format(name, png[name], png[name]))
+  end
+end
