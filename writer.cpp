@@ -39,6 +39,13 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_set_sig_bytes(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      int num_bytes = luaX_check_integer<int>(L, 2);
+      png_set_sig_bytes(self->png(), num_bytes);
+      luaX_push_success(L);
+    }
+
     void impl_set_write_fn(lua_State* L) {
       check_writer_handle(L, 1)->set_write_fn(L, 2, 3);
       luaX_push_success(L);
@@ -109,6 +116,7 @@ namespace dromozoa {
 
       luaX_set_metafield(L, -1, "__call", impl_call);
       luaX_set_field(L, -1, "destroy", impl_destroy);
+      luaX_set_field(L, -1, "set_sig_bytes", impl_set_sig_bytes);
       luaX_set_field(L, -1, "set_write_fn", impl_set_write_fn);
       luaX_set_field(L, -1, "set_IHDR", impl_set_IHDR);
       luaX_set_field(L, -1, "set_rows", impl_set_rows);
