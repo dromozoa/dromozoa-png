@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>XIII. Detecting libpng</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>XIII. Detecting libpng</h1>
+
+<pre>XIII.  Detecting libpng
+
+The <a href="png.h.html#L1626">png_get_io_ptr</a>() function has been present since libpng-0.88, has never
+changed, and is unaffected by conditional compilation macros.  It is the
+best choice for use in configure scripts for detecting the presence of any
+libpng version since 0.88.  In an autoconf "configure.in" you could use
+
+    AC_CHECK_LIB(png, <a href="png.h.html#L1626">png_get_io_ptr</a>, ...
+
+</pre>
+</div>
+</body>
+</html>

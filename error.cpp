@@ -18,19 +18,23 @@
 #include "common.hpp"
 
 namespace dromozoa {
-  void initialize_main(lua_State* L);
-  void initialize_reader(lua_State* L);
-  void initialize_writer(lua_State* L);
+  namespace {
+    class failure : public luaX_failure<> {
+    public:
+      explicit failure(const char* what) : what_(what) {}
 
-  void initialize(lua_State* L) {
-    initialize_main(L);
-    initialize_reader(L);
-    initialize_writer(L);
+      virtual ~failure() throw() {}
+
+      virtual const char* what() const throw() {
+        return what_.c_str();
+      }
+
+    private:
+      std::string what_;
+    };
   }
-}
 
-extern "C" int luaopen_dromozoa_png(lua_State* L) {
-  lua_newtable(L);
-  dromozoa::initialize(L);
-  return 1;
+  void error_fn(png_structp, png_const_charp what) {
+    throw failure(what);
+  }
 }

@@ -21,7 +21,13 @@ LDFLAGS += -L$(LUA_LIBDIR) $(LIBFLAG)
 LDLIBS += -lpng -ldl
 
 OBJS = \
-	module.o
+	error.o \
+	main.o \
+	module.o \
+	reader.o \
+	reader_handle.o \
+	writer.o \
+	writer_handle.o
 TARGET = png.so
 
 all: $(TARGET)

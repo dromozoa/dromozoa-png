@@ -18,6 +18,47 @@
 #ifndef DROMOZOA_COMMON_HPP
 #define DROMOZOA_COMMON_HPP
 
+#include <png.h>
+
 #include <dromozoa/bind.hpp>
+
+namespace dromozoa {
+  void error_fn(png_structp, png_const_charp what);
+
+  class reader_handle_impl;
+
+  class reader_handle {
+  public:
+    static reader_handle_impl* create();
+    explicit reader_handle(reader_handle_impl* impl);
+    ~reader_handle();
+    void destroy();
+    png_structp png() const;
+    png_infop info() const;
+    void set_read_fn(lua_State* L, int index);
+  private:
+    scoped_ptr<reader_handle_impl> impl_;
+    reader_handle(const reader_handle&);
+    reader_handle& operator=(const reader_handle&);
+  };
+
+  class writer_handle_impl;
+
+  class writer_handle {
+  public:
+    static writer_handle_impl* create();
+    explicit writer_handle(writer_handle_impl* impl);
+    ~writer_handle();
+    void destroy();
+    png_structp png() const;
+    png_infop info() const;
+    void set_write_fn(lua_State* L, int index, int index_flush);
+    png_bytepp create_rows(png_uint_32 height, size_t rowbytes);
+  private:
+    scoped_ptr<writer_handle_impl> impl_;
+    writer_handle(const writer_handle&);
+    writer_handle& operator=(const writer_handle&);
+  };
+}
 
 #endif
