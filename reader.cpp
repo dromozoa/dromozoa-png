@@ -148,6 +148,52 @@ namespace dromozoa {
       luaX_push(L, reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8);
     }
 
+    void impl_get_oFFs(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_int_32 offset_x = 0;
+      png_int_32 offset_y = 0;
+      int unit_type = 0;
+      if (png_get_oFFs(self->png(), self->info(), &offset_x, &offset_y, &unit_type) != 0) {
+        lua_newtable(L);
+        luaX_set_field(L, -1, "offset_x", offset_x);
+        luaX_set_field(L, -1, "offset_y", offset_y);
+        luaX_set_field(L, -1, "unit_type", unit_type);
+      }
+    }
+
+    void impl_get_x_offset_microns(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_x_offset_microns(self->png(), self->info()));
+    }
+
+    void impl_get_y_offset_microns(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_y_offset_microns(self->png(), self->info()));
+    }
+
+    void impl_get_x_offset_inches(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_x_offset_inches(self->png(), self->info()));
+    }
+
+    void impl_get_y_offset_inches(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_y_offset_inches(self->png(), self->info()));
+    }
+
+    void impl_get_pHYs(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_uint_32 res_x = 0;
+      png_uint_32 res_y = 0;
+      int unit_type = 0;
+      if (png_get_pHYs(self->png(), self->info(), &res_x, &res_y, &unit_type) != 0) {
+        lua_newtable(L);
+        luaX_set_field(L, -1, "res_x", res_x);
+        luaX_set_field(L, -1, "res_y", res_y);
+        luaX_set_field(L, -1, "unit_type", unit_type);
+      }
+    }
+
     void impl_get_x_pixels_per_meter(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       luaX_push(L, png_get_x_pixels_per_meter(self->png(), self->info()));
@@ -182,26 +228,6 @@ namespace dromozoa {
       reader_handle* self = check_reader_handle(L, 1);
       luaX_push(L, png_get_pixel_aspect_ratio(self->png(), self->info()));
     }
-
-    void impl_get_x_offset_microns(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_x_offset_microns(self->png(), self->info()));
-    }
-
-    void impl_get_y_offset_microns(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_y_offset_microns(self->png(), self->info()));
-    }
-
-    void impl_get_x_offset_inches(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_x_offset_inches(self->png(), self->info()));
-    }
-
-    void impl_get_y_offset_inches(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_y_offset_inches(self->png(), self->info()));
-    }
   }
 
   void initialize_reader(lua_State* L) {
@@ -220,8 +246,8 @@ namespace dromozoa {
       luaX_set_field(L, -1, "read_png", impl_read_png);
 
       luaX_set_field(L, -1, "get_rows", impl_get_rows);
-
       luaX_set_field(L, -1, "get_valid", impl_get_valid);
+
       luaX_set_field(L, -1, "get_IHDR", impl_get_IHDR);
       luaX_set_field(L, -1, "get_image_width", impl_get_image_width);
       luaX_set_field(L, -1, "get_image_height", impl_get_image_height);
@@ -234,6 +260,13 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_rowbytes", impl_get_rowbytes);
       luaX_set_field(L, -1, "get_signature", impl_get_signature);
 
+      luaX_set_field(L, -1, "get_oFFs", impl_get_oFFs);
+      luaX_set_field(L, -1, "get_x_offset_microns", impl_get_x_offset_microns);
+      luaX_set_field(L, -1, "get_y_offset_microns", impl_get_y_offset_microns);
+      luaX_set_field(L, -1, "get_x_offset_inches", impl_get_x_offset_inches);
+      luaX_set_field(L, -1, "get_y_offset_inches", impl_get_y_offset_inches);
+
+      luaX_set_field(L, -1, "get_pHYs", impl_get_pHYs);
       luaX_set_field(L, -1, "get_x_pixels_per_meter", impl_get_x_pixels_per_meter);
       luaX_set_field(L, -1, "get_y_pixels_per_meter", impl_get_y_pixels_per_meter);
       luaX_set_field(L, -1, "get_pixels_per_meter", impl_get_pixels_per_meter);
@@ -241,11 +274,6 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_y_pixels_per_inch", impl_get_y_pixels_per_inch);
       luaX_set_field(L, -1, "get_pixels_per_inch", impl_get_pixels_per_inch);
       luaX_set_field(L, -1, "get_pixel_aspect_ratio", impl_get_pixel_aspect_ratio);
-
-      luaX_set_field(L, -1, "get_x_offset_microns", impl_get_x_offset_microns);
-      luaX_set_field(L, -1, "get_y_offset_microns", impl_get_y_offset_microns);
-      luaX_set_field(L, -1, "get_x_offset_inches", impl_get_x_offset_inches);
-      luaX_set_field(L, -1, "get_y_offset_inches", impl_get_y_offset_inches);
     }
     luaX_set_field(L, -2, "reader");
   }
