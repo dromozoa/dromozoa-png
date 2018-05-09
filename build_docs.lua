@@ -156,10 +156,9 @@ out:write [[
     for (let i = 0; i < items.length; ++i) {
       items[i].setAttribute("id", "L" + (i + 1));
     }
-    console.log(document.location.href);
-    document.location.href = document.location.hash;
-    // root.history.pushState(null, "png.h", "");
-    // root.history.pushState(null, "png.h", document.location.hash);
+    if (document.location.hash) {
+      document.location.href = document.location.hash;
+    }
   };
 }(this));
 </script>
