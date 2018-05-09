@@ -71,7 +71,7 @@ local function write_manual_html(section_number, section_title, data, i, j, symb
       end)
     end
     line = line:gsub("[Pp][Nn][Gg]_[%w_]+", function (symbol)
-      local number = symbol_table[symbol] 
+      local number = symbol_table[symbol]
       if number then
         return ([[<a href="png.h.html#L%d">%s</a>]]):format(number, symbol)
       end
@@ -125,7 +125,8 @@ pre.prettyprint > ol.linenums > li {
 
 <h1>png.h</h1>
 
-<pre class="prettyprint lang-c linenums">]]
+<pre class="prettyprint lang-c linenums">
+]]
 
 local i = 0
 for line in io.lines "docs/png.h" do
@@ -141,9 +142,28 @@ for line in io.lines "docs/png.h" do
   end
 end
 
-out:write [[</pre>
+out:write [[
+</pre>
 </div>
-<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+<script>
+(function (root) {
+  if (!root.exports) {
+    root.exports = {};
+  }
+  root.exports["dromozoa-png"] = function () {
+    let document = root.document;
+    let items = document.querySelectorAll("pre.prettyprint > ol.linenums > li");
+    for (let i = 0; i < items.length; ++i) {
+      items[i].setAttribute("id", "L" + (i + 1));
+    }
+    console.log(document.location.href);
+    document.location.href = document.location.hash;
+    // root.history.pushState(null, "png.h", "");
+    // root.history.pushState(null, "png.h", document.location.hash);
+  };
+}(this));
+</script>
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?callback=dromozoa-png"></script>
 </body>
 </html>
 ]]
