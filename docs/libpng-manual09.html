@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>IX. Changes to Libpng from version 1.0.x to 1.2.x</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>IX. Changes to Libpng from version 1.0.x to 1.2.x</h1>
+
+<pre>IX.  Changes to Libpng from version 1.0.x to 1.2.x
+
+Support for user memory management was enabled by default.  To
+accomplish this, the functions png_create_read_struct_2(),
+png_create_write_struct_2(), <a href="png.h.html#L1636">png_set_mem_fn</a>(), <a href="png.h.html#L1639">png_get_mem_ptr</a>(),
+png_malloc_default(), and png_free_default() were added.
+
+Support for the iTXt chunk has been enabled by default as of
+version 1.2.41.
+
+Support for certain MNG features was enabled.
+
+Support for numbered error messages was added.  However, we never got
+around to actually numbering the error messages.  The function
+<a href="png.h.html#L2386">png_set_strip_error_numbers</a>() was added (Note: the prototype for this
+function was inadvertently removed from png.h in PNG_NO_ASSEMBLER_CODE
+builds of libpng-1.2.15.  It was restored in libpng-1.2.36).
+
+The png_malloc_warn() function was added at libpng-1.2.3.  This issues
+a <a href="png.h.html#L1821">png_warning</a> and returns NULL instead of aborting when it fails to
+acquire the requested memory allocation.
+
+Support for setting user limits on image width and height was enabled
+by default.  The functions <a href="png.h.html#L2392">png_set_user_limits</a>(), <a href="png.h.html#L2394">png_get_user_width_max</a>(),
+and <a href="png.h.html#L2396">png_get_user_height_max</a>() were added at libpng-1.2.6.
+
+The <a href="png.h.html#L1282">png_set_add_alpha</a>() function was added at libpng-1.2.7.
+
+The function <a href="png.h.html#L1083">png_set_expand_gray_1_2_4_to_8</a>() was added at libpng-1.2.9.
+Unlike png_set_gray_1_2_4_to_8(), the new function does not expand the
+tRNS chunk to alpha. The png_set_gray_1_2_4_to_8() function is
+deprecated.
+
+A number of macro definitions in support of runtime selection of
+assembler code features (especially Intel MMX code support) were
+added at libpng-1.2.0:
+
+    PNG_ASM_FLAG_MMX_SUPPORT_COMPILED
+    PNG_ASM_FLAG_MMX_SUPPORT_IN_CPU
+    PNG_ASM_FLAG_MMX_READ_COMBINE_ROW
+    PNG_ASM_FLAG_MMX_READ_INTERLACE
+    PNG_ASM_FLAG_MMX_READ_FILTER_SUB
+    PNG_ASM_FLAG_MMX_READ_FILTER_UP
+    PNG_ASM_FLAG_MMX_READ_FILTER_AVG
+    PNG_ASM_FLAG_MMX_READ_FILTER_PAETH
+    PNG_ASM_FLAGS_INITIALIZED
+    PNG_MMX_READ_FLAGS
+    PNG_MMX_FLAGS
+    PNG_MMX_WRITE_FLAGS
+    PNG_MMX_FLAGS
+
+We added the following functions in support of runtime
+selection of assembler code features:
+
+    png_get_mmx_flagmask()
+    png_set_mmx_thresholds()
+    png_get_asm_flags()
+    png_get_mmx_bitdepth_threshold()
+    png_get_mmx_rowbytes_threshold()
+    png_set_asm_flags()
+
+We replaced all of these functions with simple stubs in libpng-1.2.20,
+when the Intel assembler code was removed due to a licensing issue.
+
+These macros are deprecated:
+
+    PNG_READ_TRANSFORMS_NOT_SUPPORTED
+    PNG_PROGRESSIVE_READ_NOT_SUPPORTED
+    PNG_NO_SEQUENTIAL_READ_SUPPORTED
+    PNG_WRITE_TRANSFORMS_NOT_SUPPORTED
+    PNG_READ_ANCILLARY_CHUNKS_NOT_SUPPORTED
+    PNG_WRITE_ANCILLARY_CHUNKS_NOT_SUPPORTED
+
+They have been replaced, respectively, by:
+
+    PNG_NO_READ_TRANSFORMS
+    PNG_NO_PROGRESSIVE_READ
+    PNG_NO_SEQUENTIAL_READ
+    PNG_NO_WRITE_TRANSFORMS
+    PNG_NO_READ_ANCILLARY_CHUNKS
+    PNG_NO_WRITE_ANCILLARY_CHUNKS
+
+PNG_MAX_UINT was replaced with <a href="png.h.html#L680">PNG_UINT_31_MAX</a>.  It has been
+deprecated since libpng-1.0.16 and libpng-1.2.6.
+
+The function
+    png_check_sig(sig, num)
+was replaced with
+    !<a href="png.h.html#L944">png_sig_cmp</a>(sig, 0, num)
+It has been deprecated since libpng-0.90.
+
+The function
+    png_set_gray_1_2_4_to_8()
+which also expands tRNS to alpha was replaced with
+    <a href="png.h.html#L1083">png_set_expand_gray_1_2_4_to_8</a>()
+which does not. It has been deprecated since libpng-1.0.18 and 1.2.9.
+
+</pre>
+</div>
+</body>
+</html>

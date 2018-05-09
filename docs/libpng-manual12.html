@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>XII. Changes to Libpng from version 1.5.x to 1.6.x</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>XII. Changes to Libpng from version 1.5.x to 1.6.x</h1>
+
+<pre>XII.  Changes to Libpng from version 1.5.x to 1.6.x
+
+A "simplified API" has been added (see documentation in png.h and a simple
+example in contrib/examples/pngtopng.c).  The new publicly visible API
+includes the following:
+
+   macros:
+     PNG_FORMAT_*
+     PNG_IMAGE_*
+   structures:
+     png_control
+     png_image
+   read functions
+     <a href="png.h.html#L3011">png_image_begin_read_from_file</a>()
+     <a href="png.h.html#L3017">png_image_begin_read_from_stdio</a>()
+     <a href="png.h.html#L3022">png_image_begin_read_from_memory</a>()
+     <a href="png.h.html#L3026">png_image_finish_read</a>()
+     <a href="png.h.html#L3061">png_image_free</a>()
+   write functions
+     <a href="png.h.html#L3085">png_image_write_to_file</a>()
+     <a href="png.h.html#L3117">png_image_write_to_memory</a>()
+     <a href="png.h.html#L3090">png_image_write_to_stdio</a>()
+
+Starting with libpng-1.6.0, you can configure libpng to prefix all exported
+symbols, using the PNG_PREFIX macro.
+
+We no longer include string.h in png.h.  The include statement has been moved
+to pngpriv.h, where it is not accessible by applications.  Applications that
+need access to information in string.h must add an '#include &lt;string.h&gt;'
+directive.  It does not matter whether this is placed prior to or after
+the '#include "png.h"' directive.
+
+The following API are now DEPRECATED:
+   png_info_init_3()
+   png_convert_to_rfc1123() which has been replaced
+     with <a href="png.h.html#L1067">png_convert_to_rfc1123_buffer</a>()
+   png_malloc_default()
+   png_free_default()
+   png_reset_zstream()
+
+The following have been removed:
+   png_get_io_chunk_name(), which has been replaced
+     with <a href="png.h.html#L2449">png_get_io_chunk_type</a>().  The new
+     function returns a 32-bit integer instead of
+     a string.
+   The png_sizeof(), png_strlen(), png_memcpy(), png_memcmp(), and
+     png_memset() macros are no longer used in the libpng sources and
+     have been removed.  These had already been made invisible to applications
+     (i.e., defined in the private pngpriv.h header file) since libpng-1.5.0.
+
+The signatures of many exported functions were changed, such that
+   png_structp became png_structrp or png_const_structrp
+   png_infop became png_inforp or png_const_inforp
+where "rp" indicates a "restricted pointer".
+
+Dropped support for 16-bit platforms. The support for FAR/far types has
+been eliminated and the definition of png_alloc_size_t is now controlled
+by a flag so that 'small size_t' systems can select it if necessary.
+
+Error detection in some chunks has improved; in particular the iCCP chunk
+reader now does pretty complete validation of the basic format.  Some bad
+profiles that were previously accepted are now accepted with a warning or
+rejected, depending upon the <a href="png.h.html#L1844">png_set_benign_errors</a>() setting, in particular
+the very old broken Microsoft/HP 3144-byte sRGB profile.  Starting with
+libpng-1.6.11, recognizing and checking sRGB profiles can be avoided by
+means of
+
+    #if defined(<a href="png.h.html#L3237">PNG_SKIP_sRGB_CHECK_PROFILE</a>) &amp;&amp; \
+        defined(PNG_SET_OPTION_SUPPORTED)
+       <a href="png.h.html#L3253">png_set_option</a>(png_ptr, <a href="png.h.html#L3237">PNG_SKIP_sRGB_CHECK_PROFILE</a>,
+           <a href="png.h.html#L3251">PNG_OPTION_ON</a>);
+    #endif
+
+It's not a good idea to do this if you are using the "simplified API",
+which needs to be able to recognize sRGB profiles conveyed via the iCCP
+chunk.
+
+The PNG spec requirement that only grayscale profiles may appear in images
+with color type 0 or 4 and that even if the image only contains gray pixels,
+only RGB profiles may appear in images with color type 2, 3, or 6, is now
+enforced.  The sRGB chunk is allowed to appear in images with any color type
+and is interpreted by libpng to convey a one-tracer-curve gray profile or a
+three-tracer-curve RGB profile as appropriate.
+
+Libpng 1.5.x erroneously used /MD for Debug DLL builds; if you used the debug
+builds in your app and you changed your app to use /MD you will need to
+change it back to /MDd for libpng 1.6.x.
+
+Prior to libpng-1.6.0 a warning would be issued if the iTXt chunk contained
+an empty language field or an empty translated keyword.  Both of these
+are allowed by the PNG specification, so these warnings are no longer issued.
+
+The library now issues an error if the application attempts to set a
+transform after it calls <a href="png.h.html#L1398">png_read_update_info</a>() or if it attempts to call
+both <a href="png.h.html#L1398">png_read_update_info</a>() and <a href="png.h.html#L1395">png_start_read_image</a>() or to call either
+of them more than once.
+
+The default condition for benign_errors is now to treat benign errors as
+warnings while reading and as errors while writing.
+
+The library now issues a warning if both background processing and RGB to
+gray are used when gamma correction happens. As with previous versions of
+the library the results are numerically very incorrect in this case.
+
+There are some minor arithmetic changes in some transforms such as
+png_set_background(), that might be detected by certain regression tests.
+
+Unknown chunk handling has been improved internally, without any API change.
+This adds more correct option control of the unknown handling, corrects
+a pre-existing bug where the per-chunk 'keep' setting is ignored, and makes
+it possible to skip IDAT chunks in the sequential reader.
+
+The machine-generated configure files are no longer included in branches
+libpng16 and later of the GIT repository.  They continue to be included
+in the tarball releases, however.
+
+Libpng-1.6.0 through 1.6.2 used the CMF bytes at the beginning of the IDAT
+stream to set the size of the sliding window for reading instead of using the
+default 32-kbyte sliding window size.  It was discovered that there are
+hundreds of PNG files in the wild that have incorrect CMF bytes that caused
+zlib to issue the "invalid distance too far back" error and reject the file.
+Libpng-1.6.3 and later calculate their own safe CMF from the image dimensions,
+provide a way to revert to the libpng-1.5.x behavior (ignoring the CMF bytes
+and using a 32-kbyte sliding window), by using
+
+    <a href="png.h.html#L3253">png_set_option</a>(png_ptr, <a href="png.h.html#L3236">PNG_MAXIMUM_INFLATE_WINDOW</a>,
+        <a href="png.h.html#L3251">PNG_OPTION_ON</a>);
+
+and provide a tool (contrib/tools/pngfix) for rewriting a PNG file while
+optimizing the CMF bytes in its IDAT chunk correctly.
+
+Libpng-1.6.0 and libpng-1.6.1 wrote uncompressed iTXt chunks with the wrong
+length, which resulted in PNG files that cannot be read beyond the bad iTXt
+chunk.  This error was fixed in libpng-1.6.3, and a tool (called
+contrib/tools/png-fix-itxt) has been added to the libpng distribution.
+
+Starting with libpng-1.6.17, the PNG_SAFE_LIMITS macro was eliminated
+and safe limits are used by default (users who need larger limits
+can still override them at compile time or run time, as described above).
+
+The new limits are
+                                default   spec limit
+   png_user_width_max         1,000,000  2,147,483,647
+   png_user_height_max        1,000,000  2,147,483,647
+   png_user_chunk_cache_max         128  unlimited
+   png_user_chunk_malloc_max  8,000,000  unlimited
+
+Starting with libpng-1.6.18, a PNG_RELEASE_BUILD macro was added, which allows
+library builders to control compilation for an installed system (a release build).
+It can be set for testing debug or beta builds to ensure that they will compile
+when the build type is switched to RC or STABLE. In essence this overrides the
+<a href="png.h.html#L344">PNG_LIBPNG_BUILD_BASE_TYPE</a> definition which is not directly user controllable.
+
+Starting with libpng-1.6.19, attempting to set an over-length PLTE chunk
+is an error. Previously this requirement of the PNG specification was not
+enforced, and the palette was always limited to 256 entries. An over-length
+PLTE chunk found in an input PNG is silently truncated.
+
+Starting with libpng-1.6.31, the eXIf chunk is supported. Libpng does not
+attempt to decode the Exif profile; it simply returns a byte array
+containing the profile to the calling application which must do its own
+decoding.
+
+</pre>
+</div>
+</body>
+</html>

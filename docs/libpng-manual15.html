@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>XV. Coding style</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>XV. Coding style</h1>
+
+<pre>XV. Coding style
+
+Our coding style is similar to the "Allman" style
+(See https://en.wikipedia.org/wiki/Indent_style#Allman_style), with curly
+braces on separate lines:
+
+    if (condition)
+    {
+       action;
+    }
+
+    else if (another condition)
+    {
+       another action;
+    }
+
+The braces can be omitted from simple one-line actions:
+
+    if (condition)
+       return (0);
+
+We use 3-space indentation, except for continued statements which
+are usually indented the same as the first line of the statement
+plus four more spaces.
+
+For macro definitions we use 2-space indentation, always leaving the "#"
+in the first column.
+
+    #ifndef PNG_NO_FEATURE
+    #  ifndef PNG_FEATURE_SUPPORTED
+    #    define PNG_FEATURE_SUPPORTED
+    #  endif
+    #endif
+
+Comments appear with the leading "/*" at the same indentation as
+the statement that follows the comment:
+
+    /* Single-line comment */
+    statement;
+
+    /* This is a multiple-line
+     * comment.
+     */
+    statement;
+
+Very short comments can be placed after the end of the statement
+to which they pertain:
+
+    statement;    /* comment */
+
+We don't use C++ style ("//") comments. We have, however,
+used them in the past in some now-abandoned MMX assembler
+code.
+
+Functions and their curly braces are not indented, and
+exported functions are marked with PNGAPI:
+
+ /* This is a public function that is visible to
+  * application programmers. It does thus-and-so.
+  */
+ void PNGAPI
+ png_exported_function(png_ptr, png_info, foo)
+ {
+    body;
+ }
+
+The return type and decorations are placed on a separate line
+ahead of the function name, as illustrated above.
+
+The prototypes for all exported functions appear in png.h,
+above the comment that says
+
+    /* Maintainer: Put new public prototypes here ... */
+
+We mark all non-exported functions with "/* PRIVATE */"":
+
+ void /* PRIVATE */
+ png_non_exported_function(png_ptr, png_info, foo)
+ {
+    body;
+ }
+
+The prototypes for non-exported functions (except for those in
+pngtest) appear in pngpriv.h above the comment that says
+
+  /* Maintainer: Put new private prototypes here ^ */
+
+To avoid polluting the global namespace, the names of all exported
+functions and variables begin with "png_", and all publicly visible C
+preprocessor macros begin with "PNG".  We request that applications that
+use libpng *not* begin any of their own symbols with either of these strings.
+
+We put a space after the "sizeof" operator and we omit the
+optional parentheses around its argument when the argument
+is an expression, not a type name, and we always enclose the
+sizeof operator, with its argument, in parentheses:
+
+  (sizeof (png_uint_32))
+  (sizeof array)
+
+Prior to libpng-1.6.0 we used a "png_sizeof()" macro, formatted as
+though it were a function.
+
+Control keywords if, for, while, and switch are always followed by a space
+to distinguish them from function calls, which have no trailing space.
+
+We put a space after each comma and after each semicolon
+in "for" statements, and we put spaces before and after each
+C binary operator and after "for" or "while", and before
+"?".  We don't put a space between a typecast and the expression
+being cast, nor do we put one between a function name and the
+left parenthesis that follows it:
+
+    for (i = 2; i &gt; 0; --i)
+       y[i] = a(x) + (int)b;
+
+We prefer #ifdef and #ifndef to #if defined() and #if !defined()
+when there is only one macro being tested.  We always use parentheses
+with "defined".
+
+We express integer constants that are used as bit masks in hex format,
+with an even number of lower-case hex digits, and to make them unsigned
+(e.g., 0x00U, 0xffU, 0x0100U) and long if they are greater than 0x7fff
+(e.g., 0xffffUL).
+
+We prefer to use underscores rather than camelCase in names, except
+for a few type names that we inherit from zlib.h.
+
+We prefer "if (something != 0)" and "if (something == 0)" over
+"if (something)" and if "(!something)", respectively, and for pointers
+we prefer "if (some_pointer != NULL)" or "if (some_pointer == NULL)".
+
+We do not use the TAB character for indentation in the C sources.
+
+Lines do not exceed 80 characters.
+
+Other rules can be inferred by inspecting the libpng source.
+
+</pre>
+</div>
+</body>
+</html>

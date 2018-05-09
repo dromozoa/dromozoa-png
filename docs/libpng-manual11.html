@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>XI. Changes to Libpng from version 1.4.x to 1.5.x</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>XI. Changes to Libpng from version 1.4.x to 1.5.x</h1>
+
+<pre>XI.  Changes to Libpng from version 1.4.x to 1.5.x
+
+From libpng-1.4.0 until 1.4.4, the <a href="png.h.html#L2576">png_get_uint_16</a> macro (but not the
+function) incorrectly returned a value of type png_uint_32.
+The incorrect macro was removed from libpng-1.4.5.
+
+Checking for invalid palette index on write was added at libpng
+1.5.10.  If a pixel contains an invalid (out-of-range) index libpng issues
+a benign error.  This is enabled by default because this condition is an
+error according to the PNG specification, Clause 11.3.2, but the error can
+be ignored in each png_ptr with
+
+   <a href="png.h.html#L2643">png_set_check_for_invalid_index</a>(png_ptr, allowed);
+
+      allowed  - one of
+                 0: disable benign error (accept the
+                    invalid data without warning).
+                 1: enable benign error (treat the
+                    invalid data as an error or a
+                    warning).
+
+If the error is ignored, or if <a href="png.h.html#L1835">png_benign_error</a>() treats it as a warning,
+any invalid pixels are decoded as opaque black by the decoder and written
+as-is by the encoder.
+
+Retrieving the maximum palette index found was added at libpng-1.5.15.
+This statement must appear after <a href="png.h.html#L2352">png_read_png</a>() or <a href="png.h.html#L1415">png_read_image</a>() while
+reading, and after <a href="png.h.html#L2356">png_write_png</a>() or <a href="png.h.html#L1431">png_write_image</a>() while writing.
+
+   int max_palette = <a href="png.h.html#L2646">png_get_palette_max</a>(png_ptr, info_ptr);
+
+This will return the maximum palette index found in the image, or "-1" if
+the palette was not checked, or "0" if no palette was found.  Note that this
+does not account for any palette index used by ancillary chunks such as the
+bKGD chunk; you must check those separately to determine the maximum
+palette index actually used.
+
+There are no substantial API changes between the non-deprecated parts of
+the 1.4.5 API and the 1.5.0 API; however, the ability to directly access
+members of the main libpng control structures, png_struct and png_info,
+deprecated in earlier versions of libpng, has been completely removed from
+libpng 1.5, and new private "pngstruct.h", "pnginfo.h", and "pngdebug.h"
+header files were created.
+
+We no longer include zlib.h in png.h.  The include statement has been moved
+to pngstruct.h, where it is not accessible by applications. Applications that
+need access to information in zlib.h will need to add the '#include "zlib.h"'
+directive.  It does not matter whether this is placed prior to or after
+the '"#include png.h"' directive.
+
+The png_sprintf(), png_strcpy(), and png_strncpy() macros are no longer used
+and were removed.
+
+We moved the png_strlen(), png_memcpy(), png_memset(), and png_memcmp()
+macros into a private header file (pngpriv.h) that is not accessible to
+applications.
+
+In <a href="png.h.html#L2121">png_get_iCCP</a>, the type of "profile" was changed from png_charpp
+to png_bytepp, and in <a href="png.h.html#L2127">png_set_iCCP</a>, from png_charp to png_const_bytep.
+
+There are changes of form in png.h, including new and changed macros to
+declare parts of the API.  Some API functions with arguments that are
+pointers to data not modified within the function have been corrected to
+declare these arguments with PNG_CONST.
+
+Much of the internal use of C macros to control the library build has also
+changed and some of this is visible in the exported header files, in
+particular the use of macros to control data and API elements visible
+during application compilation may require significant revision to
+application code.  (It is extremely rare for an application to do this.)
+
+Any program that compiled against libpng 1.4 and did not use deprecated
+features or access internal library structures should compile and work
+against libpng 1.5, except for the change in the prototype for
+<a href="png.h.html#L2121">png_get_iCCP</a>() and <a href="png.h.html#L2127">png_set_iCCP</a>() API functions mentioned above.
+
+libpng 1.5.0 adds PNG_ PASS macros to help in the reading and writing of
+interlaced images.  The macros return the number of rows and columns in
+each pass and information that can be used to de-interlace and (if
+absolutely necessary) interlace an image.
+
+libpng 1.5.0 adds an API png_longjmp(png_ptr, value).  This API calls
+the application-provided png_longjmp_ptr on the internal, but application
+initialized, longjmp buffer.  It is provided as a convenience to avoid
+the need to use the png_jmpbuf macro, which had the unnecessary side
+effect of resetting the internal png_longjmp_ptr value.
+
+libpng 1.5.0 includes a complete fixed point API.  By default this is
+present along with the corresponding floating point API.  In general the
+fixed point API is faster and smaller than the floating point one because
+the PNG file format used fixed point, not floating point.  This applies
+even if the library uses floating point in internal calculations.  A new
+macro, PNG_FLOATING_ARITHMETIC_SUPPORTED, reveals whether the library
+uses floating point arithmetic (the default) or fixed point arithmetic
+internally for performance critical calculations such as gamma correction.
+In some cases, the gamma calculations may produce slightly different
+results.  This has changed the results in png_rgb_to_gray and in alpha
+composition (png_set_background for example). This applies even if the
+original image was already linear (gamma == 1.0) and, therefore, it is
+not necessary to linearize the image.  This is because libpng has *not*
+been changed to optimize that case correctly, yet.
+
+Fixed point support for the sCAL chunk comes with an important caveat;
+the sCAL specification uses a decimal encoding of floating point values
+and the accuracy of PNG fixed point values is insufficient for
+representation of these values. Consequently a "string" API
+(<a href="png.h.html#L2196">png_get_sCAL_s</a> and <a href="png.h.html#L2205">png_set_sCAL_s</a>) is the only reliable way of reading
+arbitrary sCAL chunks in the absence of either the floating point API or
+internal floating point calculations.  Starting with libpng-1.5.0, both
+of these functions are present when PNG_sCAL_SUPPORTED is defined.  Prior
+to libpng-1.5.0, their presence also depended upon PNG_FIXED_POINT_SUPPORTED
+being defined and PNG_FLOATING_POINT_SUPPORTED not being defined.
+
+Applications no longer need to include the optional distribution header
+file pngusr.h or define the corresponding macros during application
+build in order to see the correct variant of the libpng API.  From 1.5.0
+application code can check for the corresponding _SUPPORTED macro:
+
+#ifdef PNG_INCH_CONVERSIONS_SUPPORTED
+   /* code that uses the inch conversion APIs. */
+#endif
+
+This macro will only be defined if the inch conversion functions have been
+compiled into libpng.  The full set of macros, and whether or not support
+has been compiled in, are available in the header file pnglibconf.h.
+This header file is specific to the libpng build.  Notice that prior to
+1.5.0 the _SUPPORTED macros would always have the default definition unless
+reset by pngusr.h or by explicit settings on the compiler command line.
+These settings may produce compiler warnings or errors in 1.5.0 because
+of macro redefinition.
+
+Applications can now choose whether to use these macros or to call the
+corresponding function by defining PNG_USE_READ_MACROS or
+PNG_NO_USE_READ_MACROS before including png.h.  Notice that this is
+only supported from 1.5.0; defining PNG_NO_USE_READ_MACROS prior to 1.5.0
+will lead to a link failure.
+
+Prior to libpng-1.5.4, the zlib compressor used the same set of parameters
+when compressing the IDAT data and textual data such as zTXt and iCCP.
+In libpng-1.5.4 we reinitialized the zlib stream for each type of data.
+We added five png_set_text_*() functions for setting the parameters to
+use with textual data.
+
+Prior to libpng-1.5.4, the PNG_READ_16_TO_8_ACCURATE_SCALE_SUPPORTED
+option was off by default, and slightly inaccurate scaling occurred.
+This option can no longer be turned off, and the choice of accurate
+or inaccurate 16-to-8 scaling is by using the new png_set_scale_16_to_8()
+API for accurate scaling or the old png_set_strip_16_to_8() API for simple
+chopping.  In libpng-1.5.4, the PNG_READ_16_TO_8_ACCURATE_SCALE_SUPPORTED
+macro became PNG_READ_SCALE_16_TO_8_SUPPORTED, and the PNG_READ_16_TO_8
+macro became PNG_READ_STRIP_16_TO_8_SUPPORTED, to enable the two
+png_set_*_16_to_8() functions separately.
+
+Prior to libpng-1.5.4, the <a href="png.h.html#L2392">png_set_user_limits</a>() function could only be
+used to reduce the width and height limits from the value of
+PNG_USER_WIDTH_MAX and PNG_USER_HEIGHT_MAX, although this document said
+that it could be used to override them.  Now this function will reduce or
+increase the limits.
+
+Starting in libpng-1.5.22, default user limits were established. These
+can be overridden by application calls to <a href="png.h.html#L2392">png_set_user_limits</a>(),
+png_set_user_chunk_cache_max(), and/or png_set_user_malloc_max().
+The limits are now
+                             max possible  default
+   png_user_width_max        0x7fffffff    1,000,000
+   png_user_height_max       0x7fffffff    1,000,000
+   png_user_chunk_cache_max  0 (unlimited) 1000
+   png_user_chunk_malloc_max 0 (unlimited) 8,000,000
+
+The <a href="png.h.html#L3253">png_set_option</a>() function (and the "options" member of the png struct) was
+added to libpng-1.5.15, with option <a href="png.h.html#L3234">PNG_ARM_NEON</a>.
+
+The library now supports a complete fixed point implementation and can
+thus be used on systems that have no floating point support or very
+limited or slow support.  Previously gamma correction, an essential part
+of complete PNG support, required reasonably fast floating point.
+
+As part of this the choice of internal implementation has been made
+independent of the choice of fixed versus floating point APIs and all the
+missing fixed point APIs have been implemented.
+
+The exact mechanism used to control attributes of API functions has
+changed, as described in the INSTALL file.
+
+A new test program, pngvalid, is provided in addition to pngtest.
+pngvalid validates the arithmetic accuracy of the gamma correction
+calculations and includes a number of validations of the file format.
+A subset of the full range of tests is run when "make check" is done
+(in the 'configure' build.)  pngvalid also allows total allocated memory
+usage to be evaluated and performs additional memory overwrite validation.
+
+Many changes to individual feature macros have been made. The following
+are the changes most likely to be noticed by library builders who
+configure libpng:
+
+1) All feature macros now have consistent naming:
+
+#define PNG_NO_feature turns the feature off
+#define PNG_feature_SUPPORTED turns the feature on
+
+pnglibconf.h contains one line for each feature macro which is either:
+
+#define PNG_feature_SUPPORTED
+
+if the feature is supported or:
+
+/*#undef PNG_feature_SUPPORTED*/
+
+if it is not.  Library code consistently checks for the 'SUPPORTED' macro.
+It does not, and libpng applications should not, check for the 'NO' macro
+which will not normally be defined even if the feature is not supported.
+The 'NO' macros are only used internally for setting or not setting the
+corresponding 'SUPPORTED' macros.
+
+Compatibility with the old names is provided as follows:
+
+PNG_INCH_CONVERSIONS turns on PNG_INCH_CONVERSIONS_SUPPORTED
+
+And the following definitions disable the corresponding feature:
+
+PNG_SETJMP_NOT_SUPPORTED disables SETJMP
+PNG_READ_TRANSFORMS_NOT_SUPPORTED disables READ_TRANSFORMS
+PNG_NO_READ_COMPOSITED_NODIV disables READ_COMPOSITE_NODIV
+PNG_WRITE_TRANSFORMS_NOT_SUPPORTED disables WRITE_TRANSFORMS
+PNG_READ_ANCILLARY_CHUNKS_NOT_SUPPORTED disables READ_ANCILLARY_CHUNKS
+PNG_WRITE_ANCILLARY_CHUNKS_NOT_SUPPORTED disables WRITE_ANCILLARY_CHUNKS
+
+Library builders should remove use of the above, inconsistent, names.
+
+2) Warning and error message formatting was previously conditional on
+the STDIO feature. The library has been changed to use the
+CONSOLE_IO feature instead. This means that if CONSOLE_IO is disabled
+the library no longer uses the printf(3) functions, even though the
+default read/write implementations use (FILE) style stdio.h functions.
+
+3) Three feature macros now control the fixed/floating point decisions:
+
+PNG_FLOATING_POINT_SUPPORTED enables the floating point APIs
+
+PNG_FIXED_POINT_SUPPORTED enables the fixed point APIs; however, in
+practice these are normally required internally anyway (because the PNG
+file format is fixed point), therefore in most cases PNG_NO_FIXED_POINT
+merely stops the function from being exported.
+
+PNG_FLOATING_ARITHMETIC_SUPPORTED chooses between the internal floating
+point implementation or the fixed point one.  Typically the fixed point
+implementation is larger and slower than the floating point implementation
+on a system that supports floating point; however, it may be faster on a
+system which lacks floating point hardware and therefore uses a software
+emulation.
+
+4) Added PNG_{READ,WRITE}_INT_FUNCTIONS_SUPPORTED.  This allows the
+functions to read and write ints to be disabled independently of
+PNG_USE_READ_MACROS, which allows libpng to be built with the functions
+even though the default is to use the macros - this allows applications
+to choose at app buildtime whether or not to use macros (previously
+impossible because the functions weren't in the default build.)
+
+</pre>
+</div>
+</body>
+</html>
