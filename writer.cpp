@@ -51,13 +51,6 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
-    void impl_write_png(lua_State* L) {
-      writer_handle* self = check_writer_handle(L, 1);
-      int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
-      png_write_png(self->png(), self->info(), transforms, 0);
-      luaX_push_success(L);
-    }
-
     void impl_set_IHDR(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       png_uint_32 width = luaX_check_integer_field<png_uint_32>(L, 2, "width");
@@ -81,7 +74,7 @@ namespace dromozoa {
         size_t length = 0;
         if (const char* ptr = lua_tolstring(L, -1, &length)) {
           if (length <= rowbytes) {
-            // check error
+            // TODO check error
             memcpy(row_pointers[i], ptr, length);
           }
         }
@@ -95,6 +88,13 @@ namespace dromozoa {
       writer_handle* self = check_writer_handle(L, 1);
       int nrows = luaX_check_integer<int>(L, 2);
       png_set_flush(self->png(), nrows);
+      luaX_push_success(L);
+    }
+
+    void impl_write_png(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
+      png_write_png(self->png(), self->info(), transforms, 0);
       luaX_push_success(L);
     }
   }

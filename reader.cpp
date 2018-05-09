@@ -58,6 +58,12 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_get_valid(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      int flag = luaX_check_integer<png_uint_32>(L, 2);
+      luaX_push(L, png_get_valid(self->png(), self->info(), flag) != 0);
+    }
+
     void impl_get_rows(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
@@ -69,12 +75,6 @@ namespace dromozoa {
           luaX_set_field(L, -2, i + 1);
         }
       }
-    }
-
-    void impl_get_valid(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      int flag = luaX_check_integer<png_uint_32>(L, 2);
-      luaX_push(L, png_get_valid(self->png(), self->info(), flag) != 0);
     }
 
     void impl_get_IHDR(lua_State* L) {
@@ -241,12 +241,11 @@ namespace dromozoa {
 
       luaX_set_metafield(L, -1, "__call", impl_call);
       luaX_set_field(L, -1, "destroy", impl_destroy);
-      luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
       luaX_set_field(L, -1, "set_sig_bytes", impl_set_sig_bytes);
+      luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
       luaX_set_field(L, -1, "read_png", impl_read_png);
-
-      luaX_set_field(L, -1, "get_rows", impl_get_rows);
       luaX_set_field(L, -1, "get_valid", impl_get_valid);
+      luaX_set_field(L, -1, "get_rows", impl_get_rows);
 
       luaX_set_field(L, -1, "get_IHDR", impl_get_IHDR);
       luaX_set_field(L, -1, "get_image_width", impl_get_image_width);
