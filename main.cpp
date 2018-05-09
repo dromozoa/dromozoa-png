@@ -19,6 +19,10 @@
 
 namespace dromozoa {
   namespace {
+    void impl_access_version_number(lua_State* L) {
+      luaX_push(L, png_access_version_number());
+    }
+
     void impl_sig_cmp(lua_State* L) {
       size_t n = 0;
       png_const_bytep header = reinterpret_cast<png_const_bytep>(luaL_checklstring(L, 1, &n));
@@ -27,6 +31,7 @@ namespace dromozoa {
   }
 
   void initialize_main(lua_State* L) {
+    luaX_set_field(L, -1, "access_version_number", impl_access_version_number);
     luaX_set_field(L, -1, "sig_cmp", impl_sig_cmp);
 
     luaX_set_field(L, -1, "PNG_LIBPNG_VER_STRING", PNG_LIBPNG_VER_STRING);
