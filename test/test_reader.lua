@@ -22,7 +22,7 @@ local verbose = os.getenv "VERBOSE" == "1"
 local reader = assert(png.reader())
 
 local handle = assert(io.open("docs/lenna.png", "rb"))
-local header = handle:read(8)
+local header = handle:read(4)
 if verbose then
   io.stderr:write(header:gsub("[%z\1-\31\127-\255]", function (source)
     return ([[\x%02x]]):format(source:byte(1, 1))
@@ -37,10 +37,12 @@ end))
 
 assert(reader:read_png())
 
-assert(not reader:get_valid(png.PNG_INFO_PLTE))
-assert(not reader:get_valid(png.PNG_INFO_tRNS))
 assert(reader:get_valid(png.PNG_INFO_gAMA))
+assert(reader:get_valid(png.PNG_INFO_pHYs))
 assert(reader:get_valid(png.PNG_INFO_sRGB))
+assert(not reader:get_valid(png.PNG_INFO_PLTE))
+assert(not reader:get_valid(png.PNG_INFO_oFFs))
+assert(not reader:get_valid(png.PNG_INFO_tRNS))
 
 local IHDR = assert(reader:get_IHDR())
 assert(IHDR.width == 271)
@@ -58,19 +60,31 @@ assert(reader:get_color_type() == png.PNG_COLOR_TYPE_RGB_ALPHA)
 assert(reader:get_interlace_type() == png.PNG_INTERLACE_NONE)
 assert(reader:get_compression_type() == png.PNG_COMPRESSION_TYPE_BASE)
 assert(reader:get_filter_type() == png.PNG_FILTER_TYPE_BASE)
+assert(reader:get_channels() == 4)
+assert(reader:get_rowbytes() == 271 * 4)
+assert(reader:get_signature() == "\0\0\0\0\r\n\26\n")
 
-assert(reader:get_x_pixels_per_meter() == math.ceil(72 / 0.0254))
-assert(reader:get_y_pixels_per_meter() == math.ceil(72 / 0.0254))
-assert(reader:get_pixels_per_meter() == math.ceil(72 / 0.0254))
-assert(reader:get_x_pixels_per_inch() == 72)
-assert(reader:get_y_pixels_per_inch() == 72)
-assert(reader:get_pixels_per_inch() == 72)
-assert(reader:get_pixel_aspect_ratio() == 1)
+assert(not reader:get_oFFs())
 
 assert(reader:get_x_offset_microns() == 0)
 assert(reader:get_y_offset_microns() == 0)
 assert(reader:get_x_offset_inches() == 0)
 assert(reader:get_y_offset_inches() == 0)
+
+local ppm = math.ceil(72 / 0.0254)
+local ppi = 72
+local pHYs = assert(reader:get_pHYs())
+assert(pHYs.res_x == ppm)
+assert(pHYs.res_y == ppm)
+assert(pHYs.unit_type == png.PNG_RESOLUTION_METER)
+
+assert(reader:get_x_pixels_per_meter() == ppm)
+assert(reader:get_y_pixels_per_meter() == ppm)
+assert(reader:get_pixels_per_meter() == ppm)
+assert(reader:get_x_pixels_per_inch() == ppi)
+assert(reader:get_y_pixels_per_inch() == ppi)
+assert(reader:get_pixels_per_inch() == ppi)
+assert(reader:get_pixel_aspect_ratio() == 1)
 
 local rows = assert(reader:get_rows())
 assert(#rows == 580)

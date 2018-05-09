@@ -64,6 +64,24 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_set_oFFs(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      png_int_32 offset_x = luaX_check_integer_field<png_uint_32>(L, 2, "offset_x");
+      png_int_32 offset_y = luaX_check_integer_field<png_uint_32>(L, 2, "offset_y");
+      int unit_type = luaX_check_integer_field<int>(L, 2, "unit_type");
+      png_set_oFFs(self->png(), self->info(), offset_x, offset_y, unit_type);
+      luaX_push_success(L);
+    }
+
+    void impl_set_pHYs(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      png_uint_32 res_x = luaX_check_integer_field<png_uint_32>(L, 2, "res_x");
+      png_uint_32 res_y = luaX_check_integer_field<png_uint_32>(L, 2, "res_y");
+      int unit_type = luaX_check_integer_field<int>(L, 2, "unit_type");
+      png_set_pHYs(self->png(), self->info(), res_x, res_y, unit_type);
+      luaX_push_success(L);
+    }
+
     void impl_set_rows(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
@@ -113,6 +131,8 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_sig_bytes", impl_set_sig_bytes);
       luaX_set_field(L, -1, "set_write_fn", impl_set_write_fn);
       luaX_set_field(L, -1, "set_IHDR", impl_set_IHDR);
+      luaX_set_field(L, -1, "set_oFFs", impl_set_oFFs);
+      luaX_set_field(L, -1, "set_pHYs", impl_set_pHYs);
       luaX_set_field(L, -1, "set_rows", impl_set_rows);
       luaX_set_field(L, -1, "set_flush", impl_set_flush);
       luaX_set_field(L, -1, "write_png", impl_write_png);

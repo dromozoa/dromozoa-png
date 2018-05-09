@@ -145,7 +145,7 @@ namespace dromozoa {
 
     void impl_get_signature(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8);
+      lua_pushlstring(L, reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8);
     }
 
     void impl_get_oFFs(lua_State* L) {

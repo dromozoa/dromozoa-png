@@ -21,7 +21,7 @@ local verbose = os.getenv "VERBOSE" == "1"
 
 local writer = assert(png.writer())
 
-local flushed
+local flush = 0
 local out = assert(io.open("test.png", "wb"))
 assert(writer:set_write_fn(function (data)
   if verbose then
@@ -29,7 +29,7 @@ assert(writer:set_write_fn(function (data)
   end
   out:write(data)
 end, function ()
-  flushed = true
+  flush = flush + 1
   if verbose then
     io.stderr:write "flush\n"
   end
@@ -42,14 +42,25 @@ assert(writer:set_IHDR {
   bit_depth = 8;
   color_type = png.PNG_COLOR_TYPE_RGB;
 })
+assert(writer:set_oFFs {
+  offset_x = 0;
+  offset_y = 10;
+  unit_type = png.PNG_OFFSET_PIXEL;
+})
+assert(writer:set_pHYs {
+  res_x = math.ceil(144 / 0.0254);
+  res_y = math.ceil(216 / 0.0254);
+  unit_type = png.PNG_RESOLUTION_METER;
+})
+
 assert(writer:set_rows {
   string.char(0xFF, 0x00, 0x00, 0x7F, 0x7F, 0x00);
   string.char(0x00, 0xFF, 0x00, 0x00, 0x7F, 0x7F);
   string.char(0x00, 0x00, 0xFF, 0x7F, 0x00, 0x7F);
 })
 
-assert(writer:set_flush(1))
+assert(writer:set_flush(2))
 assert(writer:write_png())
-assert(flushed)
+assert(flush == 1)
 
 out:close()
