@@ -132,7 +132,7 @@ local i = 0
 for line in io.lines "docs/png.h" do
   i = i + 1
   out:write(escape(line), "\n")
-  local symbol = line:match "PNG_EXPORT%(%d+, [^,]+, (png_[%w_]+),"
+  local symbol = line:match "PNG_[%u_]*EXPORT%(%d+, [^,]+, (png_[%w_]+),"
   if symbol then
     symbol_table[symbol] = i
   end

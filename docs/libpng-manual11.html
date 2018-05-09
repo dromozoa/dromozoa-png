@@ -122,7 +122,7 @@ uses floating point arithmetic (the default) or fixed point arithmetic
 internally for performance critical calculations such as gamma correction.
 In some cases, the gamma calculations may produce slightly different
 results.  This has changed the results in png_rgb_to_gray and in alpha
-composition (png_set_background for example). This applies even if the
+composition (<a href="png.h.html#L1330">png_set_background</a> for example). This applies even if the
 original image was already linear (gamma == 1.0) and, therefore, it is
 not necessary to linearize the image.  This is because libpng has *not*
 been changed to optimize that case correctly, yet.

@@ -313,8 +313,8 @@ width, height, bit_depth, and color_type must be the same in each call.
     num_palette    - number of entries in the palette
 
 
-    png_set_gAMA(png_ptr, info_ptr, file_gamma);
-    png_set_gAMA_fixed(png_ptr, info_ptr, int_file_gamma);
+    <a href="png.h.html#L2033">png_set_gAMA</a>(png_ptr, info_ptr, file_gamma);
+    <a href="png.h.html#L2035">png_set_gAMA_fixed</a>(png_ptr, info_ptr, int_file_gamma);
 
     file_gamma     - the gamma at which the image was
                      created (<a href="png.h.html#L763">PNG_INFO_gAMA</a>)
@@ -322,14 +322,14 @@ width, height, bit_depth, and color_type must be the same in each call.
     int_file_gamma - 100,000 times the gamma at which
                      the image was created
 
-    png_set_cHRM(png_ptr, info_ptr,  white_x, white_y, red_x, red_y,
+    <a href="png.h.html#L1990">png_set_cHRM</a>(png_ptr, info_ptr,  white_x, white_y, red_x, red_y,
                      green_x, green_y, blue_x, blue_y)
-    png_set_cHRM_XYZ(png_ptr, info_ptr, red_X, red_Y, red_Z, green_X,
+    <a href="png.h.html#L1994">png_set_cHRM_XYZ</a>(png_ptr, info_ptr, red_X, red_Y, red_Z, green_X,
                      green_Y, green_Z, blue_X, blue_Y, blue_Z)
-    png_set_cHRM_fixed(png_ptr, info_ptr, int_white_x, int_white_y,
+    <a href="png.h.html#L1998">png_set_cHRM_fixed</a>(png_ptr, info_ptr, int_white_x, int_white_y,
                      int_red_x, int_red_y, int_green_x, int_green_y,
                      int_blue_x, int_blue_y)
-    png_set_cHRM_XYZ_fixed(png_ptr, info_ptr, int_red_X, int_red_Y,
+    <a href="png.h.html#L2004">png_set_cHRM_XYZ_fixed</a>(png_ptr, info_ptr, int_red_X, int_red_Y,
                      int_red_Z, int_green_X, int_green_Y, int_green_Z,
                      int_blue_X, int_blue_Y, int_blue_Z)
 
@@ -498,7 +498,7 @@ width, height, bit_depth, and color_type must be the same in each call.
     unit_type   - <a href="png.h.html#L741">PNG_RESOLUTION_UNKNOWN</a>,
                   <a href="png.h.html#L742">PNG_RESOLUTION_METER</a>
 
-    png_set_sCAL(png_ptr, info_ptr, unit, width, height)
+    <a href="png.h.html#L2200">png_set_sCAL</a>(png_ptr, info_ptr, unit, width, height)
 
     unit        - physical scale units (an integer)
 

@@ -419,8 +419,8 @@ need to tell libpng information about your display or drawing surface so that
 libpng can convert the values in the image to match the display.
 
 From libpng-1.5.4 this information can be set before reading the PNG file
-header.  In earlier versions png_set_gamma() existed but behaved incorrectly if
-called before the PNG file header had been read and png_set_alpha_mode() did not
+header.  In earlier versions <a href="png.h.html#L1381">png_set_gamma</a>() existed but behaved incorrectly if
+called before the PNG file header had been read and <a href="png.h.html#L1168">png_set_alpha_mode</a>() did not
 exist.
 
 If you need to support versions prior to libpng-1.5.4 test the version number
@@ -432,11 +432,11 @@ value.  You can also specify a default encoding for the PNG file in
 case the required information is missing from the file.  By default libpng
 assumes that the PNG data matches your system, to keep this default call:
 
-   png_set_gamma(png_ptr, screen_gamma, output_gamma);
+   <a href="png.h.html#L1381">png_set_gamma</a>(png_ptr, screen_gamma, output_gamma);
 
 or you can use the fixed point equivalent:
 
-   png_set_gamma_fixed(png_ptr, <a href="png.h.html#L687">PNG_FP_1</a>*screen_gamma,
+   <a href="png.h.html#L1383">png_set_gamma_fixed</a>(png_ptr, <a href="png.h.html#L687">PNG_FP_1</a>*screen_gamma,
       <a href="png.h.html#L687">PNG_FP_1</a>*output_gamma);
 
 If you don't know the gamma for your system it is probably 2.2 - a good
@@ -473,7 +473,7 @@ an sRGB conformant system.  The values are scaled by 100000 in the _fixed
 version of the API (so 220000 for sRGB.)
 
 The inverse of the value is always used to provide a default for the PNG file
-encoding if it has no gAMA chunk and if png_set_gamma() has not been called
+encoding if it has no gAMA chunk and if <a href="png.h.html#L1381">png_set_gamma</a>() has not been called
 to override the PNG gamma information.
 
 When the ALPHA_OPTIMIZED mode is selected the output gamma is used to encode
@@ -483,7 +483,7 @@ regardless of the output gamma setting.
 When the standard Porter Duff handling is requested with mode 1 the output
 encoding is set to be linear and the output_gamma value is only relevant
 as a default for input data that has no gamma information.  The linear output
-encoding will be overridden if png_set_gamma() is called - the results may be
+encoding will be overridden if <a href="png.h.html#L1381">png_set_gamma</a>() is called - the results may be
 highly unexpected!
 
 The following numbers are derived from the sRGB standard and the research
@@ -512,10 +512,10 @@ the final display device characteristics can be changed requires system
 specific code to obtain the current characteristic.  However this can be
 difficult and most PNG gamma correction only requires an approximate value.
 
-By default, if png_set_alpha_mode() is not called, libpng assumes that all
+By default, if <a href="png.h.html#L1168">png_set_alpha_mode</a>() is not called, libpng assumes that all
 values are unencoded, linear, values and that the output device also has a
 linear characteristic.  This is only very rarely correct - it is invariably
-better to call png_set_alpha_mode() with <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a> than rely on the
+better to call <a href="png.h.html#L1168">png_set_alpha_mode</a>() with <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a> than rely on the
 default if you don't know what the right answer is!
 
 The special value <a href="png.h.html#L1179">PNG_GAMMA_MAC_18</a> indicates an older Mac system (pre Mac OS
@@ -534,22 +534,22 @@ alpha channel information.  Some, but not all, PNG files contain an alpha
 channel.  To display these files correctly you need to compose the data onto a
 suitable background, as described in the PNG specification.
 
-Libpng only supports composing onto a single color (using png_set_background;
+Libpng only supports composing onto a single color (using <a href="png.h.html#L1330">png_set_background</a>;
 see below).  Otherwise you must do the composition yourself and, in this case,
-you may need to call png_set_alpha_mode:
+you may need to call <a href="png.h.html#L1168">png_set_alpha_mode</a>:
 
    #if <a href="png.h.html#L352">PNG_LIBPNG_VER</a> &gt;= 10504
-      png_set_alpha_mode(png_ptr, mode, screen_gamma);
+      <a href="png.h.html#L1168">png_set_alpha_mode</a>(png_ptr, mode, screen_gamma);
    #else
-      png_set_gamma(png_ptr, screen_gamma, 1.0/screen_gamma);
+      <a href="png.h.html#L1381">png_set_gamma</a>(png_ptr, screen_gamma, 1.0/screen_gamma);
    #endif
 
-The screen_gamma value is the same as the argument to png_set_gamma; however,
-how it affects the output depends on the mode.  png_set_alpha_mode() sets the
+The screen_gamma value is the same as the argument to <a href="png.h.html#L1381">png_set_gamma</a>; however,
+how it affects the output depends on the mode.  <a href="png.h.html#L1168">png_set_alpha_mode</a>() sets the
 file gamma default to 1/screen_gamma, so normally you don't need to call
-png_set_gamma.  If you need different defaults call png_set_gamma() before
-png_set_alpha_mode() - if you call it after it will override the settings made
-by png_set_alpha_mode().
+<a href="png.h.html#L1381">png_set_gamma</a>.  If you need different defaults call <a href="png.h.html#L1381">png_set_gamma</a>() before
+<a href="png.h.html#L1168">png_set_alpha_mode</a>() - if you call it after it will override the settings made
+by <a href="png.h.html#L1168">png_set_alpha_mode</a>().
 
 The mode is as follows:
 
@@ -585,7 +585,7 @@ including completely opaque ones, must be gamma encoded to produce the final
 image.  These are the 'STANDARD', 'ASSOCIATED' or 'PREMULTIPLIED' modes
 described below (the latter being the two common names for associated alpha
 color channels). Note that PNG files always contain non-associated color
-channels; png_set_alpha_mode() with one of the modes causes the decoder to
+channels; <a href="png.h.html#L1168">png_set_alpha_mode</a>() with one of the modes causes the decoder to
 convert the pixels to an associated form before returning them to your
 application. 
 
@@ -618,7 +618,7 @@ component values, whatever screen_gamma you supply.  The
 screen_gamma value is, however, used as a default for
 the file gamma if the PNG file has no gamma information.
 
-If you call png_set_gamma() after png_set_alpha_mode() you
+If you call <a href="png.h.html#L1381">png_set_gamma</a>() after <a href="png.h.html#L1168">png_set_alpha_mode</a>() you
 will override the linear encoding.  Instead the
 pre-multiplied pixel values will be gamma encoded but
 the alpha channel will still be linear.  This may
@@ -663,16 +663,16 @@ the image may simply appear separate from the background, as though it had
 been cut out of paper and pasted on afterward.
 
 If you don't have to deal with bugs in software or hardware, or if you can fix
-them, there are three recommended ways of using png_set_alpha_mode():
+them, there are three recommended ways of using <a href="png.h.html#L1168">png_set_alpha_mode</a>():
 
-   png_set_alpha_mode(png_ptr, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>,
+   <a href="png.h.html#L1168">png_set_alpha_mode</a>(png_ptr, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>,
        screen_gamma);
 
 You can do color correction on the result (libpng does not currently
 support color correction internally).  When you handle the alpha channel
 you need to undo the gamma encoding and multiply out the alpha.
 
-   png_set_alpha_mode(png_ptr, <a href="png.h.html#L1162">PNG_ALPHA_STANDARD</a>,
+   <a href="png.h.html#L1168">png_set_alpha_mode</a>(png_ptr, <a href="png.h.html#L1162">PNG_ALPHA_STANDARD</a>,
        screen_gamma);
    <a href="png.h.html#L1092">png_set_expand_16</a>(png_ptr);
 
@@ -682,7 +682,7 @@ instead pass <a href="png.h.html#L882">PNG_TRANSFORM_EXPAND_16</a> to the interf
 With this mode you can't do color correction, but you can do arithmetic,
 including composition and scaling, on the data without further processing.
 
-   png_set_alpha_mode(png_ptr, <a href="png.h.html#L1165">PNG_ALPHA_OPTIMIZED</a>,
+   <a href="png.h.html#L1168">png_set_alpha_mode</a>(png_ptr, <a href="png.h.html#L1165">PNG_ALPHA_OPTIMIZED</a>,
        screen_gamma);
 
 You can avoid the expansion to 16-bit components with this mode, but you
@@ -691,11 +691,11 @@ All you can do is compose the result onto a matching output.  Since this
 mode is libpng-specific you also need to write your own composition
 software.
 
-The following are examples of calls to png_set_alpha_mode to achieve the
+The following are examples of calls to <a href="png.h.html#L1168">png_set_alpha_mode</a> to achieve the
 required overall gamma correction and, where necessary, alpha
 premultiplication.
 
-    png_set_alpha_mode(pp, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
+    <a href="png.h.html#L1168">png_set_alpha_mode</a>(pp, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
 
 Choices for the alpha_mode are
 
@@ -711,13 +711,13 @@ pre-multiplied into the color components. In addition the call states
 that the output is for a sRGB system and causes all PNG files without gAMA
 chunks to be assumed to be encoded using sRGB.
 
-    png_set_alpha_mode(pp, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>, PNG_GAMMA_MAC);
+    <a href="png.h.html#L1168">png_set_alpha_mode</a>(pp, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>, PNG_GAMMA_MAC);
 
 In this case the output is assumed to be something like an sRGB conformant
 display preceeded by a power-law lookup table of power 1.45.  This is how
 early Mac systems behaved.
 
-    png_set_alpha_mode(pp, <a href="png.h.html#L1162">PNG_ALPHA_STANDARD</a>, <a href="png.h.html#L1181">PNG_GAMMA_LINEAR</a>);
+    <a href="png.h.html#L1168">png_set_alpha_mode</a>(pp, <a href="png.h.html#L1162">PNG_ALPHA_STANDARD</a>, <a href="png.h.html#L1181">PNG_GAMMA_LINEAR</a>);
 
 This is the classic Jim Blinn approach and will work in academic
 environments where everything is done by the book.  It has the shortcoming
@@ -727,7 +727,7 @@ Most of the time the output precision will be so low as to show
 significant banding in dark areas of the image.
 
     <a href="png.h.html#L1092">png_set_expand_16</a>(pp);
-    png_set_alpha_mode(pp, <a href="png.h.html#L1162">PNG_ALPHA_STANDARD</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
+    <a href="png.h.html#L1168">png_set_alpha_mode</a>(pp, <a href="png.h.html#L1162">PNG_ALPHA_STANDARD</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
 
 This is a somewhat more realistic Jim Blinn inspired approach.  PNG files
 are assumed to have the sRGB encoding if not marked with a gamma value and
@@ -736,7 +736,7 @@ and processing of the data.  If you know that your input PNG files were
 generated locally you might need to replace <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a> with the
 correct value for your system.
 
-    png_set_alpha_mode(pp, <a href="png.h.html#L1165">PNG_ALPHA_OPTIMIZED</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
+    <a href="png.h.html#L1168">png_set_alpha_mode</a>(pp, <a href="png.h.html#L1165">PNG_ALPHA_OPTIMIZED</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
 
 If you just need to composite the PNG image onto an existing background
 and if you control the code that does this you can use the optimization
@@ -755,7 +755,7 @@ will probably result in a washed out, too bright, image (it's actually too
 contrasty.)  Try the ALPHA_OPTIMIZED mode above - this will probably
 substantially reduce the halos.  Alternatively try:
 
-    png_set_alpha_mode(pp, <a href="png.h.html#L1166">PNG_ALPHA_BROKEN</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
+    <a href="png.h.html#L1168">png_set_alpha_mode</a>(pp, <a href="png.h.html#L1166">PNG_ALPHA_BROKEN</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
 
 This option will also reduce the halos, but there will be slight dark
 halos round the opaque parts of the image where the background is light.
@@ -765,35 +765,35 @@ your hardware/software fixed!  (The OPTIMIZED approach is slightly
 faster.)
 
 When the default gamma of PNG files doesn't match the output gamma.
-If you have PNG files with no gamma information png_set_alpha_mode allows
+If you have PNG files with no gamma information <a href="png.h.html#L1168">png_set_alpha_mode</a> allows
 you to provide a default gamma, but it also sets the ouput gamma to the
 matching value.  If you know your PNG files have a gamma that doesn't
 match the output you can take advantage of the fact that
-png_set_alpha_mode always sets the output gamma but only sets the PNG
+<a href="png.h.html#L1168">png_set_alpha_mode</a> always sets the output gamma but only sets the PNG
 default if it is not already set:
 
-    png_set_alpha_mode(pp, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
-    png_set_alpha_mode(pp, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>, PNG_GAMMA_MAC);
+    <a href="png.h.html#L1168">png_set_alpha_mode</a>(pp, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>, <a href="png.h.html#L1178">PNG_DEFAULT_sRGB</a>);
+    <a href="png.h.html#L1168">png_set_alpha_mode</a>(pp, <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>, PNG_GAMMA_MAC);
 
 The first call sets both the default and the output gamma values, the
 second call overrides the output gamma without changing the default.  This
-is easier than achieving the same effect with png_set_gamma.  You must use
+is easier than achieving the same effect with <a href="png.h.html#L1381">png_set_gamma</a>.  You must use
 <a href="png.h.html#L1161">PNG_ALPHA_PNG</a> for the first call - internal checking in png_set_alpha will
-fire if more than one call to png_set_alpha_mode and png_set_background is
+fire if more than one call to <a href="png.h.html#L1168">png_set_alpha_mode</a> and <a href="png.h.html#L1330">png_set_background</a> is
 made in the same read operation, however multiple calls with <a href="png.h.html#L1161">PNG_ALPHA_PNG</a>
 are ignored.
 
 If you don't need, or can't handle, the alpha channel you can call
-png_set_background() to remove it by compositing against a fixed color.  Don't
+<a href="png.h.html#L1330">png_set_background</a>() to remove it by compositing against a fixed color.  Don't
 call <a href="png.h.html#L1261">png_set_strip_alpha</a>() to do this - it will leave spurious pixel values in
 transparent parts of this image.
 
-   png_set_background(png_ptr, &amp;background_color,
+   <a href="png.h.html#L1330">png_set_background</a>(png_ptr, &amp;background_color,
        <a href="png.h.html#L1339">PNG_BACKGROUND_GAMMA_SCREEN</a>, 0, 1);
 
 The background_color is an RGB or grayscale value according to the data format
 libpng will produce for you.  Because you don't yet know the format of the PNG
-file, if you call png_set_background at this point you must arrange for the
+file, if you call <a href="png.h.html#L1330">png_set_background</a> at this point you must arrange for the
 format produced by libpng to always have 8-bit or 16-bit components and then
 store the color as an 8-bit or 16-bit color as appropriate.  The color contains
 separate gray and RGB component values, so you can let libpng produce gray or
@@ -823,9 +823,9 @@ In either case palette image data will be expanded to RGB.  If you just want
 color data you can add <a href="png.h.html#L880">PNG_TRANSFORM_GRAY_TO_RGB</a> or <a href="png.h.html#L1102">png_set_gray_to_rgb</a>(png_ptr)
 to the list.
 
-Calling png_set_background before the PNG file header is read will not work
+Calling <a href="png.h.html#L1330">png_set_background</a> before the PNG file header is read will not work
 prior to libpng-1.5.4.  Because the failure may result in unexpected warnings or
-errors it is therefore much safer to call png_set_background after the head has
+errors it is therefore much safer to call <a href="png.h.html#L1330">png_set_background</a> after the head has
 been read.  Unfortunately this means that prior to libpng-1.5.4 it cannot be
 used with the high level interface.
 
@@ -946,10 +946,10 @@ This also copies some of the data from the PNG file into the decode structure
 for use in later transformations.  Important information copied in is:
 
 1) The PNG file gamma from the gAMA chunk.  This overwrites the default value
-provided by an earlier call to png_set_gamma or png_set_alpha_mode.
+provided by an earlier call to <a href="png.h.html#L1381">png_set_gamma</a> or <a href="png.h.html#L1168">png_set_alpha_mode</a>.
 
 2) Prior to libpng-1.5.4 the background color from a bKGd chunk.  This
-damages the information provided by an earlier call to png_set_background
+damages the information provided by an earlier call to <a href="png.h.html#L1330">png_set_background</a>
 resulting in unexpected behavior.  Libpng-1.5.4 no longer does this.
 
 3) The number of significant bits in each component value.  Libpng uses this to
@@ -1083,7 +1083,7 @@ gamma when combining semitransparent pixels with the background color, and,
 since libpng-1.6.0, when converting between 8-bit sRGB and 16-bit linear pixels
 within the simplified API.  Libpng also uses the file gamma when converting
 RGB to gray, beginning with libpng-1.0.5, if the application calls
-png_set_rgb_to_gray()).
+<a href="png.h.html#L1112">png_set_rgb_to_gray</a>()).
 
     <a href="png.h.html#L2092">png_get_PLTE</a>(png_ptr, info_ptr, &amp;palette,
                      &amp;num_palette);
@@ -1093,8 +1093,8 @@ png_set_rgb_to_gray()).
 
     num_palette    - number of entries in the palette
 
-    png_get_gAMA(png_ptr, info_ptr, &amp;file_gamma);
-    png_get_gAMA_fixed(png_ptr, info_ptr, &amp;int_file_gamma);
+    <a href="png.h.html#L2025">png_get_gAMA</a>(png_ptr, info_ptr, &amp;file_gamma);
+    <a href="png.h.html#L2027">png_get_gAMA_fixed</a>(png_ptr, info_ptr, &amp;int_file_gamma);
 
     file_gamma     - the gamma at which the file is
                      written (<a href="png.h.html#L763">PNG_INFO_gAMA</a>)
@@ -1102,16 +1102,16 @@ png_set_rgb_to_gray()).
     int_file_gamma - 100,000 times the gamma at which the
                      file is written
 
-    png_get_cHRM(png_ptr, info_ptr,  &amp;white_x, &amp;white_y, &amp;red_x,
+    <a href="png.h.html#L1966">png_get_cHRM</a>(png_ptr, info_ptr,  &amp;white_x, &amp;white_y, &amp;red_x,
                      &amp;red_y, &amp;green_x, &amp;green_y, &amp;blue_x, &amp;blue_y)
-    png_get_cHRM_XYZ(png_ptr, info_ptr, &amp;red_X, &amp;red_Y, &amp;red_Z,
+    <a href="png.h.html#L1970">png_get_cHRM_XYZ</a>(png_ptr, info_ptr, &amp;red_X, &amp;red_Y, &amp;red_Z,
                      &amp;green_X, &amp;green_Y, &amp;green_Z, &amp;blue_X, &amp;blue_Y,
                      &amp;blue_Z)
-    png_get_cHRM_fixed(png_ptr, info_ptr, &amp;int_white_x,
+    <a href="png.h.html#L1974">png_get_cHRM_fixed</a>(png_ptr, info_ptr, &amp;int_white_x,
                      &amp;int_white_y, &amp;int_red_x, &amp;int_red_y,
                      &amp;int_green_x, &amp;int_green_y, &amp;int_blue_x,
                      &amp;int_blue_y)
-    png_get_cHRM_XYZ_fixed(png_ptr, info_ptr, &amp;int_red_X, &amp;int_red_Y,
+    <a href="png.h.html#L1980">png_get_cHRM_XYZ_fixed</a>(png_ptr, info_ptr, &amp;int_red_X, &amp;int_red_Y,
                      &amp;int_red_Z, &amp;int_green_X, &amp;int_green_Y,
                      &amp;int_green_Z, &amp;int_blue_X, &amp;int_blue_Y,
                      &amp;int_blue_Z)
@@ -1280,7 +1280,7 @@ png_set_rgb_to_gray()).
     unit_type      - <a href="png.h.html#L741">PNG_RESOLUTION_UNKNOWN</a>,
                      <a href="png.h.html#L742">PNG_RESOLUTION_METER</a>
 
-    png_get_sCAL(png_ptr, info_ptr, &amp;unit, &amp;width,
+    <a href="png.h.html#L2183">png_get_sCAL</a>(png_ptr, info_ptr, &amp;unit, &amp;width,
        &amp;height)
 
     unit        - physical scale units (an integer)
@@ -1346,7 +1346,7 @@ forms:
     res_x_and_y = <a href="png.h.html#L2411">png_get_pixels_per_inch</a>(png_ptr,
        info_ptr)
 
-    aspect_ratio = png_get_pixel_aspect_ratio(png_ptr,
+    aspect_ratio = <a href="png.h.html#L1932">png_get_pixel_aspect_ratio</a>(png_ptr,
        info_ptr)
 
     Each of these returns 0 [signifying "unknown"] if
@@ -1368,9 +1368,9 @@ forms:
 
     y_offset = <a href="png.h.html#L1944">png_get_y_offset_microns</a>(png_ptr, info_ptr);
 
-    x_offset = png_get_x_offset_inches(png_ptr, info_ptr);
+    x_offset = <a href="png.h.html#L2420">png_get_x_offset_inches</a>(png_ptr, info_ptr);
 
-    y_offset = png_get_y_offset_inches(png_ptr, info_ptr);
+    y_offset = <a href="png.h.html#L2427">png_get_y_offset_inches</a>(png_ptr, info_ptr);
 
     Each of these returns 0 [signifying "unknown" if both
        x and y are 0] if the data is not present or if the
@@ -1499,7 +1499,7 @@ libpng strip the channel leaving just RGB or gray data:
 
 If you strip the alpha channel you need to find some other way of dealing with
 the information.  If, instead, you want to convert the image to an opaque
-version with no alpha channel use png_set_background; see below.
+version with no alpha channel use <a href="png.h.html#L1330">png_set_background</a>; see below.
 
 As of libpng version 1.5.2, almost all useful expansions are supported, the
 major ommissions are conversion of grayscale to indexed images (which can be
@@ -1541,7 +1541,7 @@ Within the matrix,
          if there is no transparency in the original or the final
          format).
      "C" means the transformation is obtained by <a href="png.h.html#L1102">png_set_gray_to_rgb</a>().
-     "G" means the transformation is obtained by png_set_rgb_to_gray().
+     "G" means the transformation is obtained by <a href="png.h.html#L1112">png_set_rgb_to_gray</a>().
      "P" means the transformation is obtained by
          png_set_expand_palette_to_rgb().
      "p" means the transformation is obtained by <a href="png.h.html#L1293">png_set_packing</a>().
@@ -1549,7 +1549,7 @@ Within the matrix,
      "T" means the transformation is obtained by
          <a href="png.h.html#L1085">png_set_tRNS_to_alpha</a>().
      "B" means the transformation is obtained by
-         png_set_background(), or png_strip_alpha().
+         <a href="png.h.html#L1330">png_set_background</a>(), or png_strip_alpha().
 
 When an entry has multiple transforms listed all are required to cause the
 right overall transformation.  When two transforms are separated by a comma
@@ -1635,7 +1635,7 @@ with alpha.
 
     if (color_type == <a href="png.h.html#L701">PNG_COLOR_TYPE_RGB</a> ||
         color_type == <a href="png.h.html#L702">PNG_COLOR_TYPE_RGB_ALPHA</a>)
-       png_set_rgb_to_gray(png_ptr, error_action,
+       <a href="png.h.html#L1112">png_set_rgb_to_gray</a>(png_ptr, error_action,
           double red_weight, double green_weight);
 
     error_action = 1: silently do the conversion
@@ -1658,7 +1658,7 @@ with alpha.
 In the corresponding fixed point API the red_weight and green_weight values are
 simply scaled by 100,000:
 
-    png_set_rgb_to_gray(png_ptr, error_action,
+    <a href="png.h.html#L1112">png_set_rgb_to_gray</a>(png_ptr, error_action,
        png_fixed_point red_weight,
        png_fixed_point green_weight);
 
@@ -1691,7 +1691,7 @@ Libpng uses an integer approximation:
 The calculation is done in a linear colorspace, if the image gamma
 can be determined.
 
-The png_set_background() function has been described already; it tells libpng to
+The <a href="png.h.html#L1330">png_set_background</a>() function has been described already; it tells libpng to
 composite images with alpha or simple transparency against the supplied
 background color.  For compatibility with versions of libpng earlier than
 libpng-1.5.4 it is recommended that you call the function after reading the file
@@ -1710,10 +1710,10 @@ useful:
     png_color_16p image_background;
 
     if (<a href="png.h.html#L1956">png_get_bKGD</a>(png_ptr, info_ptr, &amp;image_background))
-       png_set_background(png_ptr, image_background,
+       <a href="png.h.html#L1330">png_set_background</a>(png_ptr, image_background,
            <a href="png.h.html#L1340">PNG_BACKGROUND_GAMMA_FILE</a>, 1/*needs to be expanded*/, 1);
     else
-       png_set_background(png_ptr, &amp;my_background,
+       <a href="png.h.html#L1330">png_set_background</a>(png_ptr, &amp;my_background,
            <a href="png.h.html#L1339">PNG_BACKGROUND_GAMMA_SCREEN</a>, 0/*do not expand*/, 1);
 
 The second call was described above - my_background is in the format of the
@@ -1729,13 +1729,13 @@ of the PNG file.  So, for palette images the color is supplied as a palette
 index and for low bit greyscale images the color is a reduced bit value in
 image_background-&gt;gray.
 
-If you didn't call png_set_gamma() before reading the file header, for example
+If you didn't call <a href="png.h.html#L1381">png_set_gamma</a>() before reading the file header, for example
 if you need your code to remain compatible with older versions of libpng prior
 to libpng-1.5.4, this is the place to call it.
 
-Do not call it if you called png_set_alpha_mode(); doing so will damage the
-settings put in place by png_set_alpha_mode().  (If png_set_alpha_mode() is
-supported then you can certainly do png_set_gamma() before reading the PNG
+Do not call it if you called <a href="png.h.html#L1168">png_set_alpha_mode</a>(); doing so will damage the
+settings put in place by <a href="png.h.html#L1168">png_set_alpha_mode</a>().  (If <a href="png.h.html#L1168">png_set_alpha_mode</a>() is
+supported then you can certainly do <a href="png.h.html#L1381">png_set_gamma</a>() before reading the PNG
 header.)
 
 This API unconditionally sets the screen and file gamma values, so it will
@@ -1743,11 +1743,11 @@ override the value in the PNG file unless it is called before the PNG file
 reading starts.  For this reason you must always call it with the PNG file
 value when you call it in this position:
 
-   if (png_get_gAMA(png_ptr, info_ptr, &amp;file_gamma))
-      png_set_gamma(png_ptr, screen_gamma, file_gamma);
+   if (<a href="png.h.html#L2025">png_get_gAMA</a>(png_ptr, info_ptr, &amp;file_gamma))
+      <a href="png.h.html#L1381">png_set_gamma</a>(png_ptr, screen_gamma, file_gamma);
 
    else
-      png_set_gamma(png_ptr, screen_gamma, 0.45455);
+      <a href="png.h.html#L1381">png_set_gamma</a>(png_ptr, screen_gamma, 0.45455);
 
 If you need to reduce an RGB file to a paletted file, or if a paletted
 file has more entries than will fit on your screen, <a href="png.h.html#L1359">png_set_quantize</a>()
