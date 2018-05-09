@@ -29,6 +29,12 @@ namespace dromozoa {
   void initialize_main(lua_State* L) {
     luaX_set_field(L, -1, "sig_cmp", impl_sig_cmp);
 
+    luaX_set_field(L, -1, "PNG_LIBPNG_VER_STRING", PNG_LIBPNG_VER_STRING);
+    luaX_set_field(L, -1, "PNG_LIBPNG_VER_MAJOR", PNG_LIBPNG_VER_MAJOR);
+    luaX_set_field(L, -1, "PNG_LIBPNG_VER_MINOR", PNG_LIBPNG_VER_MINOR);
+    luaX_set_field(L, -1, "PNG_LIBPNG_VER_RELEASE", PNG_LIBPNG_VER_RELEASE);
+    luaX_set_field(L, -1, "PNG_LIBPNG_VER", PNG_LIBPNG_VER);
+
     luaX_set_field(L, -1, "PNG_INFO_gAMA", PNG_INFO_gAMA);
     luaX_set_field(L, -1, "PNG_INFO_sBIT", PNG_INFO_sBIT);
     luaX_set_field(L, -1, "PNG_INFO_cHRM", PNG_INFO_cHRM);
