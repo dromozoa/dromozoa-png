@@ -25,9 +25,9 @@ namespace dromozoa {
   class reader_handle_impl {
   public:
     reader_handle_impl() : png_(), info_(), end_() {
-      png_ = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, error, 0);
+      png_ = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, error_fn, 0);
       if (!png_) {
-        error(0, "png_create_read_struct failed");
+        error_fn(0, "png_create_read_struct failed");
       }
     }
 

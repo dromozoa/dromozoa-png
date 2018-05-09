@@ -17,14 +17,25 @@
 
 local png = require "dromozoa.png"
 
+local verbose = os.getenv "VERBOSE" == "1"
+
 local reader = assert(png.reader())
 
 local handle = assert(io.open("docs/lenna.png", "rb"))
-reader:set_read_fn(function (n)
-  return handle:read(n)
-end)
+local header = handle:read(8)
+if verbose then
+  io.stderr:write(header:gsub("[%z\1-\31\127-\255]", function (source)
+    return ([[\x%02x]]):format(source:byte(1, 1))
+  end), "\n")
+end
+assert(png.sig_cmp(header) == 0)
 
-assert(reader:read_info())
+assert(reader:set_sig_bytes(#header))
+assert(reader:set_read_fn(function (n)
+  return handle:read(n)
+end))
+
+assert(reader:read_png())
 
 assert(not reader:get_valid(png.PNG_INFO_PLTE))
 assert(not reader:get_valid(png.PNG_INFO_tRNS))
@@ -47,3 +58,10 @@ assert(reader:get_color_type() == png.PNG_COLOR_TYPE_RGB_ALPHA)
 assert(reader:get_interlace_type() == png.PNG_INTERLACE_NONE)
 assert(reader:get_compression_type() == png.PNG_COMPRESSION_TYPE_BASE)
 assert(reader:get_filter_type() == png.PNG_FILTER_TYPE_BASE)
+
+local rows = assert(reader:get_rows())
+assert(#rows == 580)
+for i = 1, #rows do
+  local row = rows[i]
+  assert(#row == 271 * 4)
+end

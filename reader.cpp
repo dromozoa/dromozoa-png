@@ -37,8 +37,22 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_set_sig_bytes(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      int num_bytes = luaX_check_integer<int>(L, 2);
+      png_set_sig_bytes(self->png(), num_bytes);
+      luaX_push_success(L);
+    }
+
     void impl_set_read_fn(lua_State* L) {
       check_reader_handle(L, 1)->set_read_fn(L, 2);
+      luaX_push_success(L);
+    }
+
+    void impl_read_png(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
+      png_read_png(self->png(), self->info(), transforms, 0);
       luaX_push_success(L);
     }
 
@@ -46,6 +60,25 @@ namespace dromozoa {
       reader_handle* self = check_reader_handle(L, 1);
       png_read_info(self->png(), self->info());
       luaX_push_success(L);
+    }
+
+    void impl_read_end(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_read_end(self->png(), self->end());
+      luaX_push_success(L);
+    }
+
+    void impl_get_rows(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_uint_32 height = png_get_image_height(self->png(), self->info());
+      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
+      if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
+        lua_newtable(L);
+        for (png_uint_32 i = 0; i < height; ++i) {
+          lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
+          luaX_set_field(L, -2, i + 1);
+        }
+      }
     }
 
     void impl_get_valid(lua_State* L) {
@@ -110,6 +143,21 @@ namespace dromozoa {
       luaX_push(L, png_get_filter_type(self->png(), self->info()));
     }
 
+    void impl_get_channels(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_channels(self->png(), self->info()));
+    }
+
+    void impl_get_rowbytes(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, png_get_rowbytes(self->png(), self->info()));
+    }
+
+    void impl_get_signature(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      luaX_push(L, reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8);
+    }
+
     void impl_set_pallete_to_rgb(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_set_palette_to_rgb(self->png());
@@ -149,7 +197,13 @@ namespace dromozoa {
       luaX_set_metafield(L, -1, "__call", impl_call);
       luaX_set_field(L, -1, "destroy", impl_destroy);
       luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
+      luaX_set_field(L, -1, "set_sig_bytes", impl_set_sig_bytes);
+      luaX_set_field(L, -1, "read_png", impl_read_png);
       luaX_set_field(L, -1, "read_info", impl_read_info);
+      luaX_set_field(L, -1, "read_end", impl_read_end);
+
+      luaX_set_field(L, -1, "get_rows", impl_get_rows);
+
       luaX_set_field(L, -1, "get_valid", impl_get_valid);
       luaX_set_field(L, -1, "get_IHDR", impl_get_IHDR);
       luaX_set_field(L, -1, "get_image_width", impl_get_image_width);
@@ -159,6 +213,10 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_interlace_type", impl_get_interlace_type);
       luaX_set_field(L, -1, "get_compression_type", impl_get_compression_type);
       luaX_set_field(L, -1, "get_filter_type", impl_get_filter_type);
+      luaX_set_field(L, -1, "get_channels", impl_get_channels);
+      luaX_set_field(L, -1, "get_rowbytes", impl_get_rowbytes);
+      luaX_set_field(L, -1, "get_signature", impl_get_signature);
+
       luaX_set_field(L, -1, "set_pallete_to_rgb", impl_set_pallete_to_rgb);
       luaX_set_field(L, -1, "set_tRNS_to_alpha", impl_set_tRNS_to_alpha);
       luaX_set_field(L, -1, "set_expand_gray_1_2_4_to_8", impl_set_expand_gray_1_2_4_to_8);
@@ -167,5 +225,21 @@ namespace dromozoa {
 #endif
     }
     luaX_set_field(L, -2, "reader");
+
+    luaX_set_field(L, -1, "PNG_TRANSFORM_IDENTITY", PNG_TRANSFORM_IDENTITY);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_SCALE_16", PNG_TRANSFORM_SCALE_16);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_STRIP_16", PNG_TRANSFORM_STRIP_16);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_STRIP_ALPHA", PNG_TRANSFORM_STRIP_ALPHA);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_PACKING", PNG_TRANSFORM_PACKING);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_PACKSWAP", PNG_TRANSFORM_PACKSWAP);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_EXPAND", PNG_TRANSFORM_EXPAND);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_INVERT_MONO", PNG_TRANSFORM_INVERT_MONO);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_SHIFT", PNG_TRANSFORM_SHIFT);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_BGR", PNG_TRANSFORM_BGR);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_SWAP_ALPHA", PNG_TRANSFORM_SWAP_ALPHA);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_INVERT_ALPHA", PNG_TRANSFORM_INVERT_ALPHA);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_SWAP_ENDIAN", PNG_TRANSFORM_SWAP_ENDIAN);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_GRAY_TO_RGB", PNG_TRANSFORM_GRAY_TO_RGB);
+    luaX_set_field(L, -1, "PNG_TRANSFORM_EXPAND_16", PNG_TRANSFORM_EXPAND_16);
   }
 }

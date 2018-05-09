@@ -18,7 +18,17 @@
 #include "common.hpp"
 
 namespace dromozoa {
+  namespace {
+    void impl_sig_cmp(lua_State* L) {
+      size_t n = 0;
+      png_const_bytep header = reinterpret_cast<png_const_bytep>(luaL_checklstring(L, 1, &n));
+      luaX_push(L, png_sig_cmp(header, 0, n));
+    }
+  }
+
   void initialize_main(lua_State* L) {
+    luaX_set_field(L, -1, "sig_cmp", impl_sig_cmp);
+
     luaX_set_field(L, -1, "PNG_INFO_gAMA", PNG_INFO_gAMA);
     luaX_set_field(L, -1, "PNG_INFO_sBIT", PNG_INFO_sBIT);
     luaX_set_field(L, -1, "PNG_INFO_cHRM", PNG_INFO_cHRM);
