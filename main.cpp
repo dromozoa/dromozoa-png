@@ -24,8 +24,9 @@ namespace dromozoa {
     }
 
     void impl_sig_cmp(lua_State* L) {
+      // no png_const_bytep prior to libpng 1.5.x
       size_t n = 0;
-      png_const_bytep header = reinterpret_cast<png_const_bytep>(luaL_checklstring(L, 1, &n));
+      png_bytep header = reinterpret_cast<png_bytep>(const_cast<char*>(luaL_checklstring(L, 1, &n)));
       luaX_push(L, png_sig_cmp(header, 0, n));
     }
   }
