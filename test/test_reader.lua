@@ -59,6 +59,19 @@ assert(reader:get_interlace_type() == png.PNG_INTERLACE_NONE)
 assert(reader:get_compression_type() == png.PNG_COMPRESSION_TYPE_BASE)
 assert(reader:get_filter_type() == png.PNG_FILTER_TYPE_BASE)
 
+assert(reader:get_x_pixels_per_meter() == math.ceil(72 / 0.0254))
+assert(reader:get_y_pixels_per_meter() == math.ceil(72 / 0.0254))
+assert(reader:get_pixels_per_meter() == math.ceil(72 / 0.0254))
+assert(reader:get_x_pixels_per_inch() == 72)
+assert(reader:get_y_pixels_per_inch() == 72)
+assert(reader:get_pixels_per_inch() == 72)
+assert(reader:get_pixel_aspect_ratio() == 1)
+
+assert(reader:get_x_offset_microns() == 0)
+assert(reader:get_y_offset_microns() == 0)
+assert(reader:get_x_offset_inches() == 0)
+assert(reader:get_y_offset_inches() == 0)
+
 local rows = assert(reader:get_rows())
 assert(#rows == 580)
 for i = 1, #rows do
