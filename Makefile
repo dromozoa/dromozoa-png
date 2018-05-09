@@ -25,7 +25,9 @@ OBJS = \
 	main.o \
 	module.o \
 	reader.o \
-	reader_handle.o
+	reader_handle.o \
+	writer.o \
+	writer_handle.o
 TARGET = png.so
 
 all: $(TARGET)

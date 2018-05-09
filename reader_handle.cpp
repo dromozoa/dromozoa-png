@@ -65,8 +65,8 @@ namespace dromozoa {
       return end_;
     }
 
-    void set_read_fn(lua_State* L, int index) {
-      luaX_reference<>(L, index).swap(read_ref_);
+    void set_read_fn(lua_State* L, int index_read) {
+      luaX_reference<>(L, index_read).swap(read_fn_);
       png_set_read_fn(png_, this, read_fn);
     }
 
@@ -74,7 +74,7 @@ namespace dromozoa {
     png_structp png_;
     png_infop info_;
     png_infop end_;
-    luaX_reference<> read_ref_;
+    luaX_reference<> read_fn_;
 
     reader_handle_impl(const reader_handle_impl&);
     reader_handle_impl& operator=(const reader_handle_impl&);
@@ -84,10 +84,10 @@ namespace dromozoa {
     }
 
     void read(png_bytep data, png_size_t length) {
-      lua_State* L = read_ref_.state();
+      lua_State* L = read_fn_.state();
       luaX_top_saver save_top(L);
       {
-        read_ref_.get_field(L);
+        read_fn_.get_field(L);
         luaX_push(L, length);
         int r = lua_pcall(L, 1, 1, 0);
         if (r == 0) {
@@ -134,7 +134,7 @@ namespace dromozoa {
     return impl_->end();
   }
 
-  void reader_handle::set_read_fn(lua_State* L, int index) {
-    impl_->set_read_fn(L, index);
+  void reader_handle::set_read_fn(lua_State* L, int index_read) {
+    impl_->set_read_fn(L, index_read);
   }
 }

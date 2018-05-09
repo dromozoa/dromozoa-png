@@ -36,11 +36,28 @@ namespace dromozoa {
     png_structp png() const;
     png_infop info() const;
     png_infop end() const;
-    void set_read_fn(lua_State* L, int index);
+    void set_read_fn(lua_State* L, int index_read);
   private:
     scoped_ptr<reader_handle_impl> impl_;
     reader_handle(const reader_handle&);
     reader_handle& operator=(const reader_handle&);
+  };
+
+  class writer_handle_impl;
+
+  class writer_handle {
+  public:
+    static writer_handle_impl* create();
+    explicit writer_handle(writer_handle_impl* impl);
+    ~writer_handle();
+    void destroy();
+    png_structp png() const;
+    png_infop info() const;
+    void set_write_fn(lua_State* L, int index_write, int index_flush);
+  private:
+    scoped_ptr<writer_handle_impl> impl_;
+    writer_handle(const writer_handle&);
+    writer_handle& operator=(const writer_handle&);
   };
 }
 
