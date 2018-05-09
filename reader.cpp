@@ -21,14 +21,6 @@
 
 namespace dromozoa {
   namespace {
-    void push_row_pointers(lua_State* L, png_bytepp row_pointers, png_uint_32 height, png_size_t rowbytes) {
-      lua_newtable(L);
-      for (png_uint_32 i = 0; i < height; ++i) {
-        lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
-        luaX_set_field(L, -2, i + 1);
-      }
-    }
-
     reader_handle* check_reader_handle(lua_State* L, int arg) {
       return luaX_check_udata<reader_handle>(L, arg, "dromozoa.png.reader");
     }
@@ -66,37 +58,16 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
-    void impl_read_info(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_read_info(self->png(), self->info());
-      luaX_push_success(L);
-    }
-
-    void impl_read_image(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_uint_32 height = png_get_image_height(self->png(), self->info());
-      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-      std::vector<png_byte> row_storage(height * rowbytes);
-      std::vector<png_bytep> row_pointers(height);
-      for (png_uint_32 i = 0; i < height; ++i) {
-        row_pointers[i] = &row_storage[i * rowbytes];
-      }
-      png_read_image(self->png(), &row_pointers[0]);
-      push_row_pointers(L, &row_pointers[0], height, rowbytes);
-    }
-
-    void impl_read_end(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_read_end(self->png(), self->end());
-      luaX_push_success(L);
-    }
-
     void impl_get_rows(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
       png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
-        push_row_pointers(L, row_pointers, height, rowbytes);
+        lua_newtable(L);
+        for (png_uint_32 i = 0; i < height; ++i) {
+          lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
+          luaX_set_field(L, -2, i + 1);
+        }
       }
     }
 
@@ -231,32 +202,6 @@ namespace dromozoa {
       reader_handle* self = check_reader_handle(L, 1);
       luaX_push(L, png_get_y_offset_inches(self->png(), self->info()));
     }
-
-    void impl_set_pallete_to_rgb(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_set_palette_to_rgb(self->png());
-      luaX_push_success(L);
-    }
-
-    void impl_set_tRNS_to_alpha(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_set_tRNS_to_alpha(self->png());
-      luaX_push_success(L);
-    }
-
-    void impl_set_expand_gray_1_2_4_to_8(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_set_expand_gray_1_2_4_to_8(self->png());
-      luaX_push_success(L);
-    }
-
-#if PNG_LIBPNG_VER >= 10502
-    void impl_set_expand_16(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_set_expand_16(self->png());
-      luaX_push_success(L);
-    }
-#endif
   }
 
   void initialize_reader(lua_State* L) {
@@ -272,11 +217,7 @@ namespace dromozoa {
       luaX_set_field(L, -1, "destroy", impl_destroy);
       luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
       luaX_set_field(L, -1, "set_sig_bytes", impl_set_sig_bytes);
-
       luaX_set_field(L, -1, "read_png", impl_read_png);
-      luaX_set_field(L, -1, "read_info", impl_read_info);
-      luaX_set_field(L, -1, "read_image", impl_read_image);
-      luaX_set_field(L, -1, "read_end", impl_read_end);
 
       luaX_set_field(L, -1, "get_rows", impl_get_rows);
 
@@ -305,13 +246,6 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_y_offset_microns", impl_get_y_offset_microns);
       luaX_set_field(L, -1, "get_x_offset_inches", impl_get_x_offset_inches);
       luaX_set_field(L, -1, "get_y_offset_inches", impl_get_y_offset_inches);
-
-      luaX_set_field(L, -1, "set_pallete_to_rgb", impl_set_pallete_to_rgb);
-      luaX_set_field(L, -1, "set_tRNS_to_alpha", impl_set_tRNS_to_alpha);
-      luaX_set_field(L, -1, "set_expand_gray_1_2_4_to_8", impl_set_expand_gray_1_2_4_to_8);
-#if PNG_LIBPNG_VER >= 10502
-      luaX_set_field(L, -1, "set_expand_16", impl_set_expand_16);
-#endif
     }
     luaX_set_field(L, -2, "reader");
   }
