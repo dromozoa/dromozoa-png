@@ -20,10 +20,12 @@
 namespace dromozoa {
   void initialize_main(lua_State* L);
   void initialize_reader(lua_State* L);
+  void initialize_writer(lua_State* L);
 
   void initialize(lua_State* L) {
     initialize_main(L);
     initialize_reader(L);
+    initialize_writer(L);
   }
 }
 

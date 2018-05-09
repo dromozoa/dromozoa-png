@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <vector>
+
 #include "common.hpp"
 
 namespace dromozoa {
@@ -57,10 +59,21 @@ namespace dromozoa {
       png_set_write_fn(png_, this, write_fn, flush_fn);
     }
 
+    png_bytepp create_rows(png_uint_32 height, size_t rowbytes) {
+      row_storage_.resize(height * rowbytes);
+      row_pointers_.resize(height);
+      for (png_uint_32 i = 0; i < height; ++i) {
+        row_pointers_[i] = &row_storage_[i * rowbytes];
+      }
+      return &row_pointers_[0];
+    }
+
   private:
     png_structp png_;
     png_infop info_;
     luaX_reference<2> write_fn_;
+    std::vector<png_byte> row_storage_;
+    std::vector<png_bytep> row_pointers_;
 
     writer_handle_impl(const writer_handle_impl&);
     writer_handle_impl& operator=(const writer_handle_impl&);
@@ -96,7 +109,7 @@ namespace dromozoa {
       lua_State* L = write_fn_.state();
       luaX_top_saver save_top(L);
       {
-        write_fn_.get_field(L);
+        write_fn_.get_field(L, 1);
         if (!lua_isnil(L, -1)) {
           int r = lua_pcall(L, 0, 0, 0);
           if (r != 0) {
@@ -131,5 +144,9 @@ namespace dromozoa {
 
   void writer_handle::set_write_fn(lua_State* L, int index_write, int index_flush) {
     impl_->set_write_fn(L, index_write, index_flush);
+  }
+
+  png_bytepp writer_handle::create_rows(png_uint_32 height, size_t rowbytes) {
+    return impl_->create_rows(height, rowbytes);
   }
 }

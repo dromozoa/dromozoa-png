@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <string.h>
+
 #include "common.hpp"
 
 namespace dromozoa {
@@ -54,6 +56,46 @@ namespace dromozoa {
       png_set_IHDR(self->png(), self->info(), width, height, bit_depth, color_type, interlace_type, compression_type, filter_type);
       luaX_push_success(L);
     }
+
+    void impl_set_rows(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      png_uint_32 height = png_get_image_height(self->png(), self->info());
+      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
+      png_bytepp row_pointers = self->create_rows(height, rowbytes);
+      for (png_uint_32 i = 0; i < height; ++i) {
+        luaX_get_field(L, 2, i + 1);
+        size_t length = 0;
+        if (const char* ptr = lua_tolstring(L, -1, &length)) {
+          if (length <= rowbytes) {
+            // check error
+            memcpy(row_pointers[i], ptr, length);
+          }
+        }
+        lua_pop(L, 1);
+      }
+      png_set_rows(self->png(), self->info(), row_pointers);
+      luaX_push_success(L);
+    }
+
+    void impl_write_png(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
+      png_write_png(self->png(), self->info(), transforms, 0);
+      luaX_push_success(L);
+    }
+
+    void impl_set_flush(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      int nrows = luaX_check_integer<int>(L, 2);
+      png_set_flush(self->png(), nrows);
+      luaX_push_success(L);
+    }
+
+    void impl_write_flush(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      png_write_flush(self->png());
+      luaX_push_success(L);
+    }
   }
 
   void initialize_writer(lua_State* L) {
@@ -69,6 +111,11 @@ namespace dromozoa {
       luaX_set_field(L, -1, "destroy", impl_destroy);
       luaX_set_field(L, -1, "set_write_fn", impl_set_write_fn);
       luaX_set_field(L, -1, "set_IHDR", impl_set_IHDR);
+      luaX_set_field(L, -1, "set_rows", impl_set_rows);
+      luaX_set_field(L, -1, "write_png", impl_write_png);
+      luaX_set_field(L, -1, "set_flush", impl_set_flush);
+      luaX_set_field(L, -1, "write_flush", impl_write_flush);
     }
+    luaX_set_field(L, -2, "writer");
   }
 }
