@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <stddef.h>
+
 #include "common.hpp"
 
 namespace dromozoa {
@@ -102,6 +104,11 @@ namespace dromozoa {
     luaX_set_field(L, -1, "PNG_INTERLACE_ADAM7", PNG_INTERLACE_ADAM7);
     luaX_set_field(L, -1, "PNG_COMPRESSION_TYPE_BASE", PNG_COMPRESSION_TYPE_BASE);
     luaX_set_field(L, -1, "PNG_FILTER_TYPE_BASE", PNG_FILTER_TYPE_BASE);
+
+    luaX_set_field(L, -1, "PNG_TEXT_COMPRESSION_NONE", PNG_TEXT_COMPRESSION_NONE);
+    luaX_set_field(L, -1, "PNG_TEXT_COMPRESSION_zTXt", PNG_TEXT_COMPRESSION_zTXt);
+    luaX_set_field(L, -1, "PNG_ITXT_COMPRESSION_NONE", PNG_ITXT_COMPRESSION_NONE);
+    luaX_set_field(L, -1, "PNG_ITXT_COMPRESSION_zTXt", PNG_ITXT_COMPRESSION_zTXt);
 
     luaX_set_field(L, -1, "PNG_OFFSET_PIXEL", PNG_OFFSET_PIXEL);
     luaX_set_field(L, -1, "PNG_OFFSET_MICROMETER", PNG_OFFSET_MICROMETER);

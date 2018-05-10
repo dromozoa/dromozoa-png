@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <stddef.h>
 #include <string.h>
 
 #include "common.hpp"
@@ -54,28 +55,60 @@ namespace dromozoa {
       return info_;
     }
 
+    void set_warning_fn(lua_State* L, int index) {
+      if (lua_isnoneornil(L, index)) {
+        luaX_reference<>().swap(warning_fn_);
+        png_set_error_fn(png_, this, error_fn, 0);
+      } else {
+        luaX_reference<>(L, index).swap(warning_fn_);
+        png_set_error_fn(png_, this, error_fn, warning_fn);
+      }
+    }
+
     void set_read_fn(lua_State* L, int index) {
-      luaX_reference<>(L, index).swap(ref_);
-      png_set_read_fn(png_, this, read_fn);
+      if (lua_isnoneornil(L, index)) {
+        luaX_reference<>().swap(read_fn_);
+        png_set_read_fn(png_, 0, 0);
+      } else {
+        luaX_reference<>(L, index).swap(read_fn_);
+        png_set_read_fn(png_, this, read_fn);
+      }
     }
 
   private:
     png_structp png_;
     png_infop info_;
-    luaX_reference<> ref_;
+    luaX_reference<> warning_fn_;
+    luaX_reference<> read_fn_;
 
     reader_handle_impl(const reader_handle_impl&);
     reader_handle_impl& operator=(const reader_handle_impl&);
+
+    static void warning_fn(png_structp png, png_const_charp message) {
+      static_cast<reader_handle_impl*>(png_get_error_ptr(png))->warning(message);
+    }
 
     static void read_fn(png_structp png, png_bytep data, png_size_t length) {
       static_cast<reader_handle_impl*>(png_get_io_ptr(png))->read(data, length);
     }
 
-    void read(png_bytep data, png_size_t length) {
-      lua_State* L = ref_.state();
+    void warning(png_const_charp message) {
+      lua_State* L = warning_fn_.state();
       luaX_top_saver save_top(L);
       {
-        ref_.get_field(L);
+        warning_fn_.get_field(L);
+        luaX_push(L, message);
+        if (lua_pcall(L, 1, 0, 0) != 0) {
+          png_error(png_, lua_tostring(L, -1));
+        }
+      }
+    }
+
+    void read(png_bytep data, png_size_t length) {
+      lua_State* L = read_fn_.state();
+      luaX_top_saver save_top(L);
+      {
+        read_fn_.get_field(L);
         luaX_push(L, length);
         if (lua_pcall(L, 1, 1, 0) == 0) {
           size_t result = 0;
@@ -115,6 +148,10 @@ namespace dromozoa {
 
   png_infop reader_handle::info() const {
     return impl_->info();
+  }
+
+  void reader_handle::set_warning_fn(lua_State* L, int index) {
+    impl_->set_warning_fn(L, index);
   }
 
   void reader_handle::set_read_fn(lua_State* L, int index) {

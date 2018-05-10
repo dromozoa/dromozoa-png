@@ -46,6 +46,11 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_set_warning_fn(lua_State* L) {
+      check_reader_handle(L, 1)->set_warning_fn(L, 2);
+      luaX_push_success(L);
+    }
+
     void impl_set_read_fn(lua_State* L) {
       check_reader_handle(L, 1)->set_read_fn(L, 2);
       luaX_push_success(L);
@@ -96,7 +101,7 @@ namespace dromozoa {
       int interlace_type = 0;
       int compression_type = 0;
       int filter_type = 0;
-      if (png_get_IHDR(self->png(), self->info(), &width, &height, &bit_depth, &color_type, &interlace_type, &compression_type, &filter_type) != 0) {
+      if (png_get_IHDR(self->png(), self->info(), &width, &height, &bit_depth, &color_type, &interlace_type, &compression_type, &filter_type)) {
         lua_newtable(L);
         luaX_set_field(L, -1, "width", width);
         luaX_set_field(L, -1, "height", height);
@@ -158,12 +163,55 @@ namespace dromozoa {
       lua_pushlstring(L, reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8);
     }
 
+    void impl_get_tIME(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_timep mod_time = 0;
+      if (png_get_tIME(self->png(), self->info(), &mod_time)) {
+        lua_newtable(L);
+        luaX_set_field(L, -1, "year", mod_time->year);
+        luaX_set_field(L, -1, "month", mod_time->month);
+        luaX_set_field(L, -1, "day", mod_time->day);
+        luaX_set_field(L, -1, "hour", mod_time->hour);
+        luaX_set_field(L, -1, "min", mod_time->minute);
+        luaX_set_field(L, -1, "sec", mod_time->second);
+      }
+    }
+
+    void impl_get_text(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_textp text = 0;
+      int num_text = 0;
+      if (png_get_text(self->png(), self->info(), &text, &num_text)) {
+        lua_newtable(L);
+        for (int i = 0; i < num_text; ++i) {
+          lua_newtable(L);
+          luaX_set_field(L, -1, "compression", text[i].compression);
+          luaX_set_field(L, -1, "key", text[i].key);
+          switch (text[i].compression) {
+            case PNG_TEXT_COMPRESSION_NONE:
+            case PNG_TEXT_COMPRESSION_zTXt:
+              lua_pushlstring(L, text[i].text, text[i].text_length);
+              luaX_set_field(L, -2, "text");
+              break;
+            case PNG_ITXT_COMPRESSION_NONE:
+            case PNG_ITXT_COMPRESSION_zTXt:
+              lua_pushlstring(L, text[i].text, text[i].itxt_length);
+              luaX_set_field(L, -2, "text");
+              luaX_set_field(L, -1, "lang", text[i].lang);
+              luaX_set_field(L, -1, "lang_key", text[i].lang_key);
+              break;
+          }
+          luaX_set_field(L, -2, i + 1);
+        }
+      }
+    }
+
     void impl_get_oFFs(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_int_32 offset_x = 0;
       png_int_32 offset_y = 0;
       int unit_type = 0;
-      if (png_get_oFFs(self->png(), self->info(), &offset_x, &offset_y, &unit_type) != 0) {
+      if (png_get_oFFs(self->png(), self->info(), &offset_x, &offset_y, &unit_type)) {
         lua_newtable(L);
         luaX_set_field(L, -1, "offset_x", offset_x);
         luaX_set_field(L, -1, "offset_y", offset_y);
@@ -186,7 +234,7 @@ namespace dromozoa {
       png_uint_32 res_x = 0;
       png_uint_32 res_y = 0;
       int unit_type = 0;
-      if (png_get_pHYs(self->png(), self->info(), &res_x, &res_y, &unit_type) != 0) {
+      if (png_get_pHYs(self->png(), self->info(), &res_x, &res_y, &unit_type)) {
         lua_newtable(L);
         luaX_set_field(L, -1, "res_x", res_x);
         luaX_set_field(L, -1, "res_y", res_y);
@@ -227,6 +275,7 @@ namespace dromozoa {
       luaX_set_metafield(L, -1, "__call", impl_call);
       luaX_set_field(L, -1, "destroy", impl_destroy);
       luaX_set_field(L, -1, "set_sig_bytes", impl_set_sig_bytes);
+      luaX_set_field(L, -1, "set_warning_fn", impl_set_warning_fn);
       luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
       luaX_set_field(L, -1, "read_png", impl_read_png);
       luaX_set_field(L, -1, "get_valid", impl_get_valid);
@@ -244,6 +293,9 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_channels", impl_get_channels);
       luaX_set_field(L, -1, "get_rowbytes", impl_get_rowbytes);
       luaX_set_field(L, -1, "get_signature", impl_get_signature);
+
+      luaX_set_field(L, -1, "get_tIME", impl_get_tIME);
+      luaX_set_field(L, -1, "get_text", impl_get_text);
 
       luaX_set_field(L, -1, "get_oFFs", impl_get_oFFs);
       luaX_set_field(L, -1, "get_x_offset_microns", impl_get_x_offset_microns);
