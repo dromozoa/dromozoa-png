@@ -124,8 +124,6 @@ namespace dromozoa {
           lua_pop(L, 1);
         }
         luaX_push_success(L);
-      } else {
-        png_error(self->png(), "row_pointers not prepared");
       }
     }
 
@@ -139,8 +137,6 @@ namespace dromozoa {
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
         memcpy(row_pointers[i], ptr, std::min(rowbytes, length));
         luaX_push_success(L);
-      } else {
-        png_error(self->png(), "row_pointers not prepared");
       }
     }
 
