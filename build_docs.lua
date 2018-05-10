@@ -191,3 +191,62 @@ for k = 1, #section_patterns do
   i = j
 end
 write_manual_html(#section_titles, section_titles[#section_titles], lines, i, #lines, symbol_table, toc_start, toc_end)
+
+
+local out = assert(io.open("docs/PngSuite.html", "w"))
+out:write [[
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>PngSuite</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>PngSuite</h1>
+
+<ul>
+  <li><a href="PngSuite-2017jul19/PngSuite.LICENSE">PngSuite.LICENSE</a></li>
+  <li><a href="PngSuite-2017jul19/PngSuite.README">PngSuite.README</a></li>
+</ul>
+
+<p><img src="PngSuite-2017jul19/PngSuite.png"></p>
+
+<p>
+]]
+
+local handle = assert(io.popen("cd docs/PngSuite-2017jul19 && ls"))
+for line in handle:lines() do
+  if not line:find "^PngSuite" and line:find "%.png$" then
+    out:write(([[
+  <img src="PngSuite-2017jul19/%s">
+]]):format(line))
+  end
+end
+handle:close()
+
+out:write [[
+</p>
+
+</div>
+</body>
+</html>
+]]
+out:close()
