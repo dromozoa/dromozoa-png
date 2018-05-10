@@ -35,6 +35,7 @@ end, function ()
   end
   out:flush()
 end))
+assert(writer:set_flush(2))
 
 assert(writer:set_IHDR {
   width = 2;
@@ -96,7 +97,6 @@ assert(writer:set_row(3, string.char(0x00, 0x00, 0xFF, 0x7F, 0x00, 0x7F)))
 collectgarbage()
 collectgarbage()
 
-assert(writer:set_flush(2))
 assert(writer:write_png())
 assert(flush == 1)
 

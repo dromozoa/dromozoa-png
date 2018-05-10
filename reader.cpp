@@ -69,29 +69,6 @@ namespace dromozoa {
       luaX_push(L, png_get_valid(self->png(), self->info(), flag) != 0);
     }
 
-    void impl_get_rows(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
-        png_uint_32 height = png_get_image_height(self->png(), self->info());
-        png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-        lua_newtable(L);
-        for (png_uint_32 i = 0; i < height; ++i) {
-          lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
-          luaX_set_field(L, -2, i + 1);
-        }
-      }
-    }
-
-    void impl_get_row(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
-        png_uint_32 height = png_get_image_height(self->png(), self->info());
-        png_uint_32 i = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
-        png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-        lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
-      }
-    }
-
     void impl_get_IHDR(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_uint_32 width = 0;
@@ -263,6 +240,29 @@ namespace dromozoa {
       reader_handle* self = check_reader_handle(L, 1);
       luaX_push(L, png_get_pixel_aspect_ratio(self->png(), self->info()));
     }
+
+    void impl_get_rows(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
+        png_uint_32 height = png_get_image_height(self->png(), self->info());
+        png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
+        lua_newtable(L);
+        for (png_uint_32 i = 0; i < height; ++i) {
+          lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
+          luaX_set_field(L, -2, i + 1);
+        }
+      }
+    }
+
+    void impl_get_row(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
+        png_uint_32 height = png_get_image_height(self->png(), self->info());
+        png_uint_32 i = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
+        png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
+        lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
+      }
+    }
   }
 
   void initialize_reader(lua_State* L) {
@@ -281,9 +281,6 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
       luaX_set_field(L, -1, "read_png", impl_read_png);
       luaX_set_field(L, -1, "get_valid", impl_get_valid);
-      luaX_set_field(L, -1, "get_rows", impl_get_rows);
-      luaX_set_field(L, -1, "get_row", impl_get_row);
-
       luaX_set_field(L, -1, "get_IHDR", impl_get_IHDR);
       luaX_set_field(L, -1, "get_image_width", impl_get_image_width);
       luaX_set_field(L, -1, "get_image_height", impl_get_image_height);
@@ -295,19 +292,18 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_channels", impl_get_channels);
       luaX_set_field(L, -1, "get_rowbytes", impl_get_rowbytes);
       luaX_set_field(L, -1, "get_signature", impl_get_signature);
-
       luaX_set_field(L, -1, "get_tIME", impl_get_tIME);
       luaX_set_field(L, -1, "get_text", impl_get_text);
-
       luaX_set_field(L, -1, "get_oFFs", impl_get_oFFs);
       luaX_set_field(L, -1, "get_x_offset_microns", impl_get_x_offset_microns);
       luaX_set_field(L, -1, "get_y_offset_microns", impl_get_y_offset_microns);
-
       luaX_set_field(L, -1, "get_pHYs", impl_get_pHYs);
       luaX_set_field(L, -1, "get_x_pixels_per_meter", impl_get_x_pixels_per_meter);
       luaX_set_field(L, -1, "get_y_pixels_per_meter", impl_get_y_pixels_per_meter);
       luaX_set_field(L, -1, "get_pixels_per_meter", impl_get_pixels_per_meter);
       luaX_set_field(L, -1, "get_pixel_aspect_ratio", impl_get_pixel_aspect_ratio);
+      luaX_set_field(L, -1, "get_rows", impl_get_rows);
+      luaX_set_field(L, -1, "get_row", impl_get_row);
     }
     luaX_set_field(L, -2, "reader");
   }
