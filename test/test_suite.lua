@@ -32,6 +32,17 @@ local interlace_types = {
   i = png.PNG_INTERLACE_ADAM7;
 }
 
+local transforms = png.PNG_TRANSFORM_EXPAND
+if png.PNG_TRANSFORM_SCALE_16 then
+  transforms = transforms + png.PNG_TRANSFORM_SCALE_16
+else
+  transforms = transforms + png.PNG_TRANSFORM_STRIP_16
+end
+
+if verbose then
+  io.stderr:write(transforms, "\n")
+end
+
 for line in io.lines "docs/PngSuite.txt" do
   local filename = "docs/" .. line
   if verbose then
@@ -47,6 +58,23 @@ for line in io.lines "docs/PngSuite.txt" do
   color_type = color_types[color_type]
   interlace_type = interlace_types[interlace_type]
 
+  if color_type == png.PNG_COLOR_TYPE_GRAY then
+    if bit_depth < 8 then
+      bit_depth = 8
+    end
+  elseif color_type == png.PNG_COLOR_TYPE_PALETTE then
+    if bit_depth < 8 then
+      bit_depth = 8
+    end
+    color_type = png.PNG_COLOR_TYPE_RGB
+  end
+  if bit_depth == 16 then
+    bit_depth = 8
+  end
+  if feature:find "^t" and not feature:find "^tp0" then
+    color_type = color_type + png.PNG_COLOR_MASK_ALPHA
+  end
+
   local reader = assert(png.reader())
 
   local handle = assert(io.open(filename, "rb"))
@@ -55,15 +83,19 @@ for line in io.lines "docs/PngSuite.txt" do
   end)
 
   if feature:find "^x" then
-    local result, message = reader:read_png()
+    local result, message = reader:read_png(transforms)
     assert(not result)
     if verbose then
       io.stderr:write(message)
     end
   else
-    assert(reader:read_png())
+    assert(reader:read_png(transforms))
     assert(reader:get_bit_depth() == bit_depth)
     assert(reader:get_color_type() == color_type)
     assert(reader:get_interlace_type() == interlace_type)
+
+    local width = assert(reader:get_image_width())
+    local rowbytes = assert(reader:get_rowbytes())
+    assert(reader:get_channels() == rowbytes / width)
   end
 end
