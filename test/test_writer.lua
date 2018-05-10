@@ -43,6 +43,38 @@ assert(writer:set_IHDR {
   color_type = png.PNG_COLOR_TYPE_RGB;
 })
 assert(writer:set_tIME(os.date "!*t"))
+assert(writer:set_text {
+  {
+    compression = png.PNG_TEXT_COMPRESSION_zTXt;
+    key = "Title";
+    text = "test";
+  };
+  {
+    compression = png.PNG_TEXT_COMPRESSION_NONE;
+    key = "Description";
+    text = ("X"):rep(16) .. "\0foo\0bar\0baz";
+  };
+  {
+    compression = png.PNG_ITXT_COMPRESSION_zTXt;
+    key = "Title";
+    text = "テスト";
+    lang = "ja";
+    lang_key = "タイトル";
+  };
+  {
+    compression = png.PNG_ITXT_COMPRESSION_NONE;
+    key = "Description";
+    text = [[
+あいうえお
+かきくけこ
+さしすせそ
+たちつてと
+なにぬねの
+]];
+    lang = "ja";
+    lang_key = "詳細";
+  };
+})
 assert(writer:set_oFFs {
   offset_x = 0;
   offset_y = 10;
@@ -60,6 +92,9 @@ assert(writer:set_rows {
 })
 assert(writer:set_row(1, string.char(0xFF, 0x00, 0x00, 0x7F, 0x7F, 0x00)))
 assert(writer:set_row(3, string.char(0x00, 0x00, 0xFF, 0x7F, 0x00, 0x7F)))
+
+collectgarbage()
+collectgarbage()
 
 assert(writer:set_flush(2))
 assert(writer:write_png())

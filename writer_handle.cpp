@@ -155,7 +155,7 @@ namespace dromozoa {
       std::vector<png_text> text(text_storage.size());
 
       text_storage.swap(text_storage_);
-      text_.swap(text_);
+      text.swap(text_);
 
       for (size_t i = 0; i < text_.size(); ++i) {
         text_storage_[i].get(&text_[i]);
