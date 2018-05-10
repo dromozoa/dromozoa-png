@@ -28,7 +28,6 @@ namespace dromozoa {
       text_impl(int compression, const std::string& key, const std::string& text, const std::string& lang, const std::string& lang_key) : compression_(compression), key_(key), text_(text), lang_(lang), lang_key_(lang_key) {}
 
       void get(png_textp out) const {
-        // no png_const_textp prior to libpng 1.5.x
         out->compression = compression_;
         out->key = const_cast<png_charp>(key_.c_str());
         out->text = const_cast<png_charp>(text_.c_str());
@@ -39,9 +38,11 @@ namespace dromozoa {
             break;
           case PNG_ITXT_COMPRESSION_NONE:
           case PNG_ITXT_COMPRESSION_zTXt:
+#if PNG_LIBPNG_VER >= 10500 || defined(PNG_iTXt_SUPPORTED)
             out->itxt_length = text_.size();
             out->lang = const_cast<png_charp>(lang_.c_str());
             out->lang_key = const_cast<png_charp>(lang_key_.c_str());
+#endif
             break;
         }
       }
