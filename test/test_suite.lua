@@ -42,6 +42,7 @@ else
   transforms = transforms + png.PNG_TRANSFORM_STRIP_16
 end
 
+local warning = 0
 for line in io.lines "docs/PngSuite.txt" do
   local filename = "docs/" .. line
   if verbose then
@@ -77,9 +78,15 @@ for line in io.lines "docs/PngSuite.txt" do
   local reader = assert(png.reader())
 
   local handle = assert(io.open(filename, "rb"))
-  reader:set_read_fn(function (n)
+  assert(reader:set_warning_fn(function (message)
+    warning = warning + 1
+    if verbose then
+      io.stderr:write(message, "\n")
+    end
+  end))
+  assert(reader:set_read_fn(function (n)
     return handle:read(n)
-  end)
+  end))
 
   if feature:find "^x" then
     local result, message = reader:read_png(transforms)
@@ -98,3 +105,4 @@ for line in io.lines "docs/PngSuite.txt" do
     assert(reader:get_channels() == rowbytes / width)
   end
 end
+assert(warning > 0)

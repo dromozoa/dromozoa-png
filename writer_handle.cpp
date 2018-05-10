@@ -54,9 +54,24 @@ namespace dromozoa {
       return info_;
     }
 
+    void set_warning_fn(lua_State* L, int index) {
+      if (lua_isnoneornil(L, index)) {
+        luaX_reference<>().swap(warning_fn_);
+        png_set_error_fn(png_, this, error_fn, 0);
+      } else {
+        luaX_reference<>(L, index).swap(warning_fn_);
+        png_set_error_fn(png_, this, error_fn, warning_fn);
+      }
+    }
+
     void set_write_fn(lua_State* L, int index, int index_flush) {
-      luaX_reference<2>(L, index, index_flush).swap(ref_);
-      png_set_write_fn(png_, this, write_fn, flush_fn);
+      if (lua_isnoneornil(L, index)) {
+        luaX_reference<2>().swap(write_fn_);
+        png_set_write_fn(png_, 0, 0, 0);
+      } else {
+        luaX_reference<2>(L, index, index_flush).swap(write_fn_);
+        png_set_write_fn(png_, this, write_fn, flush_fn);
+      }
     }
 
     png_bytepp prepare_rows(png_uint_32 height, size_t rowbytes) {
@@ -79,12 +94,17 @@ namespace dromozoa {
   private:
     png_structp png_;
     png_infop info_;
-    luaX_reference<2> ref_;
+    luaX_reference<> warning_fn_;
+    luaX_reference<2> write_fn_;
     std::vector<png_byte> row_storage_;
     std::vector<png_bytep> row_pointers_;
 
     writer_handle_impl(const writer_handle_impl&);
     writer_handle_impl& operator=(const writer_handle_impl&);
+
+    static void warning_fn(png_structp png, png_const_charp message) {
+      static_cast<writer_handle_impl*>(png_get_error_ptr(png))->warning(message);
+    }
 
     static void write_fn(png_structp png, png_bytep data, png_size_t length) {
       static_cast<writer_handle_impl*>(png_get_io_ptr(png))->write(data, length);
@@ -94,11 +114,23 @@ namespace dromozoa {
       static_cast<writer_handle_impl*>(png_get_io_ptr(png))->flush();
     }
 
-    void write(png_bytep data, png_size_t length) {
-      lua_State* L = ref_.state();
+    void warning(png_const_charp message) {
+      lua_State* L = warning_fn_.state();
       luaX_top_saver save_top(L);
       {
-        ref_.get_field(L);
+        warning_fn_.get_field(L);
+        luaX_push(L, message);
+        if (lua_pcall(L, 1, 0, 0) != 0) {
+          png_error(png_, lua_tostring(L, -1));
+        }
+      }
+    }
+
+    void write(png_bytep data, png_size_t length) {
+      lua_State* L = write_fn_.state();
+      luaX_top_saver save_top(L);
+      {
+        write_fn_.get_field(L);
         lua_pushlstring(L, reinterpret_cast<const char*>(data), length);
         if (lua_pcall(L, 1, 1, 0) == 0) {
           if (luaX_is_integer(L, -1)) {
@@ -113,10 +145,10 @@ namespace dromozoa {
     }
 
     void flush() {
-      lua_State* L = ref_.state();
+      lua_State* L = write_fn_.state();
       luaX_top_saver save_top(L);
       {
-        ref_.get_field(L, 1);
+        write_fn_.get_field(L, 1);
         if (!lua_isnil(L, -1)) {
           if (lua_pcall(L, 0, 0, 0) != 0) {
             png_error(png_, lua_tostring(L, -1));
@@ -146,6 +178,10 @@ namespace dromozoa {
 
   png_infop writer_handle::info() const {
     return impl_->info();
+  }
+
+  void writer_handle::set_warning_fn(lua_State* L, int index) {
+    impl_->set_warning_fn(L, index);
   }
 
   void writer_handle::set_write_fn(lua_State* L, int index, int index_flush) {

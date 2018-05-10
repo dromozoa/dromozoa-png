@@ -48,6 +48,11 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_set_warning_fn(lua_State* L) {
+      check_writer_handle(L, 1)->set_warning_fn(L, 2);
+      luaX_push_success(L);
+    }
+
     void impl_set_write_fn(lua_State* L) {
       check_writer_handle(L, 1)->set_write_fn(L, 2, 3);
       luaX_push_success(L);
@@ -141,6 +146,7 @@ namespace dromozoa {
       luaX_set_metafield(L, -1, "__call", impl_call);
       luaX_set_field(L, -1, "destroy", impl_destroy);
       luaX_set_field(L, -1, "set_sig_bytes", impl_set_sig_bytes);
+      luaX_set_field(L, -1, "set_warning_fn", impl_set_warning_fn);
       luaX_set_field(L, -1, "set_write_fn", impl_set_write_fn);
       luaX_set_field(L, -1, "set_IHDR", impl_set_IHDR);
       luaX_set_field(L, -1, "set_oFFs", impl_set_oFFs);

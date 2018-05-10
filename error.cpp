@@ -34,7 +34,7 @@ namespace dromozoa {
     };
   }
 
-  void error_fn(png_structp, png_const_charp what) {
-    throw failure(what);
+  void error_fn(png_structp, png_const_charp message) {
+    throw failure(message);
   }
 }

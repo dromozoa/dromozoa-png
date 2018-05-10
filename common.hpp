@@ -23,7 +23,7 @@
 #include <dromozoa/bind.hpp>
 
 namespace dromozoa {
-  void error_fn(png_structp, png_const_charp what);
+  void error_fn(png_structp, png_const_charp message);
 
   class reader_handle_impl;
 
@@ -35,6 +35,7 @@ namespace dromozoa {
     void destroy();
     png_structp png() const;
     png_infop info() const;
+    void set_warning_fn(lua_State* L, int index);
     void set_read_fn(lua_State* L, int index);
   private:
     scoped_ptr<reader_handle_impl> impl_;
@@ -52,6 +53,7 @@ namespace dromozoa {
     void destroy();
     png_structp png() const;
     png_infop info() const;
+    void set_warning_fn(lua_State* L, int index);
     void set_write_fn(lua_State* L, int index, int index_flush);
     png_bytepp prepare_rows(png_uint_32 height, size_t rowbytes);
   private:
