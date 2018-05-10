@@ -71,6 +71,20 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_set_tIME(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      png_time mod_time = {
+        luaX_check_integer_field<png_uint_16>(L, 2, "year"),
+        luaX_check_integer_field<png_byte>(L, 2, "month", 1, 12),
+        luaX_check_integer_field<png_byte>(L, 2, "day", 1, 31),
+        luaX_check_integer_field<png_byte>(L, 2, "hour", 0, 23),
+        luaX_check_integer_field<png_byte>(L, 2, "min", 0, 59),
+        luaX_check_integer_field<png_byte>(L, 2, "sec", 0, 60),
+      };
+      png_set_tIME(self->png(), self->info(), &mod_time);
+      luaX_push_success(L);
+    }
+
     void impl_set_oFFs(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       png_int_32 offset_x = luaX_check_integer_field<png_uint_32>(L, 2, "offset_x");
@@ -103,6 +117,8 @@ namespace dromozoa {
           lua_pop(L, 1);
         }
         luaX_push_success(L);
+      } else {
+        png_error(self->png(), "row_pointers not prepared");
       }
     }
 
@@ -116,6 +132,8 @@ namespace dromozoa {
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
         memcpy(row_pointers[i], ptr, std::min(rowbytes, length));
         luaX_push_success(L);
+      } else {
+        png_error(self->png(), "row_pointers not prepared");
       }
     }
 
@@ -149,6 +167,7 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_warning_fn", impl_set_warning_fn);
       luaX_set_field(L, -1, "set_write_fn", impl_set_write_fn);
       luaX_set_field(L, -1, "set_IHDR", impl_set_IHDR);
+      luaX_set_field(L, -1, "set_tIME", impl_set_tIME);
       luaX_set_field(L, -1, "set_oFFs", impl_set_oFFs);
       luaX_set_field(L, -1, "set_pHYs", impl_set_pHYs);
 

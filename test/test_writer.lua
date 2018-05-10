@@ -42,6 +42,7 @@ assert(writer:set_IHDR {
   bit_depth = 8;
   color_type = png.PNG_COLOR_TYPE_RGB;
 })
+assert(writer:set_tIME(os.date "!*t"))
 assert(writer:set_oFFs {
   offset_x = 0;
   offset_y = 10;
