@@ -15,11 +15,46 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <stddef.h>
+
 #include <vector>
 
 #include "common.hpp"
 
 namespace dromozoa {
+  namespace {
+    class text_impl {
+    public:
+      text_impl(int compression, const std::string& key, const std::string& text, const std::string& lang, const std::string& lang_key) : compression_(compression), key_(key), text_(text), lang_(lang), lang_key_(lang_key) {}
+
+      void get(png_textp out) const {
+        // no png_const_textp prior to libpng 1.5.x
+        out->compression = compression_;
+        out->key = const_cast<png_charp>(key_.c_str());
+        out->text = const_cast<png_charp>(text_.c_str());
+        switch (compression_) {
+          case PNG_TEXT_COMPRESSION_NONE:
+          case PNG_TEXT_COMPRESSION_zTXt:
+            out->text_length = text_.size();
+            break;
+          case PNG_ITXT_COMPRESSION_NONE:
+          case PNG_ITXT_COMPRESSION_zTXt:
+            out->itxt_length = text_.size();
+            out->lang = const_cast<png_charp>(lang_.c_str());
+            out->lang_key = const_cast<png_charp>(lang_key_.c_str());
+            break;
+        }
+      }
+
+    private:
+      int compression_;
+      std::string key_;
+      std::string text_;
+      std::string lang_;
+      std::string lang_key_;
+    };
+  }
+
   class writer_handle_impl {
   public:
     writer_handle_impl() : png_(), info_() {
@@ -74,7 +109,61 @@ namespace dromozoa {
       }
     }
 
-    png_bytepp prepare_rows(png_uint_32 height, size_t rowbytes) {
+    void set_text(lua_State* L, int index) {
+      std::vector<text_impl> text_storage;
+      for (int i = 1; ; ++i) {
+        luaX_get_field(L, index, i);
+        if (lua_isnil(L, -1)) {
+          lua_pop(L, 1);
+          break;
+        } else {
+          int compression = luaX_check_integer_field<int>(L, -1, "compression");
+          std::string key;
+          std::string text;
+          std::string lang;
+          std::string lang_key;
+
+          luaX_get_field(L, -1, "key");
+          if (const char* ptr = lua_tostring(L, -1)) {
+            key = ptr;
+          }
+          lua_pop(L, 1);
+
+          luaX_get_field(L, -1, "text");
+          size_t length = 0;
+          if (const char* ptr = lua_tolstring(L, -1, &length)) {
+            text.assign(ptr, length);
+          }
+          lua_pop(L, 1);
+
+          luaX_get_field(L, -1, "lang");
+          if (const char* ptr = lua_tostring(L, -1)) {
+            lang = ptr;
+          }
+          lua_pop(L, 1);
+
+          luaX_get_field(L, -1, "lang_key");
+          if (const char* ptr = lua_tostring(L, -1)) {
+            lang_key = ptr;
+          }
+          lua_pop(L, 1);
+
+          text_storage.push_back(text_impl(compression, key, text, lang, lang_key));
+          lua_pop(L, 1);
+        }
+      }
+      std::vector<png_text> text(text_storage.size());
+
+      text_storage.swap(text_storage_);
+      text_.swap(text_);
+
+      for (size_t i = 0; i < text_storage_.size(); ++i) {
+        text_storage_[i].get(&text_[i]);
+      }
+      png_set_text(png_, info_, &text_[0], text_.size());
+    }
+
+    png_bytepp prepare_rows(png_uint_32 height, png_size_t rowbytes) {
       size_t storage_size = height * rowbytes;
       if (row_storage_.size() != storage_size || row_pointers_.size() != height) {
         row_storage_.resize(storage_size);
@@ -96,6 +185,8 @@ namespace dromozoa {
     png_infop info_;
     luaX_reference<> warning_fn_;
     luaX_reference<2> write_fn_;
+    std::vector<text_impl> text_storage_;
+    std::vector<png_text> text_;
     std::vector<png_byte> row_storage_;
     std::vector<png_bytep> row_pointers_;
 
@@ -188,7 +279,11 @@ namespace dromozoa {
     impl_->set_write_fn(L, index, index_flush);
   }
 
-  png_bytepp writer_handle::prepare_rows(png_uint_32 height, size_t rowbytes) {
+  void writer_handle::set_text(lua_State* L, int index) {
+    impl_->set_text(L, index);
+  }
+
+  png_bytepp writer_handle::prepare_rows(png_uint_32 height, png_size_t rowbytes) {
     return impl_->prepare_rows(height, rowbytes);
   }
 }

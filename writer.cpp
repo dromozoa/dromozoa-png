@@ -85,6 +85,12 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_set_text(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      self->set_text(L, 2);
+      luaX_push_success(L);
+    }
+
     void impl_set_oFFs(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       png_int_32 offset_x = luaX_check_integer_field<png_uint_32>(L, 2, "offset_x");
@@ -168,6 +174,7 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_write_fn", impl_set_write_fn);
       luaX_set_field(L, -1, "set_IHDR", impl_set_IHDR);
       luaX_set_field(L, -1, "set_tIME", impl_set_tIME);
+      luaX_set_field(L, -1, "set_text", impl_set_text);
       luaX_set_field(L, -1, "set_oFFs", impl_set_oFFs);
       luaX_set_field(L, -1, "set_pHYs", impl_set_pHYs);
 
