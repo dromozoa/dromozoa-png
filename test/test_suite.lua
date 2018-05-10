@@ -126,18 +126,35 @@ for line in io.lines "docs/PngSuite.txt" do
 
     assert(format_time(reader:get_tIME()) == times[feature])
 
-    if feature:find "^ct" and not feature:find "^ct0" then
+    if feature:find "^ct[1z]$" then
       local items = assert(reader:get_text())
       for i = 1, #items do
         local item = items[i]
-        local key = item.key
-        local text = item.text
-        local lang = item.lang
-        local lang_key = item.lang_key
         if verbose then
-          io.stderr:write(key, "\n")
-          io.stderr:write(text, "\n")
+          io.stderr:write(item.key, "\n")
+          io.stderr:write(item.text, "\n")
         end
+        assert(item.compression)
+        assert(item.key)
+        assert(item.text)
+        assert(not item.lang)
+        assert(not item.lang_key)
+      end
+    elseif feature:find "^ct[e-j]" and png.PNG_LIBPNG_VER >= 10500 then
+      local items = assert(reader:get_text())
+      for i = 1, #items do
+        local item = items[i]
+        if verbose then
+          io.stderr:write(item.key, "\n")
+          io.stderr:write(item.text, "\n")
+          io.stderr:write(item.lang, "\n")
+          io.stderr:write(item.lang_key, "\n")
+        end
+        assert(item.compression == png.PNG_ITXT_COMPRESSION_NONE)
+        assert(item.key)
+        assert(item.text)
+        assert(item.lang == langs[feature])
+        assert(item.lang_key)
       end
     else
       assert(not reader:get_text())
