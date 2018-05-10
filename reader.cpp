@@ -243,9 +243,9 @@ namespace dromozoa {
 
     void impl_get_rows(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
+      png_uint_32 height = png_get_image_height(self->png(), self->info());
+      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
-        png_uint_32 height = png_get_image_height(self->png(), self->info());
-        png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
         lua_newtable(L);
         for (png_uint_32 i = 0; i < height; ++i) {
           lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
@@ -256,13 +256,22 @@ namespace dromozoa {
 
     void impl_get_row(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
+      png_uint_32 height = png_get_image_height(self->png(), self->info());
+      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
+      png_uint_32 i = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
-        png_uint_32 height = png_get_image_height(self->png(), self->info());
-        png_uint_32 i = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
-        png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
         lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[i]), rowbytes);
       }
     }
+
+//    void impl_get_pixel(lua_State* L) {
+//      reader_handle* self = check_reader_handle(L, 1);
+//      png_uint_32 height = png_get_image_height(self->png(), self->info());
+//      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
+//      png_uint_32 i = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
+//      if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
+//      }
+//    }
   }
 
   void initialize_reader(lua_State* L) {
