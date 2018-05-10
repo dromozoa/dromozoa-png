@@ -68,11 +68,8 @@ assert(not reader:get_oFFs())
 
 assert(reader:get_x_offset_microns() == 0)
 assert(reader:get_y_offset_microns() == 0)
-assert(reader:get_x_offset_inches() == 0)
-assert(reader:get_y_offset_inches() == 0)
 
 local ppm = math.ceil(72 / 0.0254)
-local ppi = 72
 local pHYs = assert(reader:get_pHYs())
 assert(pHYs.res_x == ppm)
 assert(pHYs.res_y == ppm)
@@ -81,9 +78,6 @@ assert(pHYs.unit_type == png.PNG_RESOLUTION_METER)
 assert(reader:get_x_pixels_per_meter() == ppm)
 assert(reader:get_y_pixels_per_meter() == ppm)
 assert(reader:get_pixels_per_meter() == ppm)
-assert(reader:get_x_pixels_per_inch() == ppi)
-assert(reader:get_y_pixels_per_inch() == ppi)
-assert(reader:get_pixels_per_inch() == ppi)
 assert(reader:get_pixel_aspect_ratio() == 1)
 
 local rows = assert(reader:get_rows())
