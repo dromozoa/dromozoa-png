@@ -195,10 +195,12 @@ namespace dromozoa {
               break;
             case PNG_ITXT_COMPRESSION_NONE:
             case PNG_ITXT_COMPRESSION_zTXt:
+#if PNG_LIBPNG_VER >= 10500 || defined(PNG_iTXt_SUPPORTED)
               lua_pushlstring(L, text[i].text, text[i].itxt_length);
               luaX_set_field(L, -2, "text");
               luaX_set_field(L, -1, "lang", text[i].lang);
               luaX_set_field(L, -1, "lang_key", text[i].lang_key);
+#endif
               break;
           }
           luaX_set_field(L, -2, i + 1);
