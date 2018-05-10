@@ -177,6 +177,35 @@ namespace dromozoa {
       }
     }
 
+    void impl_get_text(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_textp text = 0;
+      int num_text = 0;
+      if (png_get_text(self->png(), self->info(), &text, &num_text)) {
+        lua_newtable(L);
+        for (int i = 0; i < num_text; ++i) {
+          lua_newtable(L);
+          luaX_set_field(L, -1, "compression", text[i].compression);
+          luaX_set_field(L, -1, "key", text[i].key);
+          switch (text[i].compression) {
+            case PNG_TEXT_COMPRESSION_NONE:
+            case PNG_TEXT_COMPRESSION_zTXt:
+              lua_pushlstring(L, text[i].text, text[i].text_length);
+              luaX_set_field(L, -2, "text");
+              break;
+            case PNG_ITXT_COMPRESSION_NONE:
+            case PNG_ITXT_COMPRESSION_zTXt:
+              lua_pushlstring(L, text[i].text, text[i].itxt_length);
+              luaX_set_field(L, -2, "text");
+              luaX_set_field(L, -1, "lang", text[i].lang);
+              luaX_set_field(L, -1, "lang_key", text[i].lang_key);
+              break;
+          }
+          luaX_set_field(L, -2, i + 1);
+        }
+      }
+    }
+
     void impl_get_oFFs(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_int_32 offset_x = 0;
@@ -253,8 +282,6 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_rows", impl_get_rows);
       luaX_set_field(L, -1, "get_row", impl_get_row);
 
-      luaX_set_field(L, -1, "get_tIME", impl_get_tIME);
-
       luaX_set_field(L, -1, "get_IHDR", impl_get_IHDR);
       luaX_set_field(L, -1, "get_image_width", impl_get_image_width);
       luaX_set_field(L, -1, "get_image_height", impl_get_image_height);
@@ -266,6 +293,9 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_channels", impl_get_channels);
       luaX_set_field(L, -1, "get_rowbytes", impl_get_rowbytes);
       luaX_set_field(L, -1, "get_signature", impl_get_signature);
+
+      luaX_set_field(L, -1, "get_tIME", impl_get_tIME);
+      luaX_set_field(L, -1, "get_text", impl_get_text);
 
       luaX_set_field(L, -1, "get_oFFs", impl_get_oFFs);
       luaX_set_field(L, -1, "get_x_offset_microns", impl_get_x_offset_microns);

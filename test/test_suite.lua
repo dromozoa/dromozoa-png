@@ -44,6 +44,14 @@ local times = {
   cm9 = "1999-12-31 23:59:59";
 }
 
+local langs = {
+  cte = "en";
+  ctf = "fi";
+  ctg = "el";
+  cth = "hi";
+  ctj = "ja";
+}
+
 local transforms = png.PNG_TRANSFORM_EXPAND
 if png.PNG_TRANSFORM_SCALE_16 then
   transforms = transforms + png.PNG_TRANSFORM_SCALE_16
@@ -117,6 +125,23 @@ for line in io.lines "docs/PngSuite.txt" do
     assert(reader:get_channels() == rowbytes / width)
 
     assert(format_time(reader:get_tIME()) == times[feature])
+
+    if feature:find "^ct" and not feature:find "^ct0" then
+      local items = assert(reader:get_text())
+      for i = 1, #items do
+        local item = items[i]
+        local key = item.key
+        local text = item.text
+        local lang = item.lang
+        local lang_key = item.lang_key
+        if verbose then
+          io.stderr:write(key, "\n")
+          io.stderr:write(text, "\n")
+        end
+      end
+    else
+      assert(not reader:get_text())
+    end
   end
 end
 assert(warning > 0)
