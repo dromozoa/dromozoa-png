@@ -85,4 +85,5 @@ assert(#rows == 580)
 for i = 1, #rows do
   local row = rows[i]
   assert(#row == 271 * 4)
+  assert(row == reader:get_row(i))
 end

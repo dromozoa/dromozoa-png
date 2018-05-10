@@ -17,6 +17,8 @@
 
 #include <string.h>
 
+#include <algorithm>
+
 #include "common.hpp"
 
 namespace dromozoa {
@@ -86,20 +88,30 @@ namespace dromozoa {
       writer_handle* self = check_writer_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
       png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-      png_bytepp row_pointers = self->create_rows(height, rowbytes);
-      for (png_uint_32 i = 0; i < height; ++i) {
-        luaX_get_field(L, 2, i + 1);
-        size_t length = 0;
-        if (const char* ptr = lua_tolstring(L, -1, &length)) {
-          if (length <= rowbytes) {
-            // TODO check error
-            memcpy(row_pointers[i], ptr, length);
+      if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
+        for (png_uint_32 i = 0; i < height; ++i) {
+          luaX_get_field(L, 2, i + 1);
+          size_t length = 0;
+          if (const char* ptr = lua_tolstring(L, -1, &length)) {
+            memcpy(row_pointers[i], ptr, std::min(rowbytes, length));
           }
+          lua_pop(L, 1);
         }
-        lua_pop(L, 1);
+        luaX_push_success(L);
       }
-      png_set_rows(self->png(), self->info(), row_pointers);
-      luaX_push_success(L);
+    }
+
+    void impl_set_row(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      png_uint_32 height = png_get_image_height(self->png(), self->info());
+      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
+      png_uint_32 i = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
+      size_t length = 0;
+      const char* ptr = luaL_checklstring(L, 3, &length);
+      if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
+        memcpy(row_pointers[i], ptr, std::min(rowbytes, length));
+        luaX_push_success(L);
+      }
     }
 
     void impl_set_flush(lua_State* L) {
@@ -133,7 +145,9 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_IHDR", impl_set_IHDR);
       luaX_set_field(L, -1, "set_oFFs", impl_set_oFFs);
       luaX_set_field(L, -1, "set_pHYs", impl_set_pHYs);
+
       luaX_set_field(L, -1, "set_rows", impl_set_rows);
+      luaX_set_field(L, -1, "set_row", impl_set_row);
       luaX_set_field(L, -1, "set_flush", impl_set_flush);
       luaX_set_field(L, -1, "write_png", impl_write_png);
     }
