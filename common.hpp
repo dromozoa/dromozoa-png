@@ -53,7 +53,7 @@ namespace dromozoa {
     png_structp png() const;
     png_infop info() const;
     void set_write_fn(lua_State* L, int index, int index_flush);
-    png_bytepp initialize_rows(png_uint_32 height, size_t rowbytes);
+    png_bytepp prepare_rows(png_uint_32 height, size_t rowbytes);
   private:
     scoped_ptr<writer_handle_impl> impl_;
     writer_handle(const writer_handle&);

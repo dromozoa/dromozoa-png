@@ -59,13 +59,21 @@ namespace dromozoa {
       png_set_write_fn(png_, this, write_fn, flush_fn);
     }
 
-    png_bytepp initialize_rows(png_uint_32 height, size_t rowbytes) {
-      row_storage_.resize(height * rowbytes);
-      row_pointers_.resize(height);
-      for (png_uint_32 i = 0; i < height; ++i) {
-        row_pointers_[i] = &row_storage_[i * rowbytes];
+    png_bytepp prepare_rows(png_uint_32 height, size_t rowbytes) {
+      size_t storage_size = height * rowbytes;
+      if (row_storage_.size() != storage_size || row_pointers_.size() != height) {
+        row_storage_.resize(storage_size);
+        row_pointers_.resize(height);
+        for (png_uint_32 i = 0; i < height; ++i) {
+          row_pointers_[i] = &row_storage_[i * rowbytes];
+        }
+        png_set_rows(png_, info_, &row_pointers_[0]);
       }
-      return &row_pointers_[0];
+      if (row_pointers_.empty()) {
+        return 0;
+      } else {
+        return &row_pointers_[0];
+      }
     }
 
   private:
@@ -144,7 +152,7 @@ namespace dromozoa {
     impl_->set_write_fn(L, index, index_flush);
   }
 
-  png_bytepp writer_handle::initialize_rows(png_uint_32 height, size_t rowbytes) {
-    return impl_->initialize_rows(height, rowbytes);
+  png_bytepp writer_handle::prepare_rows(png_uint_32 height, size_t rowbytes) {
+    return impl_->prepare_rows(height, rowbytes);
   }
 }
