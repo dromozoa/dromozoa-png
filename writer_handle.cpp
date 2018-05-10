@@ -157,7 +157,7 @@ namespace dromozoa {
       text_storage.swap(text_storage_);
       text_.swap(text_);
 
-      for (size_t i = 0; i < text_storage_.size(); ++i) {
+      for (size_t i = 0; i < text_.size(); ++i) {
         text_storage_[i].get(&text_[i]);
       }
       png_set_text(png_, info_, &text_[0], text_.size());
@@ -166,9 +166,11 @@ namespace dromozoa {
     png_bytepp prepare_rows(png_uint_32 height, png_size_t rowbytes) {
       size_t storage_size = height * rowbytes;
       if (row_storage_.size() != storage_size || row_pointers_.size() != height) {
-        row_storage_.resize(storage_size);
-        row_pointers_.resize(height);
-        for (png_uint_32 i = 0; i < height; ++i) {
+        std::vector<png_byte> row_storage(storage_size);
+        std::vector<png_bytep> row_pointers(height);
+        row_storage.swap(row_storage_);
+        row_pointers.swap(row_pointers_);
+        for (size_t i = 0; i < row_pointers_.size(); ++i) {
           row_pointers_[i] = &row_storage_[i * rowbytes];
         }
         png_set_rows(png_, info_, &row_pointers_[0]);
