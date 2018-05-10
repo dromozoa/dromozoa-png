@@ -36,11 +36,10 @@ local transforms = png.PNG_TRANSFORM_EXPAND
 if png.PNG_TRANSFORM_SCALE_16 then
   transforms = transforms + png.PNG_TRANSFORM_SCALE_16
 else
+  if verbose then
+    io.stderr:write "PNG_TRANSFORM_SCALE_16 not found\n"
+  end
   transforms = transforms + png.PNG_TRANSFORM_STRIP_16
-end
-
-if verbose then
-  io.stderr:write(transforms, "\n")
 end
 
 for line in io.lines "docs/PngSuite.txt" do
