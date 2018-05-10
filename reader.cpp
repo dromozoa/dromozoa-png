@@ -171,16 +171,6 @@ namespace dromozoa {
       luaX_push(L, png_get_y_offset_microns(self->png(), self->info()));
     }
 
-    void impl_get_x_offset_inches(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_x_offset_inches(self->png(), self->info()));
-    }
-
-    void impl_get_y_offset_inches(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_y_offset_inches(self->png(), self->info()));
-    }
-
     void impl_get_pHYs(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_uint_32 res_x = 0;
@@ -207,21 +197,6 @@ namespace dromozoa {
     void impl_get_pixels_per_meter(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       luaX_push(L, png_get_pixels_per_meter(self->png(), self->info()));
-    }
-
-    void impl_get_x_pixels_per_inch(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_x_pixels_per_inch(self->png(), self->info()));
-    }
-
-    void impl_get_y_pixels_per_inch(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_y_pixels_per_inch(self->png(), self->info()));
-    }
-
-    void impl_get_pixels_per_inch(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, png_get_pixels_per_inch(self->png(), self->info()));
     }
 
     void impl_get_pixel_aspect_ratio(lua_State* L) {
@@ -262,16 +237,11 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_oFFs", impl_get_oFFs);
       luaX_set_field(L, -1, "get_x_offset_microns", impl_get_x_offset_microns);
       luaX_set_field(L, -1, "get_y_offset_microns", impl_get_y_offset_microns);
-      luaX_set_field(L, -1, "get_x_offset_inches", impl_get_x_offset_inches);
-      luaX_set_field(L, -1, "get_y_offset_inches", impl_get_y_offset_inches);
 
       luaX_set_field(L, -1, "get_pHYs", impl_get_pHYs);
       luaX_set_field(L, -1, "get_x_pixels_per_meter", impl_get_x_pixels_per_meter);
       luaX_set_field(L, -1, "get_y_pixels_per_meter", impl_get_y_pixels_per_meter);
       luaX_set_field(L, -1, "get_pixels_per_meter", impl_get_pixels_per_meter);
-      luaX_set_field(L, -1, "get_x_pixels_per_inch", impl_get_x_pixels_per_inch);
-      luaX_set_field(L, -1, "get_y_pixels_per_inch", impl_get_y_pixels_per_inch);
-      luaX_set_field(L, -1, "get_pixels_per_inch", impl_get_pixels_per_inch);
       luaX_set_field(L, -1, "get_pixel_aspect_ratio", impl_get_pixel_aspect_ratio);
     }
     luaX_set_field(L, -2, "reader");
