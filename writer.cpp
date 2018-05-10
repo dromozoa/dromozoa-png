@@ -122,11 +122,11 @@ namespace dromozoa {
       png_uint_32 height = png_get_image_height(self->png(), self->info());
       png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
-        for (png_uint_32 i = 0; i < height; ++i) {
-          luaX_get_field(L, 2, i + 1);
+        for (png_uint_32 y = 0; y < height; ++y) {
+          luaX_get_field(L, 2, y + 1);
           size_t length = 0;
           if (const char* ptr = lua_tolstring(L, -1, &length)) {
-            memcpy(row_pointers[i], ptr, std::min(rowbytes, length));
+            memcpy(row_pointers[y], ptr, std::min(rowbytes, length));
           }
           lua_pop(L, 1);
         }
@@ -138,11 +138,11 @@ namespace dromozoa {
       writer_handle* self = check_writer_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
       png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-      png_uint_32 i = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
+      png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
       size_t length = 0;
       const char* ptr = luaL_checklstring(L, 3, &length);
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
-        memcpy(row_pointers[i], ptr, std::min(rowbytes, length));
+        memcpy(row_pointers[y], ptr, std::min(rowbytes, length));
         luaX_push_success(L);
       }
     }

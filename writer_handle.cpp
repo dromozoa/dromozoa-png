@@ -177,8 +177,8 @@ namespace dromozoa {
         if (storage_size == 0) {
           png_set_rows(png_, info_, 0);
         } else {
-          for (size_t i = 0; i < row_pointers_.size(); ++i) {
-            row_pointers_[i] = &row_storage_[i * rowbytes];
+          for (size_t y = 0; y < row_pointers_.size(); ++y) {
+            row_pointers_[y] = &row_storage_[y * rowbytes];
           }
           png_set_rows(png_, info_, &row_pointers_[0]);
         }
