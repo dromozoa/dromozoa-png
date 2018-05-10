@@ -59,7 +59,7 @@ namespace dromozoa {
       png_set_write_fn(png_, this, write_fn, flush_fn);
     }
 
-    png_bytepp create_rows(png_uint_32 height, size_t rowbytes) {
+    png_bytepp initialize_rows(png_uint_32 height, size_t rowbytes) {
       row_storage_.resize(height * rowbytes);
       row_pointers_.resize(height);
       for (png_uint_32 i = 0; i < height; ++i) {
@@ -144,7 +144,7 @@ namespace dromozoa {
     impl_->set_write_fn(L, index, index_flush);
   }
 
-  png_bytepp writer_handle::create_rows(png_uint_32 height, size_t rowbytes) {
-    return impl_->create_rows(height, rowbytes);
+  png_bytepp writer_handle::initialize_rows(png_uint_32 height, size_t rowbytes) {
+    return impl_->initialize_rows(height, rowbytes);
   }
 }

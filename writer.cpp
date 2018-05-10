@@ -17,6 +17,8 @@
 
 #include <string.h>
 
+#include <algorithm>
+
 #include "common.hpp"
 
 namespace dromozoa {
@@ -86,15 +88,12 @@ namespace dromozoa {
       writer_handle* self = check_writer_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
       png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-      png_bytepp row_pointers = self->create_rows(height, rowbytes);
+      png_bytepp row_pointers = self->initialize_rows(height, rowbytes);
       for (png_uint_32 i = 0; i < height; ++i) {
         luaX_get_field(L, 2, i + 1);
         size_t length = 0;
         if (const char* ptr = lua_tolstring(L, -1, &length)) {
-          if (length <= rowbytes) {
-            // TODO check error
-            memcpy(row_pointers[i], ptr, length);
-          }
+          memcpy(row_pointers[i], ptr, std::min(rowbytes, length));
         }
         lua_pop(L, 1);
       }
