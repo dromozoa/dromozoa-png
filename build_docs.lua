@@ -192,6 +192,14 @@ for k = 1, #section_patterns do
 end
 write_manual_html(#section_titles, section_titles[#section_titles], lines, i, #lines, symbol_table, toc_start, toc_end)
 
+local handle = assert(io.popen("cd docs/PngSuite-2017jul19 && ls"))
+local tests = {}
+for line in handle:lines() do
+  if not line:find "^PngSuite" and line:find "%.png$" then
+    tests[#tests + 1] = line
+  end
+end
+handle:close()
 
 local out = assert(io.open("docs/PngSuite.html", "w"))
 out:write [[
@@ -232,15 +240,11 @@ out:write [[
 <p>
 ]]
 
-local handle = assert(io.popen("cd docs/PngSuite-2017jul19 && ls"))
-for line in handle:lines() do
-  if not line:find "^PngSuite" and line:find "%.png$" then
-    out:write(([[
+for i = 1, #tests do
+  out:write(([[
   <img src="PngSuite-2017jul19/%s">
-]]):format(line))
-  end
+]]):format(tests[i]))
 end
-handle:close()
 
 out:write [[
 </p>
@@ -249,4 +253,10 @@ out:write [[
 </body>
 </html>
 ]]
+out:close()
+
+local out = assert(io.open("docs/PngSuite.txt", "w"))
+for i = 1, #tests do
+  out:write("PngSuite-2017jul19/", tests[i], "\n")
+end
 out:close()
