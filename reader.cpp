@@ -101,7 +101,7 @@ namespace dromozoa {
       int interlace_type = 0;
       int compression_type = 0;
       int filter_type = 0;
-      if (png_get_IHDR(self->png(), self->info(), &width, &height, &bit_depth, &color_type, &interlace_type, &compression_type, &filter_type) != 0) {
+      if (png_get_IHDR(self->png(), self->info(), &width, &height, &bit_depth, &color_type, &interlace_type, &compression_type, &filter_type)) {
         lua_newtable(L);
         luaX_set_field(L, -1, "width", width);
         luaX_set_field(L, -1, "height", height);
@@ -163,12 +163,26 @@ namespace dromozoa {
       lua_pushlstring(L, reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8);
     }
 
+    void impl_get_tIME(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_timep mod_time = 0;
+      if (png_get_tIME(self->png(), self->info(), &mod_time)) {
+        lua_newtable(L);
+        luaX_set_field(L, -1, "year", mod_time->year);
+        luaX_set_field(L, -1, "month", mod_time->month);
+        luaX_set_field(L, -1, "day", mod_time->day);
+        luaX_set_field(L, -1, "hour", mod_time->hour);
+        luaX_set_field(L, -1, "min", mod_time->minute);
+        luaX_set_field(L, -1, "sec", mod_time->second);
+      }
+    }
+
     void impl_get_oFFs(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_int_32 offset_x = 0;
       png_int_32 offset_y = 0;
       int unit_type = 0;
-      if (png_get_oFFs(self->png(), self->info(), &offset_x, &offset_y, &unit_type) != 0) {
+      if (png_get_oFFs(self->png(), self->info(), &offset_x, &offset_y, &unit_type)) {
         lua_newtable(L);
         luaX_set_field(L, -1, "offset_x", offset_x);
         luaX_set_field(L, -1, "offset_y", offset_y);
@@ -191,7 +205,7 @@ namespace dromozoa {
       png_uint_32 res_x = 0;
       png_uint_32 res_y = 0;
       int unit_type = 0;
-      if (png_get_pHYs(self->png(), self->info(), &res_x, &res_y, &unit_type) != 0) {
+      if (png_get_pHYs(self->png(), self->info(), &res_x, &res_y, &unit_type)) {
         lua_newtable(L);
         luaX_set_field(L, -1, "res_x", res_x);
         luaX_set_field(L, -1, "res_y", res_y);
@@ -238,6 +252,8 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_valid", impl_get_valid);
       luaX_set_field(L, -1, "get_rows", impl_get_rows);
       luaX_set_field(L, -1, "get_row", impl_get_row);
+
+      luaX_set_field(L, -1, "get_tIME", impl_get_tIME);
 
       luaX_set_field(L, -1, "get_IHDR", impl_get_IHDR);
       luaX_set_field(L, -1, "get_image_width", impl_get_image_width);

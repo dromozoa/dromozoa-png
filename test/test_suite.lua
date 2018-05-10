@@ -32,6 +32,18 @@ local interlace_types = {
   i = png.PNG_INTERLACE_ADAM7;
 }
 
+local function format_time(time)
+  if time then
+    return ("%04d-%02d-%02d %02d:%02d:%02d"):format(time.year, time.month, time.day, time.hour, time.min, time.sec)
+  end
+end
+
+local times = {
+  cm0 = "2000-01-01 12:34:56";
+  cm7 = "1970-01-01 00:00:00";
+  cm9 = "1999-12-31 23:59:59";
+}
+
 local transforms = png.PNG_TRANSFORM_EXPAND
 if png.PNG_TRANSFORM_SCALE_16 then
   transforms = transforms + png.PNG_TRANSFORM_SCALE_16
@@ -103,6 +115,8 @@ for line in io.lines "docs/PngSuite.txt" do
     local width = assert(reader:get_image_width())
     local rowbytes = assert(reader:get_rowbytes())
     assert(reader:get_channels() == rowbytes / width)
+
+    assert(format_time(reader:get_tIME()) == times[feature])
   end
 end
 assert(warning > 0)
