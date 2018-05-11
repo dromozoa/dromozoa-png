@@ -126,7 +126,7 @@ namespace dromozoa {
 
           luaX_get_field(L, -1, "key");
           if (const char* ptr = lua_tostring(L, -1)) {
-            key = ptr;
+            key.assign(ptr);
           }
           lua_pop(L, 1);
 
@@ -139,18 +139,17 @@ namespace dromozoa {
 
           luaX_get_field(L, -1, "lang");
           if (const char* ptr = lua_tostring(L, -1)) {
-            lang = ptr;
+            lang.assign(ptr);
           }
           lua_pop(L, 1);
 
           luaX_get_field(L, -1, "lang_key");
           if (const char* ptr = lua_tostring(L, -1)) {
-            lang_key = ptr;
+            lang_key.assign(ptr);
           }
-          lua_pop(L, 1);
+          lua_pop(L, 2);
 
           text_storage.push_back(text_impl(compression, key, text, lang, lang_key));
-          lua_pop(L, 1);
         }
       }
       std::vector<png_text> text(text_storage.size());
@@ -158,10 +157,14 @@ namespace dromozoa {
       text_storage.swap(text_storage_);
       text.swap(text_);
 
-      for (size_t i = 0; i < text_.size(); ++i) {
-        text_storage_[i].get(&text_[i]);
+      if (text_.empty()) {
+        png_set_text(png_, info_, 0, 0);
+      } else {
+        for (size_t i = 0; i < text_.size(); ++i) {
+          text_storage_[i].get(&text_[i]);
+        }
+        png_set_text(png_, info_, &text_[0], text_.size());
       }
-      png_set_text(png_, info_, &text_[0], text_.size());
     }
 
     png_bytepp prepare_rows(png_uint_32 height, png_size_t rowbytes) {
@@ -171,16 +174,16 @@ namespace dromozoa {
         std::vector<png_bytep> row_pointers(height);
         row_storage.swap(row_storage_);
         row_pointers.swap(row_pointers_);
-        for (size_t i = 0; i < row_pointers_.size(); ++i) {
-          row_pointers_[i] = &row_storage_[i * rowbytes];
+        if (storage_size == 0) {
+          png_set_rows(png_, info_, 0);
+        } else {
+          for (size_t y = 0; y < row_pointers_.size(); ++y) {
+            row_pointers_[y] = &row_storage_[y * rowbytes];
+          }
+          png_set_rows(png_, info_, &row_pointers_[0]);
         }
-        png_set_rows(png_, info_, &row_pointers_[0]);
       }
-      if (row_pointers_.empty()) {
-        return 0;
-      } else {
-        return &row_pointers_[0];
-      }
+      return png_get_rows(png_, info_);
     }
 
   private:

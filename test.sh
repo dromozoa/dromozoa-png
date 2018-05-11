@@ -25,4 +25,4 @@ do
   esac
 done
 
-rm -f test.png
+rm -f test*.png
