@@ -113,3 +113,57 @@ test(width, height, 16, png.PNG_COLOR_TYPE_GRAY, 1)
 test(width, height, 16, png.PNG_COLOR_TYPE_GRAY_ALPHA, 2)
 test(width, height, 16, png.PNG_COLOR_TYPE_RGB, 3)
 test(width, height, 16, png.PNG_COLOR_TYPE_RGB_ALPHA, 4)
+
+local writer = assert(png.writer())
+assert(writer:set_write_fn(function () end))
+
+assert(writer:set_IHDR {
+  width = 16;
+  height = 16;
+  bit_depth = 1;
+  color_type = png.PNG_COLOR_TYPE_PALETTE;
+})
+
+local result, message = writer:set_pixel(1, 1, 0)
+if verbose then
+  io.stderr:write(message, "\n")
+end
+assert(not result)
+
+assert(writer:set_IHDR {
+  width = 16;
+  height = 16;
+  bit_depth = 8;
+  color_type = png.PNG_COLOR_TYPE_PALETTE;
+})
+
+local result, message = writer:set_pixel(1, 1, 0)
+if verbose then
+  io.stderr:write(message, "\n")
+end
+assert(not result)
+
+assert(writer:set_IHDR {
+  width = 16;
+  height = 16;
+  bit_depth = 8;
+  color_type = png.PNG_COLOR_TYPE_GRAY;
+})
+
+local result, message = pcall(writer.set_pixel, writer, 256, 1, 0)
+if verbose then
+  io.stderr:write(message, "\n")
+end
+assert(not result)
+
+local result, message = pcall(writer.set_pixel, writer, 1, 256, 0)
+if verbose then
+  io.stderr:write(message, "\n")
+end
+assert(not result)
+
+local result, message = pcall(writer.set_pixel, writer, 1, 1, 256)
+if verbose then
+  io.stderr:write(message, "\n")
+end
+assert(not result)
