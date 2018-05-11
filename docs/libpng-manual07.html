@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>VII. MNG support</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>VII. MNG support</h1>
+
+<pre>VII.  MNG support
+
+The MNG specification (available at http://www.libpng.org/pub/mng) allows
+certain extensions to PNG for PNG images that are embedded in MNG datastreams.
+Libpng can support some of these extensions.  To enable them, use the
+<a href="png.h.html#L2371">png_permit_mng_features</a>() function:
+
+   feature_set = <a href="png.h.html#L2371">png_permit_mng_features</a>(png_ptr, mask)
+
+   mask is a png_uint_32 containing the bitwise OR of the
+        features you want to enable.  These include
+        <a href="png.h.html#L888">PNG_FLAG_MNG_EMPTY_PLTE</a>
+        <a href="png.h.html#L889">PNG_FLAG_MNG_FILTER_64</a>
+        <a href="png.h.html#L890">PNG_ALL_MNG_FEATURES</a>
+
+   feature_set is a png_uint_32 that is the bitwise AND of
+      your mask with the set of MNG features that is
+      supported by the version of libpng that you are using.
+
+It is an error to use this function when reading or writing a standalone
+PNG file with the PNG 8-byte signature.  The PNG datastream must be wrapped
+in a MNG datastream.  As a minimum, it must have the MNG 8-byte signature
+and the MHDR and MEND chunks.  Libpng does not provide support for these
+or any other MNG chunks; your application must provide its own support for
+them.  You may wish to consider using libmng (available at
+https://www.libmng.com/) instead.
+
+</pre>
+</div>
+</body>
+</html>

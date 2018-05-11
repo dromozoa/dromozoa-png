@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>VIII. Changes to Libpng from version 0.88</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>VIII. Changes to Libpng from version 0.88</h1>
+
+<pre>VIII.  Changes to Libpng from version 0.88
+
+It should be noted that versions of libpng later than 0.96 are not
+distributed by the original libpng author, Guy Schalnat, nor by
+Andreas Dilger, who had taken over from Guy during 1996 and 1997, and
+distributed versions 0.89 through 0.96, but rather by another member
+of the original PNG Group, Glenn Randers-Pehrson.  Guy and Andreas are
+still alive and well, but they have moved on to other things.
+
+The old libpng functions png_read_init(), png_write_init(),
+png_info_init(), png_read_destroy(), and png_write_destroy() have been
+moved to PNG_INTERNAL in version 0.95 to discourage their use.  These
+functions will be removed from libpng version 1.4.0.
+
+The preferred method of creating and initializing the libpng structures is
+via the png_create_read_struct(), png_create_write_struct(), and
+png_create_info_struct() because they isolate the size of the structures
+from the application, allow version error checking, and also allow the
+use of custom error handling routines during the initialization, which
+the old functions do not.  The functions png_read_destroy() and
+png_write_destroy() do not actually free the memory that libpng
+allocated for these structs, but just reset the data structures, so they
+can be used instead of <a href="png.h.html#L1447">png_destroy_read_struct</a>() and
+<a href="png.h.html#L1451">png_destroy_write_struct</a>() if you feel there is too much system overhead
+allocating and freeing the png_struct for each image read.
+
+Setting the error callbacks via png_set_message_fn() before
+png_read_init() as was suggested in libpng-0.88 is no longer supported
+because this caused applications that do not use custom error functions
+to fail if the png_ptr was not initialized to zero.  It is still possible
+to set the error callbacks AFTER png_read_init(), or to change them with
+<a href="png.h.html#L1602">png_set_error_fn</a>(), which is essentially the same function, but with a new
+name to force compilation errors with applications that try to use the old
+method.
+
+Support for the sCAL, iCCP, iTXt, and sPLT chunks was added at libpng-1.0.6;
+however, iTXt support was not enabled by default.
+
+Starting with version 1.0.7, you can find out which version of the library
+you are using at run-time:
+
+   png_uint_32 libpng_vn = <a href="png.h.html#L932">png_access_version_number</a>();
+
+The number libpng_vn is constructed from the major version, minor
+version with leading zero, and release number with leading zero,
+(e.g., libpng_vn for version 1.0.7 is 10007).
+
+Note that this function does not take a png_ptr, so you can call it
+before you've created one.
+
+You can also check which version of png.h you used when compiling your
+application:
+
+   png_uint_32 application_vn = <a href="png.h.html#L352">PNG_LIBPNG_VER</a>;
+
+</pre>
+</div>
+</body>
+</html>

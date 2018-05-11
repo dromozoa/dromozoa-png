@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>II. Structures</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="markdown-body">
+
+<h1>II. Structures</h1>
+
+<pre>II. Structures
+
+There are two main structures that are important to libpng, png_struct
+and png_info.  Both are internal structures that are no longer exposed
+in the libpng interface (as of libpng 1.5.0).
+
+The png_info structure is designed to provide information about the
+PNG file.  At one time, the fields of png_info were intended to be
+directly accessible to the user.  However, this tended to cause problems
+with applications using dynamically loaded libraries, and as a result
+a set of interface functions for png_info (the png_get_*() and png_set_*()
+functions) was developed, and direct access to the png_info fields was
+deprecated..
+
+The png_struct structure is the object used by the library to decode a
+single image.  As of 1.5.0 this structure is also not exposed.
+
+Almost all libpng APIs require a pointer to a png_struct as the first argument.
+Many (in particular the png_set and png_get APIs) also require a pointer
+to png_info as the second argument.  Some application visible macros
+defined in png.h designed for basic data access (reading and writing
+integers in the PNG format) don't take a png_info pointer, but it's almost
+always safe to assume that a (png_struct*) has to be passed to call an API
+function.
+
+You can have more than one png_info structure associated with an image,
+as illustrated in pngtest.c, one for information valid prior to the
+IDAT chunks and another (called "end_info" below) for things after them.
+
+The png.h header file is an invaluable reference for programming with libpng.
+And while I'm on the topic, make sure you include the libpng header file:
+
+#include &lt;png.h&gt;
+
+and also (as of libpng-1.5.0) the zlib header file, if you need it:
+
+#include &lt;zlib.h&gt;
+
+Types
+
+The png.h header file defines a number of integral types used by the
+APIs.  Most of these are fairly obvious; for example types corresponding
+to integers of particular sizes and types for passing color values.
+
+One exception is how non-integral numbers are handled.  For application
+convenience most APIs that take such numbers have C (double) arguments;
+however, internally PNG, and libpng, use 32 bit signed integers and encode
+the value by multiplying by 100,000.  As of libpng 1.5.0 a convenience
+macro <a href="png.h.html#L687">PNG_FP_1</a> is defined in png.h along with a type (png_fixed_point)
+which is simply (png_int_32).
+
+All APIs that take (double) arguments also have a matching API that
+takes the corresponding fixed point integer arguments.  The fixed point
+API has the same name as the floating point one with "_fixed" appended.
+The actual range of values permitted in the APIs is frequently less than
+the full range of (png_fixed_point) (-21474 to +21474).  When APIs require
+a non-negative argument the type is recorded as png_uint_32 above.  Consult
+the header file and the text below for more information.
+
+Special care must be take with sCAL chunk handling because the chunk itself
+uses non-integral values encoded as strings containing decimal floating point
+numbers.  See the comments in the header file.
+
+Configuration
+
+The main header file function declarations are frequently protected by C
+preprocessing directives of the form:
+
+    #ifdef PNG_feature_SUPPORTED
+    declare-function
+    #endif
+    ...
+    #ifdef PNG_feature_SUPPORTED
+    use-function
+    #endif
+
+The library can be built without support for these APIs, although a
+standard build will have all implemented APIs.  Application programs
+should check the feature macros before using an API for maximum
+portability.  From libpng 1.5.0 the feature macros set during the build
+of libpng are recorded in the header file "pnglibconf.h" and this file
+is always included by png.h.
+
+If you don't need to change the library configuration from the default, skip to
+the next section ("Reading").
+
+Notice that some of the makefiles in the 'scripts' directory and (in 1.5.0) all
+of the build project files in the 'projects' directory simply copy
+scripts/pnglibconf.h.prebuilt to pnglibconf.h.  This means that these build
+systems do not permit easy auto-configuration of the library - they only
+support the default configuration.
+
+The easiest way to make minor changes to the libpng configuration when
+auto-configuration is supported is to add definitions to the command line
+using (typically) CPPFLAGS.  For example:
+
+CPPFLAGS=-DPNG_NO_FLOATING_ARITHMETIC
+
+will change the internal libpng math implementation for gamma correction and
+other arithmetic calculations to fixed point, avoiding the need for fast
+floating point support.  The result can be seen in the generated pnglibconf.h -
+make sure it contains the changed feature macro setting.
+
+If you need to make more extensive configuration changes - more than one or two
+feature macro settings - you can either add -DPNG_USER_CONFIG to the build
+command line and put a list of feature macro settings in pngusr.h or you can set
+DFA_XTRA (a makefile variable) to a file containing the same information in the
+form of 'option' settings.
+
+A. Changing pnglibconf.h
+
+A variety of methods exist to build libpng.  Not all of these support
+reconfiguration of pnglibconf.h.  To reconfigure pnglibconf.h it must either be
+rebuilt from scripts/pnglibconf.dfa using awk or it must be edited by hand.
+
+Hand editing is achieved by copying scripts/pnglibconf.h.prebuilt to
+pnglibconf.h and changing the lines defining the supported features, paying
+very close attention to the 'option' information in scripts/pnglibconf.dfa
+that describes those features and their requirements.  This is easy to get
+wrong.
+
+B. Configuration using DFA_XTRA
+
+Rebuilding from pnglibconf.dfa is easy if a functioning 'awk', or a later
+variant such as 'nawk' or 'gawk', is available.  The configure build will
+automatically find an appropriate awk and build pnglibconf.h.
+The scripts/pnglibconf.mak file contains a set of make rules for doing the
+same thing if configure is not used, and many of the makefiles in the scripts
+directory use this approach.
+
+When rebuilding simply write a new file containing changed options and set
+DFA_XTRA to the name of this file.  This causes the build to append the new file
+to the end of scripts/pnglibconf.dfa.  The pngusr.dfa file should contain lines
+of the following forms:
+
+everything = off
+
+This turns all optional features off.  Include it at the start of pngusr.dfa to
+make it easier to build a minimal configuration.  You will need to turn at least
+some features on afterward to enable either reading or writing code, or both.
+
+option feature on
+option feature off
+
+Enable or disable a single feature.  This will automatically enable other
+features required by a feature that is turned on or disable other features that
+require a feature which is turned off.  Conflicting settings will cause an error
+message to be emitted by awk.
+
+setting feature default value
+
+Changes the default value of setting 'feature' to 'value'.  There are a small
+number of settings listed at the top of pnglibconf.h, they are documented in the
+source code.  Most of these values have performance implications for the library
+but most of them have no visible effect on the API.  Some can also be overridden
+from the API.
+
+This method of building a customized pnglibconf.h is illustrated in
+contrib/pngminim/*.  See the "$(PNGCONF):" target in the makefile and
+pngusr.dfa in these directories.
+
+C. Configuration using PNG_USER_CONFIG
+
+If -DPNG_USER_CONFIG is added to the CPPFLAGS when pnglibconf.h is built,
+the file pngusr.h will automatically be included before the options in
+scripts/pnglibconf.dfa are processed.  Your pngusr.h file should contain only
+macro definitions turning features on or off or setting settings.
+
+Apart from the global setting "everything = off" all the options listed above
+can be set using macros in pngusr.h:
+
+#define PNG_feature_SUPPORTED
+
+is equivalent to:
+
+option feature on
+
+#define PNG_NO_feature
+
+is equivalent to:
+
+option feature off
+
+#define PNG_feature value
+
+is equivalent to:
+
+setting feature default value
+
+Notice that in both cases, pngusr.dfa and pngusr.h, the contents of the
+pngusr file you supply override the contents of scripts/pnglibconf.dfa
+
+If confusing or incomprehensible behavior results it is possible to
+examine the intermediate file pnglibconf.dfn to find the full set of
+dependency information for each setting and option.  Simply locate the
+feature in the file and read the C comments that precede it.
+
+This method is also illustrated in the contrib/pngminim/* makefiles and
+pngusr.h.
+
+</pre>
+</div>
+</body>
+</html>
