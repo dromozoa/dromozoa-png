@@ -137,10 +137,10 @@ namespace dromozoa {
     void impl_set_row(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
-      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
       size_t length = 0;
       const char* ptr = luaL_checklstring(L, 3, &length);
+      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
         memcpy(row_pointers[y], ptr, std::min(rowbytes, length));
         luaX_push_success(L);
