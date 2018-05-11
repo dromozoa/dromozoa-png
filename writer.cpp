@@ -177,32 +177,20 @@ namespace dromozoa {
         png_bytep p = row_pointers[y] + (bit_depth * channels >> 3) * x;
         if (bit_depth == 8) {
           p[0] = luaX_opt_integer<uint8_t>(L, 4, 0);
-          switch (channels) { // fall through
-            case 4:
-              p[3] = luaX_opt_integer<uint8_t>(L, 7, 0);
-            case 3:
-              p[2] = luaX_opt_integer<uint8_t>(L, 6, 0);
-            case 2:
-              p[1] = luaX_opt_integer<uint8_t>(L, 5, 0);
+          switch (channels) {
+            case 4: p[3] = luaX_opt_integer<uint8_t>(L, 7, 0); // FALLTHROUGH
+            case 3: p[2] = luaX_opt_integer<uint8_t>(L, 6, 0); // FALLTHROUGH
+            case 2: p[1] = luaX_opt_integer<uint8_t>(L, 5, 0); // FALLTHROUGH
           }
         } else {
           // assume network byte order
           uint16_t v = luaX_opt_integer<uint16_t>(L, 4, 0);
           p[1] = v;
           p[0] = v >> 8;
-          switch (channels) { // fall through
-            case 4:
-              v = luaX_opt_integer<uint16_t>(L, 7, 0);
-              p[7] = v;
-              p[6] = v >> 8;
-            case 3:
-              v = luaX_opt_integer<uint16_t>(L, 6, 0);
-              p[5] = v;
-              p[4] = v >> 8;
-            case 2:
-              v = luaX_opt_integer<uint16_t>(L, 5, 0);
-              p[3] = v;
-              p[2] = v >> 8;
+          switch (channels) {
+            case 4: v = luaX_opt_integer<uint16_t>(L, 7, 0); p[7] = v; p[6] = v >> 8; // FALLTHROUGH
+            case 3: v = luaX_opt_integer<uint16_t>(L, 6, 0); p[5] = v; p[4] = v >> 8; // FALLTHROUGH
+            case 2: v = luaX_opt_integer<uint16_t>(L, 5, 0); p[3] = v; p[2] = v >> 8; // FALLTHROUGH
           }
         }
         luaX_push_success(L);
