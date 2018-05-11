@@ -296,9 +296,10 @@ namespace dromozoa {
                   luaX_push(L, p[2]);
                   luaX_push(L, p[3]);
                   break;
-              };
+              }
               break;
             case 16:
+              // assume network byte order
               switch (channels) {
                 case 1:
                   luaX_push(L, p[0] << 8 | p[1]);
@@ -318,7 +319,7 @@ namespace dromozoa {
                   luaX_push(L, p[4] << 8 | p[5]);
                   luaX_push(L, p[6] << 8 | p[7]);
                   break;
-              };
+              }
               break;
           }
         }

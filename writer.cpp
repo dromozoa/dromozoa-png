@@ -16,6 +16,7 @@
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <algorithm>
@@ -147,6 +148,87 @@ namespace dromozoa {
       }
     }
 
+    void impl_set_pixel(lua_State* L) {
+      writer_handle* self = check_writer_handle(L, 1);
+      png_uint_32 width = png_get_image_width(self->png(), self->info());
+      png_uint_32 height = png_get_image_height(self->png(), self->info());
+      png_uint_32 x = luaX_check_integer<png_uint_32>(L, 2, 1, width) - 1;
+      png_uint_32 y = luaX_check_integer<png_uint_32>(L, 3, 1, height) - 1;
+      uint16_t a = 0;
+      uint16_t b = 0;
+      uint16_t c = 0;
+      uint16_t d = 0;
+      png_byte bit_depth = png_get_bit_depth(self->png(), self->info());
+      if (bit_depth == 8) {
+        a = luaX_opt_integer<uint8_t>(L, 4, 0);
+        b = luaX_opt_integer<uint8_t>(L, 5, 0);
+        c = luaX_opt_integer<uint8_t>(L, 6, 0);
+        d = luaX_opt_integer<uint8_t>(L, 7, 0);
+      } else if (bit_depth == 16) {
+        a = luaX_opt_integer<uint16_t>(L, 4, 0);
+        b = luaX_opt_integer<uint16_t>(L, 5, 0);
+        c = luaX_opt_integer<uint16_t>(L, 6, 0);
+        d = luaX_opt_integer<uint16_t>(L, 7, 0);
+      } else {
+        return;
+      }
+      if (png_get_color_type(self->png(), self->info()) & PNG_COLOR_MASK_PALETTE) {
+        return;
+      }
+      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
+      if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
+        png_byte channels = png_get_channels(self->png(), self->info());
+        png_bytep p = row_pointers[y] + (bit_depth * channels >> 3) * x;
+        switch (bit_depth) {
+          case 8:
+            switch (channels) {
+              case 1:
+                p[0] = a;
+                break;
+              case 2:
+                p[0] = a;
+                p[1] = b;
+                break;
+              case 3:
+                p[0] = a;
+                p[1] = b;
+                p[2] = c;
+                break;
+              case 4:
+                p[0] = a;
+                p[1] = b;
+                p[2] = c;
+                p[4] = d;
+                break;
+            }
+            break;
+          case 16:
+            // assume network byte order
+            switch (channels) {
+              case 1:
+                p[0] = a >> 8; p[1] = a & 0xFF;
+                break;
+              case 2:
+                p[0] = a >> 8; p[1] = a & 0xFF;
+                p[2] = b >> 8; p[3] = b & 0xFF;
+                break;
+              case 3:
+                p[0] = a >> 8; p[1] = a & 0xFF;
+                p[2] = b >> 8; p[3] = b & 0xFF;
+                p[4] = c >> 8; p[5] = c & 0xFF;
+                break;
+              case 4:
+                p[0] = a >> 8; p[1] = a & 0xFF;
+                p[2] = b >> 8; p[3] = b & 0xFF;
+                p[4] = c >> 8; p[5] = c & 0xFF;
+                p[6] = d >> 8; p[7] = d & 0xFF;
+                break;
+            }
+            break;
+        }
+      }
+    }
+
     void impl_write_png(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
@@ -177,6 +259,7 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_pHYs", impl_set_pHYs);
       luaX_set_field(L, -1, "set_rows", impl_set_rows);
       luaX_set_field(L, -1, "set_row", impl_set_row);
+      luaX_set_field(L, -1, "set_pixel", impl_set_pixel);
       luaX_set_field(L, -1, "write_png", impl_write_png);
     }
     luaX_set_field(L, -2, "writer");
