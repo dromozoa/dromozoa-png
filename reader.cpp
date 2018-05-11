@@ -271,7 +271,7 @@ namespace dromozoa {
       png_uint_32 x = luaX_check_integer<png_uint_32>(L, 2, 1, width) - 1;
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 3, 1, height) - 1;
       png_byte bit_depth = png_get_bit_depth(self->png(), self->info());
-      if ((bit_depth == 8 || bit_depth == 16) && (png_get_color_type(self->png(), self->info()) & PNG_COLOR_MASK_COLOR)) {
+      if ((bit_depth == 8 || bit_depth == 16) && !(png_get_color_type(self->png(), self->info()) & PNG_COLOR_MASK_PALETTE)) {
         if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
           png_byte channels = png_get_channels(self->png(), self->info());
           png_bytep p = row_pointers[y] + (bit_depth * channels >> 3) * x;

@@ -184,21 +184,25 @@ namespace dromozoa {
             switch (channels) {
               case 1:
                 p[0] = a;
+                luaX_push_success(L);
                 break;
               case 2:
                 p[0] = a;
                 p[1] = b;
+                luaX_push_success(L);
                 break;
               case 3:
                 p[0] = a;
                 p[1] = b;
                 p[2] = c;
+                luaX_push_success(L);
                 break;
               case 4:
                 p[0] = a;
                 p[1] = b;
                 p[2] = c;
-                p[4] = d;
+                p[3] = d;
+                luaX_push_success(L);
                 break;
             }
             break;
@@ -207,21 +211,25 @@ namespace dromozoa {
             switch (channels) {
               case 1:
                 p[0] = a >> 8; p[1] = a & 0xFF;
+                luaX_push_success(L);
                 break;
               case 2:
                 p[0] = a >> 8; p[1] = a & 0xFF;
                 p[2] = b >> 8; p[3] = b & 0xFF;
+                luaX_push_success(L);
                 break;
               case 3:
                 p[0] = a >> 8; p[1] = a & 0xFF;
                 p[2] = b >> 8; p[3] = b & 0xFF;
                 p[4] = c >> 8; p[5] = c & 0xFF;
+                luaX_push_success(L);
                 break;
               case 4:
                 p[0] = a >> 8; p[1] = a & 0xFF;
                 p[2] = b >> 8; p[3] = b & 0xFF;
                 p[4] = c >> 8; p[5] = c & 0xFF;
                 p[6] = d >> 8; p[7] = d & 0xFF;
+                luaX_push_success(L);
                 break;
             }
             break;
