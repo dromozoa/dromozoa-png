@@ -40,8 +40,11 @@ end
 
 local function test(width, height, bit_depth, color_type, channels)
   local filename = ("test-%02d-%02d.png"):format(bit_depth, color_type)
-  local out = assert(io.open(filename, "wb"))
+  if verbose then
+    io.stderr:write(filename, "\n")
+  end
 
+  local out = assert(io.open(filename, "wb"))
   local writer = assert(png.writer())
   assert(writer:set_write_fn(function (data)
     out:write(data)
@@ -75,7 +78,6 @@ local function test(width, height, bit_depth, color_type, channels)
   out:close()
 
   local handle = assert(io.open(filename, "rb"))
-
   local reader = assert(png.reader())
   assert(reader:set_read_fn(function (n)
     return handle:read(n)
@@ -107,3 +109,7 @@ test(width, height, 8, png.PNG_COLOR_TYPE_GRAY, 1)
 test(width, height, 8, png.PNG_COLOR_TYPE_GRAY_ALPHA, 2)
 test(width, height, 8, png.PNG_COLOR_TYPE_RGB, 3)
 test(width, height, 8, png.PNG_COLOR_TYPE_RGB_ALPHA, 4)
+test(width, height, 16, png.PNG_COLOR_TYPE_GRAY, 1)
+test(width, height, 16, png.PNG_COLOR_TYPE_GRAY_ALPHA, 2)
+test(width, height, 16, png.PNG_COLOR_TYPE_RGB, 3)
+test(width, height, 16, png.PNG_COLOR_TYPE_RGB_ALPHA, 4)

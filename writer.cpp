@@ -132,6 +132,8 @@ namespace dromozoa {
           lua_pop(L, 1);
         }
         luaX_push_success(L);
+      } else {
+        png_error(self->png(), "row_pointer not prepared");
       }
     }
 
@@ -154,86 +156,56 @@ namespace dromozoa {
       png_uint_32 height = png_get_image_height(self->png(), self->info());
       png_uint_32 x = luaX_check_integer<png_uint_32>(L, 2, 1, width) - 1;
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 3, 1, height) - 1;
-      uint16_t a = 0;
-      uint16_t b = 0;
-      uint16_t c = 0;
-      uint16_t d = 0;
+
       png_byte bit_depth = png_get_bit_depth(self->png(), self->info());
-      if (bit_depth == 8) {
-        a = luaX_opt_integer<uint8_t>(L, 4, 0);
-        b = luaX_opt_integer<uint8_t>(L, 5, 0);
-        c = luaX_opt_integer<uint8_t>(L, 6, 0);
-        d = luaX_opt_integer<uint8_t>(L, 7, 0);
-      } else if (bit_depth == 16) {
-        a = luaX_opt_integer<uint16_t>(L, 4, 0);
-        b = luaX_opt_integer<uint16_t>(L, 5, 0);
-        c = luaX_opt_integer<uint16_t>(L, 6, 0);
-        d = luaX_opt_integer<uint16_t>(L, 7, 0);
-      } else {
+      if (bit_depth != 8 && bit_depth != 16) {
+        png_error(self->png(), "unexpected bit_depth (8 or 16 expected)");
         return;
       }
-      if (png_get_color_type(self->png(), self->info()) & PNG_COLOR_MASK_PALETTE) {
+      if (png_get_color_type(self->png(), self->info()) == PNG_COLOR_TYPE_PALETTE) {
+        png_error(self->png(), "PNG_COLOR_TYPE_PALETTE not supported");
         return;
       }
+      png_byte channels = png_get_channels(self->png(), self->info());
+      if (channels < 1 || 4 < channels) {
+        png_error(self->png(), "unexpected channels (1, 2, 3 or 4 expected");
+        return;
+      }
+
       png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
-        png_byte channels = png_get_channels(self->png(), self->info());
         png_bytep p = row_pointers[y] + (bit_depth * channels >> 3) * x;
-        switch (bit_depth) {
-          case 8:
-            switch (channels) {
-              case 1:
-                p[0] = a;
-                luaX_push_success(L);
-                break;
-              case 2:
-                p[0] = a;
-                p[1] = b;
-                luaX_push_success(L);
-                break;
-              case 3:
-                p[0] = a;
-                p[1] = b;
-                p[2] = c;
-                luaX_push_success(L);
-                break;
-              case 4:
-                p[0] = a;
-                p[1] = b;
-                p[2] = c;
-                p[3] = d;
-                luaX_push_success(L);
-                break;
-            }
-            break;
-          case 16:
-            // assume network byte order
-            switch (channels) {
-              case 1:
-                p[0] = a >> 8; p[1] = a & 0xFF;
-                luaX_push_success(L);
-                break;
-              case 2:
-                p[0] = a >> 8; p[1] = a & 0xFF;
-                p[2] = b >> 8; p[3] = b & 0xFF;
-                luaX_push_success(L);
-                break;
-              case 3:
-                p[0] = a >> 8; p[1] = a & 0xFF;
-                p[2] = b >> 8; p[3] = b & 0xFF;
-                p[4] = c >> 8; p[5] = c & 0xFF;
-                luaX_push_success(L);
-                break;
-              case 4:
-                p[0] = a >> 8; p[1] = a & 0xFF;
-                p[2] = b >> 8; p[3] = b & 0xFF;
-                p[4] = c >> 8; p[5] = c & 0xFF;
-                p[6] = d >> 8; p[7] = d & 0xFF;
-                luaX_push_success(L);
-                break;
-            }
-            break;
+        if (bit_depth == 8) {
+          p[0] = luaX_opt_integer<uint8_t>(L, 4, 0);
+          switch (channels) { // fall through
+            case 4:
+              p[3] = luaX_opt_integer<uint8_t>(L, 7, 0);
+            case 3:
+              p[2] = luaX_opt_integer<uint8_t>(L, 6, 0);
+            case 2:
+              p[1] = luaX_opt_integer<uint8_t>(L, 5, 0);
+          }
+        } else {
+          // assume network byte order
+          uint16_t v = luaX_opt_integer<uint16_t>(L, 4, 0);
+          p[1] = v;
+          p[0] = v >> 8;
+          switch (channels) { // fall through
+            case 4:
+              v = luaX_opt_integer<uint16_t>(L, 7, 0);
+              p[7] = v;
+              p[6] = v >> 8;
+            case 3:
+              v = luaX_opt_integer<uint16_t>(L, 6, 0);
+              p[5] = v;
+              p[4] = v >> 8;
+            case 2:
+              v = luaX_opt_integer<uint16_t>(L, 5, 0);
+              p[3] = v;
+              p[2] = v >> 8;
+          }
         }
+        luaX_push_success(L);
       }
     }
 
