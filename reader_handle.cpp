@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <stddef.h>
 #include <string.h>
 
 #include "common.hpp"
@@ -47,7 +46,12 @@ namespace dromozoa {
       png_destroy_read_struct(&png_, &info_, 0);
     }
 
-    png_structp png() const {
+    png_structp png(bool check_io_ptr) const {
+      if (check_io_ptr) {
+        if (!png_get_io_ptr(png_)) {
+          png_error(png_, "io_ptr not preapred");
+        }
+      }
       return png_;
     }
 
@@ -111,16 +115,13 @@ namespace dromozoa {
         read_fn_.get_field(L);
         luaX_push(L, length);
         if (lua_pcall(L, 1, 1, 0) == 0) {
-          size_t result = 0;
-          if (const char* ptr = lua_tolstring(L, -1, &result)) {
-            if (result == length) {
-              memcpy(data, ptr, result);
-            } else {
-              png_error(png_, "read error");
+          if (luaX_string_reference source = luaX_to_string(L, -1)) {
+            if (source.size() == length) {
+              memcpy(data, source.data(), source.size());
+              return;
             }
-          } else {
-            png_error(png_, "read error");
           }
+          png_error(png_, "read error");
         } else {
           png_error(png_, lua_tostring(L, -1));
         }
@@ -142,8 +143,8 @@ namespace dromozoa {
     impl_->destroy();
   }
 
-  png_structp reader_handle::png() const {
-    return impl_->png();
+  png_structp reader_handle::png(bool check_io_ptr) const {
+    return impl_->png(check_io_ptr);
   }
 
   png_infop reader_handle::info() const {

@@ -18,23 +18,7 @@
 #include "common.hpp"
 
 namespace dromozoa {
-  namespace {
-    class failure : public luaX_failure<> {
-    public:
-      explicit failure(const char* what) : what_(what) {}
-
-      virtual ~failure() throw() {}
-
-      virtual const char* what() const throw() {
-        return what_.c_str();
-      }
-
-    private:
-      std::string what_;
-    };
-  }
-
   void error_fn(png_structp, png_const_charp message) {
-    throw failure(message);
+    luaX_throw_failure(message);
   }
 }

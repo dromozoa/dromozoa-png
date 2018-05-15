@@ -33,7 +33,7 @@ namespace dromozoa {
     explicit reader_handle(reader_handle_impl* impl);
     ~reader_handle();
     void destroy();
-    png_structp png() const;
+    png_structp png(bool check_io_ptr = false) const;
     png_infop info() const;
     void set_warning_fn(lua_State* L, int index);
     void set_read_fn(lua_State* L, int index);
@@ -51,7 +51,7 @@ namespace dromozoa {
     explicit writer_handle(writer_handle_impl* impl);
     ~writer_handle();
     void destroy();
-    png_structp png() const;
+    png_structp png(bool check_io_ptr = false) const;
     png_infop info() const;
     void set_warning_fn(lua_State* L, int index);
     void set_write_fn(lua_State* L, int index, int index_flush);

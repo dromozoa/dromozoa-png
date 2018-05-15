@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <stddef.h>
-#include <stdint.h>
 #include <string.h>
 
 #include <algorithm>
@@ -125,9 +123,8 @@ namespace dromozoa {
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
         for (png_uint_32 y = 0; y < height; ++y) {
           luaX_get_field(L, 2, y + 1);
-          size_t length = 0;
-          if (const char* ptr = lua_tolstring(L, -1, &length)) {
-            memcpy(row_pointers[y], ptr, std::min(rowbytes, length));
+          if (luaX_string_reference source = luaX_to_string(L, -1)) {
+            memcpy(row_pointers[y], source.data(), std::min(rowbytes, source.size()));
           }
           lua_pop(L, 1);
         }
@@ -141,58 +138,10 @@ namespace dromozoa {
       writer_handle* self = check_writer_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
-      size_t length = 0;
-      const char* ptr = luaL_checklstring(L, 3, &length);
+      luaX_string_reference source = luaX_check_string(L, 3);
       png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
-        memcpy(row_pointers[y], ptr, std::min(rowbytes, length));
-        luaX_push_success(L);
-      }
-    }
-
-    void impl_set_pixel(lua_State* L) {
-      writer_handle* self = check_writer_handle(L, 1);
-      png_uint_32 width = png_get_image_width(self->png(), self->info());
-      png_uint_32 height = png_get_image_height(self->png(), self->info());
-      png_uint_32 x = luaX_check_integer<png_uint_32>(L, 2, 1, width) - 1;
-      png_uint_32 y = luaX_check_integer<png_uint_32>(L, 3, 1, height) - 1;
-
-      png_byte bit_depth = png_get_bit_depth(self->png(), self->info());
-      if (bit_depth != 8 && bit_depth != 16) {
-        png_error(self->png(), "unexpected bit_depth (8 or 16 expected)");
-        return;
-      }
-      if (png_get_color_type(self->png(), self->info()) == PNG_COLOR_TYPE_PALETTE) {
-        png_error(self->png(), "PNG_COLOR_TYPE_PALETTE not supported");
-        return;
-      }
-      png_byte channels = png_get_channels(self->png(), self->info());
-      if (channels < 1 || 4 < channels) {
-        png_error(self->png(), "unexpected channels (1, 2, 3 or 4 expected");
-        return;
-      }
-
-      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-      if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
-        png_bytep p = row_pointers[y] + (bit_depth * channels >> 3) * x;
-        if (bit_depth == 8) {
-          p[0] = luaX_opt_integer<uint8_t>(L, 4, 0);
-          switch (channels) {
-            case 4: p[3] = luaX_opt_integer<uint8_t>(L, 7, 0); // FALLTHROUGH
-            case 3: p[2] = luaX_opt_integer<uint8_t>(L, 6, 0); // FALLTHROUGH
-            case 2: p[1] = luaX_opt_integer<uint8_t>(L, 5, 0); // FALLTHROUGH
-          }
-        } else {
-          // assume network byte order
-          uint16_t v = luaX_opt_integer<uint16_t>(L, 4, 0);
-          p[1] = v;
-          p[0] = v >> 8;
-          switch (channels) {
-            case 4: v = luaX_opt_integer<uint16_t>(L, 7, 0); p[7] = v; p[6] = v >> 8; // FALLTHROUGH
-            case 3: v = luaX_opt_integer<uint16_t>(L, 6, 0); p[5] = v; p[4] = v >> 8; // FALLTHROUGH
-            case 2: v = luaX_opt_integer<uint16_t>(L, 5, 0); p[3] = v; p[2] = v >> 8; // FALLTHROUGH
-          }
-        }
+        memcpy(row_pointers[y], source.data(), std::min(rowbytes, source.size()));
         luaX_push_success(L);
       }
     }
@@ -200,7 +149,7 @@ namespace dromozoa {
     void impl_write_png(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
-      png_write_png(self->png(), self->info(), transforms, 0);
+      png_write_png(self->png(true), self->info(), transforms, 0);
       luaX_push_success(L);
     }
   }
@@ -227,7 +176,6 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_pHYs", impl_set_pHYs);
       luaX_set_field(L, -1, "set_rows", impl_set_rows);
       luaX_set_field(L, -1, "set_row", impl_set_row);
-      luaX_set_field(L, -1, "set_pixel", impl_set_pixel);
       luaX_set_field(L, -1, "write_png", impl_write_png);
     }
     luaX_set_field(L, -2, "writer");

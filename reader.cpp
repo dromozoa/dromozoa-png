@@ -59,7 +59,7 @@ namespace dromozoa {
     void impl_read_png(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
-      png_read_png(self->png(), self->info(), transforms, 0);
+      png_read_png(self->png(true), self->info(), transforms, 0);
       luaX_push_success(L);
     }
 
@@ -137,7 +137,7 @@ namespace dromozoa {
 
     void impl_get_signature(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
-      lua_pushlstring(L, reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8);
+      luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8));
     }
 
     void impl_get_tIME(lua_State* L) {
@@ -167,14 +167,12 @@ namespace dromozoa {
           switch (text[i].compression) {
             case PNG_TEXT_COMPRESSION_NONE:
             case PNG_TEXT_COMPRESSION_zTXt:
-              lua_pushlstring(L, text[i].text, text[i].text_length);
-              luaX_set_field(L, -2, "text");
+              luaX_set_field(L, -1, "text", luaX_string_reference(text[i].text, text[i].text_length));
               break;
             case PNG_ITXT_COMPRESSION_NONE:
             case PNG_ITXT_COMPRESSION_zTXt:
 #if PNG_LIBPNG_VER >= 10500 || defined(PNG_iTXt_SUPPORTED)
-              lua_pushlstring(L, text[i].text, text[i].itxt_length);
-              luaX_set_field(L, -2, "text");
+              luaX_set_field(L, -1, "text", luaX_string_reference(text[i].text, text[i].itxt_length));
               luaX_set_field(L, -1, "lang", text[i].lang);
               luaX_set_field(L, -1, "lang_key", text[i].lang_key);
 #endif
@@ -248,8 +246,7 @@ namespace dromozoa {
         png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
         lua_newtable(L);
         for (png_uint_32 y = 0; y < height; ++y) {
-          lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[y]), rowbytes);
-          luaX_set_field(L, -2, y + 1);
+          luaX_set_field(L, -1, y + 1, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y]), rowbytes));
         }
       } else {
         png_error(self->png(), "row_pointer not prepared");
@@ -262,70 +259,7 @@ namespace dromozoa {
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
         png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-        lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[y]), rowbytes);
-      } else {
-        png_error(self->png(), "row_pointer not prepared");
-      }
-    }
-
-    void impl_get_pixel(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_uint_32 width = png_get_image_width(self->png(), self->info());
-      png_uint_32 height = png_get_image_height(self->png(), self->info());
-      png_uint_32 x = luaX_check_integer<png_uint_32>(L, 2, 1, width) - 1;
-      png_uint_32 y = luaX_check_integer<png_uint_32>(L, 3, 1, height) - 1;
-
-      png_byte bit_depth = png_get_bit_depth(self->png(), self->info());
-      if (bit_depth != 8 && bit_depth != 16) {
-        png_error(self->png(), "unexpected bit_depth (8 or 16 expected)");
-        return;
-      }
-      if (png_get_color_type(self->png(), self->info()) == PNG_COLOR_TYPE_PALETTE) {
-        png_error(self->png(), "PNG_COLOR_TYPE_PALETTE not supported");
-        return;
-      }
-      png_byte channels = png_get_channels(self->png(), self->info());
-      if (channels < 1 || 4 < channels) {
-        png_error(self->png(), "unexpected channels (1, 2, 3 or 4 expected");
-        return;
-      }
-
-      if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
-        png_bytep p = row_pointers[y] + (bit_depth * channels >> 3) * x;
-        if (bit_depth == 8) {
-          luaX_push(L, p[0]);
-          switch (channels) {
-            case 2:
-              luaX_push(L, p[1]);
-              break;
-            case 3:
-              luaX_push(L, p[1]);
-              luaX_push(L, p[2]);
-              break;
-            case 4:
-              luaX_push(L, p[1]);
-              luaX_push(L, p[2]);
-              luaX_push(L, p[3]);
-              break;
-          }
-        } else {
-          // assume network byte order
-          luaX_push(L, p[0] << 8 | p[1]);
-          switch (channels) {
-            case 2:
-              luaX_push(L, p[2] << 8 | p[3]);
-              break;
-            case 3:
-              luaX_push(L, p[2] << 8 | p[3]);
-              luaX_push(L, p[4] << 8 | p[5]);
-              break;
-            case 4:
-              luaX_push(L, p[2] << 8 | p[3]);
-              luaX_push(L, p[4] << 8 | p[5]);
-              luaX_push(L, p[6] << 8 | p[7]);
-              break;
-          }
-        }
+        luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y]), rowbytes));
       } else {
         png_error(self->png(), "row_pointer not prepared");
       }
@@ -371,7 +305,6 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_pixel_aspect_ratio", impl_get_pixel_aspect_ratio);
       luaX_set_field(L, -1, "get_rows", impl_get_rows);
       luaX_set_field(L, -1, "get_row", impl_get_row);
-      luaX_set_field(L, -1, "get_pixel", impl_get_pixel);
     }
     luaX_set_field(L, -2, "reader");
   }
