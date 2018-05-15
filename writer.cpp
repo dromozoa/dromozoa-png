@@ -116,32 +116,14 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
-    void impl_set_rows(lua_State* L) {
-      writer_handle* self = check_writer_handle(L, 1);
-      png_uint_32 height = png_get_image_height(self->png(), self->info());
-      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-      if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
-        for (png_uint_32 y = 0; y < height; ++y) {
-          luaX_get_field(L, 2, y + 1);
-          if (luaX_string_reference source = luaX_to_string(L, -1)) {
-            memcpy(row_pointers[y], source.data(), std::min(rowbytes, source.size()));
-          }
-          lua_pop(L, 1);
-        }
-        luaX_push_success(L);
-      } else {
-        png_error(self->png(), "row_pointer not prepared");
-      }
-    }
-
     void impl_set_row(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
-      png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
+      png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height);
       luaX_string_reference source = luaX_check_string(L, 3);
       png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
-        memcpy(row_pointers[y], source.data(), std::min(rowbytes, source.size()));
+        memcpy(row_pointers[y - 1], source.data(), std::min(rowbytes, source.size()));
         luaX_push_success(L);
       }
     }
@@ -174,7 +156,6 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_text", impl_set_text);
       luaX_set_field(L, -1, "set_oFFs", impl_set_oFFs);
       luaX_set_field(L, -1, "set_pHYs", impl_set_pHYs);
-      luaX_set_field(L, -1, "set_rows", impl_set_rows);
       luaX_set_field(L, -1, "set_row", impl_set_row);
       luaX_set_field(L, -1, "write_png", impl_write_png);
     }
