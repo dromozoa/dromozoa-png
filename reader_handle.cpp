@@ -46,7 +46,12 @@ namespace dromozoa {
       png_destroy_read_struct(&png_, &info_, 0);
     }
 
-    png_structp png() const {
+    png_structp png(bool check_io_ptr) const {
+      if (check_io_ptr) {
+        if (!png_get_io_ptr(png_)) {
+          png_error(png_, "io_ptr not preapred");
+        }
+      }
       return png_;
     }
 
@@ -138,8 +143,8 @@ namespace dromozoa {
     impl_->destroy();
   }
 
-  png_structp reader_handle::png() const {
-    return impl_->png();
+  png_structp reader_handle::png(bool check_io_ptr) const {
+    return impl_->png(check_io_ptr);
   }
 
   png_infop reader_handle::info() const {

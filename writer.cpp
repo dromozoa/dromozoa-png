@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <stddef.h>
-#include <stdint.h>
 #include <string.h>
 
 #include <algorithm>
@@ -151,7 +149,7 @@ namespace dromozoa {
     void impl_write_png(lua_State* L) {
       writer_handle* self = check_writer_handle(L, 1);
       int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
-      png_write_png(self->png(), self->info(), transforms, 0);
+      png_write_png(self->png(true), self->info(), transforms, 0);
       luaX_push_success(L);
     }
   }

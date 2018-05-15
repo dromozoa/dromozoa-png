@@ -59,7 +59,7 @@ namespace dromozoa {
     void impl_read_png(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       int transforms = luaX_opt_integer<int>(L, 2, PNG_TRANSFORM_IDENTITY);
-      png_read_png(self->png(), self->info(), transforms, 0);
+      png_read_png(self->png(true), self->info(), transforms, 0);
       luaX_push_success(L);
     }
 
