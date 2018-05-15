@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <stddef.h>
 #include <string.h>
 
 #include "common.hpp"
@@ -111,16 +110,13 @@ namespace dromozoa {
         read_fn_.get_field(L);
         luaX_push(L, length);
         if (lua_pcall(L, 1, 1, 0) == 0) {
-          size_t result = 0;
-          if (const char* ptr = lua_tolstring(L, -1, &result)) {
-            if (result == length) {
-              memcpy(data, ptr, result);
-            } else {
-              png_error(png_, "read error");
+          if (luaX_string_reference source = luaX_to_string(L, -1)) {
+            if (source.size() == length) {
+              memcpy(data, source.data(), source.size());
+              return;
             }
-          } else {
-            png_error(png_, "read error");
           }
+          png_error(png_, "read error");
         } else {
           png_error(png_, lua_tostring(L, -1));
         }

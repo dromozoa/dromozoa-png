@@ -30,7 +30,7 @@ namespace dromozoa {
       void get(png_textp out) const {
         out->compression = compression_;
         out->key = const_cast<png_charp>(key_.c_str());
-        out->text = const_cast<png_charp>(text_.c_str());
+        out->text = const_cast<png_charp>(text_.data());
         switch (compression_) {
           case PNG_TEXT_COMPRESSION_NONE:
           case PNG_TEXT_COMPRESSION_zTXt:
@@ -125,27 +125,26 @@ namespace dromozoa {
           std::string lang_key;
 
           luaX_get_field(L, -1, "key");
-          if (const char* ptr = lua_tostring(L, -1)) {
-            key.assign(ptr);
+          if (luaX_string_reference source = luaX_to_string(L, -1)) {
+            key.assign(source.data(), source.size());
           }
           lua_pop(L, 1);
 
           luaX_get_field(L, -1, "text");
-          size_t length = 0;
-          if (const char* ptr = lua_tolstring(L, -1, &length)) {
-            text.assign(ptr, length);
+          if (luaX_string_reference source = luaX_to_string(L, -1)) {
+            text.assign(source.data(), source.size());
           }
           lua_pop(L, 1);
 
           luaX_get_field(L, -1, "lang");
-          if (const char* ptr = lua_tostring(L, -1)) {
-            lang.assign(ptr);
+          if (luaX_string_reference source = luaX_to_string(L, -1)) {
+            lang.assign(source.data(), source.size());
           }
           lua_pop(L, 1);
 
           luaX_get_field(L, -1, "lang_key");
-          if (const char* ptr = lua_tostring(L, -1)) {
-            lang_key.assign(ptr);
+          if (luaX_string_reference source = luaX_to_string(L, -1)) {
+            lang_key.assign(source.data(), source.size());
           }
           lua_pop(L, 2);
 
@@ -228,7 +227,7 @@ namespace dromozoa {
       luaX_top_saver save_top(L);
       {
         write_fn_.get_field(L);
-        lua_pushlstring(L, reinterpret_cast<const char*>(data), length);
+        luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(data), length));
         if (lua_pcall(L, 1, 1, 0) == 0) {
           if (luaX_is_integer(L, -1)) {
             if (static_cast<png_size_t>(lua_tointeger(L, -1)) != length) {

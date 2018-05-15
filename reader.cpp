@@ -137,7 +137,7 @@ namespace dromozoa {
 
     void impl_get_signature(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
-      lua_pushlstring(L, reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8);
+      luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8));
     }
 
     void impl_get_tIME(lua_State* L) {
@@ -167,14 +167,12 @@ namespace dromozoa {
           switch (text[i].compression) {
             case PNG_TEXT_COMPRESSION_NONE:
             case PNG_TEXT_COMPRESSION_zTXt:
-              lua_pushlstring(L, text[i].text, text[i].text_length);
-              luaX_set_field(L, -2, "text");
+              luaX_set_field(L, -1, "text", luaX_string_reference(text[i].text, text[i].text_length));
               break;
             case PNG_ITXT_COMPRESSION_NONE:
             case PNG_ITXT_COMPRESSION_zTXt:
 #if PNG_LIBPNG_VER >= 10500 || defined(PNG_iTXt_SUPPORTED)
-              lua_pushlstring(L, text[i].text, text[i].itxt_length);
-              luaX_set_field(L, -2, "text");
+              luaX_set_field(L, -1, "text", luaX_string_reference(text[i].text, text[i].itxt_length));
               luaX_set_field(L, -1, "lang", text[i].lang);
               luaX_set_field(L, -1, "lang_key", text[i].lang_key);
 #endif
@@ -248,8 +246,7 @@ namespace dromozoa {
         png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
         lua_newtable(L);
         for (png_uint_32 y = 0; y < height; ++y) {
-          lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[y]), rowbytes);
-          luaX_set_field(L, -2, y + 1);
+          luaX_set_field(L, -1, y + 1, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y]), rowbytes));
         }
       } else {
         png_error(self->png(), "row_pointer not prepared");
@@ -262,7 +259,7 @@ namespace dromozoa {
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
         png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-        lua_pushlstring(L, reinterpret_cast<const char*>(row_pointers[y]), rowbytes);
+        luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y]), rowbytes));
       } else {
         png_error(self->png(), "row_pointer not prepared");
       }
