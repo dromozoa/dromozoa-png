@@ -239,27 +239,13 @@ namespace dromozoa {
       luaX_push(L, png_get_pixel_aspect_ratio(self->png(), self->info()));
     }
 
-    void impl_get_rows(lua_State* L) {
-      reader_handle* self = check_reader_handle(L, 1);
-      png_uint_32 height = png_get_image_height(self->png(), self->info());
-      if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
-        png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-        lua_newtable(L);
-        for (png_uint_32 y = 0; y < height; ++y) {
-          luaX_set_field(L, -1, y + 1, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y]), rowbytes));
-        }
-      } else {
-        png_error(self->png(), "row_pointer not prepared");
-      }
-    }
-
     void impl_get_row(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
-      png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height) - 1;
+      png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height);
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
         png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-        luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y]), rowbytes));
+        luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y - 1]), rowbytes));
       } else {
         png_error(self->png(), "row_pointer not prepared");
       }
@@ -303,7 +289,6 @@ namespace dromozoa {
       luaX_set_field(L, -1, "get_y_pixels_per_meter", impl_get_y_pixels_per_meter);
       luaX_set_field(L, -1, "get_pixels_per_meter", impl_get_pixels_per_meter);
       luaX_set_field(L, -1, "get_pixel_aspect_ratio", impl_get_pixel_aspect_ratio);
-      luaX_set_field(L, -1, "get_rows", impl_get_rows);
       luaX_set_field(L, -1, "get_row", impl_get_row);
     }
     luaX_set_field(L, -2, "reader");

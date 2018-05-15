@@ -80,10 +80,7 @@ assert(reader:get_y_pixels_per_meter() == ppm)
 assert(reader:get_pixels_per_meter() == ppm)
 assert(reader:get_pixel_aspect_ratio() == 1)
 
-local rows = assert(reader:get_rows())
-assert(#rows == 580)
-for i = 1, #rows do
-  local row = rows[i]
+for y = 1, 580 do
+  local row = reader:get_row(y)
   assert(#row == 271 * 4)
-  assert(row == reader:get_row(i))
 end
