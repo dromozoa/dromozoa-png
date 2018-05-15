@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <stddef.h>
-
 #include "common.hpp"
 
 namespace dromozoa {
@@ -27,9 +25,8 @@ namespace dromozoa {
 
     void impl_sig_cmp(lua_State* L) {
       // no png_const_bytep prior to libpng 1.5.x
-      size_t length = 0;
-      png_bytep header = reinterpret_cast<png_bytep>(const_cast<char*>(luaL_checklstring(L, 1, &length)));
-      luaX_push(L, png_sig_cmp(header, 0, length));
+      luaX_string_reference source = luaX_check_string(L, 1);
+      luaX_push(L, png_sig_cmp(reinterpret_cast<png_bytep>(const_cast<char*>(source.data())), 0, source.size()));
     }
   }
 
