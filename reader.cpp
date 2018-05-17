@@ -137,7 +137,7 @@ namespace dromozoa {
 
     void impl_get_signature(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8));
+      luaX_push(L, luaX_string_reference(png_get_signature(self->png(), self->info()), 8));
     }
 
     void impl_get_tIME(lua_State* L) {
@@ -245,7 +245,7 @@ namespace dromozoa {
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height);
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
         png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-        luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y - 1]), rowbytes));
+        luaX_push(L, luaX_string_reference(row_pointers[y - 1], rowbytes));
       } else {
         png_error(self->png(), "row_pointer not prepared");
       }

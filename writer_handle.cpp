@@ -232,7 +232,7 @@ namespace dromozoa {
       luaX_top_saver save_top(L);
       {
         write_fn_.get_field(L);
-        luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(data), length));
+        luaX_push(L, luaX_string_reference(data, length));
         if (lua_pcall(L, 1, 1, 0) == 0) {
           if (luaX_is_integer(L, -1)) {
             if (static_cast<png_size_t>(lua_tointeger(L, -1)) != length) {
