@@ -125,6 +125,8 @@ namespace dromozoa {
       if (png_bytepp row_pointers = self->prepare_rows(height, rowbytes)) {
         memcpy(row_pointers[y - 1], source.data(), std::min(rowbytes, source.size()));
         luaX_push_success(L);
+      } else {
+        png_error(self->png(), "row_pointer not prepared");
       }
     }
 
