@@ -17,6 +17,7 @@
 
 #include <stddef.h>
 
+#include <string>
 #include <vector>
 
 #include "common.hpp"
@@ -42,6 +43,8 @@ namespace dromozoa {
             out->itxt_length = text_.size();
             out->lang = const_cast<png_charp>(lang_.c_str());
             out->lang_key = const_cast<png_charp>(lang_key_.c_str());
+#else
+            error_fn(0, "iTXt not supported");
 #endif
             break;
         }

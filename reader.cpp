@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with dromozoa-png.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <vector>
-
 #include "common.hpp"
 
 namespace dromozoa {
@@ -181,6 +179,8 @@ namespace dromozoa {
               luaX_set_field(L, -1, "text", luaX_string_reference(text[i].text, text[i].itxt_length));
               luaX_set_field(L, -1, "lang", text[i].lang);
               luaX_set_field(L, -1, "lang_key", text[i].lang_key);
+#else
+              png_error(self->png(), "iTXt not supported");
 #endif
               break;
           }
@@ -249,8 +249,8 @@ namespace dromozoa {
       reader_handle* self = check_reader_handle(L, 1);
       png_uint_32 height = png_get_image_height(self->png(), self->info());
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height);
+      png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
-        png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
         luaX_push(L, luaX_string_reference(row_pointers[y - 1], rowbytes));
       } else {
         png_error(self->png(), "row_pointer not prepared");
