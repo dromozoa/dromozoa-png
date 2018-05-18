@@ -63,6 +63,12 @@ namespace dromozoa {
       luaX_push_success(L);
     }
 
+    void impl_read_info(lua_State* L) {
+      reader_handle* self = check_reader_handle(L, 1);
+      png_read_info(self->png(true), self->info());
+      luaX_push_success(L);
+    }
+
     void impl_get_valid(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
       int flag = luaX_check_integer<png_uint_32>(L, 2);
@@ -137,7 +143,7 @@ namespace dromozoa {
 
     void impl_get_signature(lua_State* L) {
       reader_handle* self = check_reader_handle(L, 1);
-      luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(png_get_signature(self->png(), self->info())), 8));
+      luaX_push(L, luaX_string_reference(png_get_signature(self->png(), self->info()), 8));
     }
 
     void impl_get_tIME(lua_State* L) {
@@ -245,7 +251,7 @@ namespace dromozoa {
       png_uint_32 y = luaX_check_integer<png_uint_32>(L, 2, 1, height);
       if (png_bytepp row_pointers = png_get_rows(self->png(), self->info())) {
         png_size_t rowbytes = png_get_rowbytes(self->png(), self->info());
-        luaX_push(L, luaX_string_reference(reinterpret_cast<const char*>(row_pointers[y - 1]), rowbytes));
+        luaX_push(L, luaX_string_reference(row_pointers[y - 1], rowbytes));
       } else {
         png_error(self->png(), "row_pointer not prepared");
       }
@@ -267,6 +273,7 @@ namespace dromozoa {
       luaX_set_field(L, -1, "set_warning_fn", impl_set_warning_fn);
       luaX_set_field(L, -1, "set_read_fn", impl_set_read_fn);
       luaX_set_field(L, -1, "read_png", impl_read_png);
+      luaX_set_field(L, -1, "read_info", impl_read_info);
       luaX_set_field(L, -1, "get_valid", impl_get_valid);
       luaX_set_field(L, -1, "get_IHDR", impl_get_IHDR);
       luaX_set_field(L, -1, "get_image_width", impl_get_image_width);
