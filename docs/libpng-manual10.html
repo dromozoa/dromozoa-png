@@ -25,23 +25,23 @@
 
 <h1>X. Changes to Libpng from version 1.0.x/1.2.x to 1.4.x</h1>
 
-<pre>X.  Changes to Libpng from version 1.0.x/1.2.x to 1.4.x
+<pre>X. Changes to Libpng from version 1.0.x/1.2.x to 1.4.x
 
 Private libpng prototypes and macro definitions were moved from
 png.h and pngconf.h into a new pngpriv.h header file.
 
-Functions <a href="png.h.html#L1844">png_set_benign_errors</a>(), <a href="png.h.html#L1835">png_benign_error</a>(), and
-<a href="png.h.html#L1840">png_chunk_benign_error</a>() were added.
+Functions <a href="png.h.html#L1813">png_set_benign_errors</a>(), <a href="png.h.html#L1804">png_benign_error</a>(), and
+<a href="png.h.html#L1809">png_chunk_benign_error</a>() were added.
 
 Support for setting the maximum amount of memory that the application
 will allocate for reading chunks was added, as a security measure.
-The functions <a href="png.h.html#L2399">png_set_chunk_cache_max</a>() and <a href="png.h.html#L2401">png_get_chunk_cache_max</a>()
+The functions <a href="png.h.html#L2368">png_set_chunk_cache_max</a>() and <a href="png.h.html#L2370">png_get_chunk_cache_max</a>()
 were added to the library.
 
 We implemented support for I/O states by adding png_ptr member io_state
-and functions png_get_io_chunk_name() and <a href="png.h.html#L2443">png_get_io_state</a>() in pngget.c
+and functions png_get_io_chunk_name() and <a href="png.h.html#L2412">png_get_io_state</a>() in pngget.c
 
-We added <a href="png.h.html#L880">PNG_TRANSFORM_GRAY_TO_RGB</a> to the available high-level
+We added <a href="png.h.html#L849">PNG_TRANSFORM_GRAY_TO_RGB</a> to the available high-level
 input transforms.
 
 Checking for and reporting of errors in the IHDR chunk is more thorough.
@@ -72,7 +72,7 @@ png_info_init(info_ptr), png_read_destroy(), and png_write_destroy()
 have been removed.  They have been deprecated since libpng-0.95.
 
 The png_permit_empty_plte() was removed. It has been deprecated
-since libpng-1.0.9.  Use <a href="png.h.html#L2371">png_permit_mng_features</a>() instead.
+since libpng-1.0.9.  Use <a href="png.h.html#L2340">png_permit_mng_features</a>() instead.
 
 We removed the obsolete stub functions png_get_mmx_flagmask(),
 png_set_mmx_thresholds(), png_get_asm_flags(),
@@ -80,18 +80,18 @@ png_get_mmx_bitdepth_threshold(), png_get_mmx_rowbytes_threshold(),
 png_set_asm_flags(), and png_mmx_supported()
 
 We removed the obsolete png_check_sig(), png_memcpy_check(), and
-png_memset_check() functions.  Instead use !<a href="png.h.html#L944">png_sig_cmp</a>(), memcpy(),
+png_memset_check() functions.  Instead use !<a href="png.h.html#L913">png_sig_cmp</a>(), memcpy(),
 and memset(), respectively.
 
 The function png_set_gray_1_2_4_to_8() was removed. It has been
 deprecated since libpng-1.0.18 and 1.2.9, when it was replaced with
-<a href="png.h.html#L1083">png_set_expand_gray_1_2_4_to_8</a>() because the former function also
+<a href="png.h.html#L1052">png_set_expand_gray_1_2_4_to_8</a>() because the former function also
 expanded any tRNS chunk to an alpha channel.
 
-Macros for <a href="png.h.html#L2576">png_get_uint_16</a>, <a href="png.h.html#L2575">png_get_uint_32</a>, and <a href="png.h.html#L2577">png_get_int_32</a>
+Macros for <a href="png.h.html#L2545">png_get_uint_16</a>, <a href="png.h.html#L2544">png_get_uint_32</a>, and <a href="png.h.html#L2546">png_get_int_32</a>
 were added and are used by default instead of the corresponding
 functions. Unfortunately,
-from libpng-1.4.0 until 1.4.4, the <a href="png.h.html#L2576">png_get_uint_16</a> macro (but not the
+from libpng-1.4.0 until 1.4.4, the <a href="png.h.html#L2545">png_get_uint_16</a> macro (but not the
 function) incorrectly returned a value of type png_uint_32.
 
 We changed the prototype for png_malloc() from
@@ -102,32 +102,32 @@ to
 This also applies to the prototype for the user replacement malloc_fn().
 
 The png_calloc() function was added and is used in place of
-of "png_malloc(); memset();" except in the case in <a href="png.h.html#L2352">png_read_png</a>()
+of "png_malloc(); memset();" except in the case in <a href="png.h.html#L2321">png_read_png</a>()
 where the array consists of pointers; in this case a "for" loop is used
 after the png_malloc() to set the pointers to NULL, to give robust.
 behavior in case the application runs out of memory part-way through
 the process.
 
-We changed the prototypes of <a href="png.h.html#L964">png_get_compression_buffer_size</a>() and
-<a href="png.h.html#L967">png_set_compression_buffer_size</a>() to work with png_size_t instead of
+We changed the prototypes of <a href="png.h.html#L933">png_get_compression_buffer_size</a>() and
+<a href="png.h.html#L936">png_set_compression_buffer_size</a>() to work with size_t instead of
 png_uint_32.
 
 Support for numbered error messages was removed by default, since we
 never got around to actually numbering the error messages. The function
-<a href="png.h.html#L2386">png_set_strip_error_numbers</a>() was removed from the library by default.
+<a href="png.h.html#L2355">png_set_strip_error_numbers</a>() was removed from the library by default.
 
 The png_zalloc() and png_zfree() functions are no longer exported.
 The png_zalloc() function no longer zeroes out the memory that it
 allocates.  Applications that called png_zalloc(png_ptr, number, size)
 can call png_calloc(png_ptr, number*size) instead, and can call
-<a href="png.h.html#L1758">png_free</a>() instead of png_zfree().
+<a href="png.h.html#L1727">png_free</a>() instead of png_zfree().
 
 Support for dithering was disabled by default in libpng-1.4.0, because
 it has not been well tested and doesn't actually "dither".
 The code was not
 removed, however, and could be enabled by building libpng with
 PNG_READ_DITHER_SUPPORTED defined.  In libpng-1.4.2, this support
-was re-enabled, but the function was renamed <a href="png.h.html#L1359">png_set_quantize</a>() to
+was re-enabled, but the function was renamed <a href="png.h.html#L1328">png_set_quantize</a>() to
 reflect more accurately what it actually does.  At the same time,
 the PNG_DITHER_[RED,GREEN_BLUE]_BITS macros were also renamed to
 PNG_QUANTIZE_[RED,GREEN,BLUE]_BITS, and PNG_READ_DITHER_SUPPORTED

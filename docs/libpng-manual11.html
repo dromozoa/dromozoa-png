@@ -25,9 +25,9 @@
 
 <h1>XI. Changes to Libpng from version 1.4.x to 1.5.x</h1>
 
-<pre>XI.  Changes to Libpng from version 1.4.x to 1.5.x
+<pre>XI. Changes to Libpng from version 1.4.x to 1.5.x
 
-From libpng-1.4.0 until 1.4.4, the <a href="png.h.html#L2576">png_get_uint_16</a> macro (but not the
+From libpng-1.4.0 until 1.4.4, the <a href="png.h.html#L2545">png_get_uint_16</a> macro (but not the
 function) incorrectly returned a value of type png_uint_32.
 The incorrect macro was removed from libpng-1.4.5.
 
@@ -37,7 +37,7 @@ a benign error.  This is enabled by default because this condition is an
 error according to the PNG specification, Clause 11.3.2, but the error can
 be ignored in each png_ptr with
 
-   <a href="png.h.html#L2643">png_set_check_for_invalid_index</a>(png_ptr, allowed);
+   <a href="png.h.html#L2612">png_set_check_for_invalid_index</a>(png_ptr, allowed);
 
       allowed  - one of
                  0: disable benign error (accept the
@@ -46,15 +46,15 @@ be ignored in each png_ptr with
                     invalid data as an error or a
                     warning).
 
-If the error is ignored, or if <a href="png.h.html#L1835">png_benign_error</a>() treats it as a warning,
+If the error is ignored, or if <a href="png.h.html#L1804">png_benign_error</a>() treats it as a warning,
 any invalid pixels are decoded as opaque black by the decoder and written
 as-is by the encoder.
 
 Retrieving the maximum palette index found was added at libpng-1.5.15.
-This statement must appear after <a href="png.h.html#L2352">png_read_png</a>() or <a href="png.h.html#L1415">png_read_image</a>() while
-reading, and after <a href="png.h.html#L2356">png_write_png</a>() or <a href="png.h.html#L1431">png_write_image</a>() while writing.
+This statement must appear after <a href="png.h.html#L2321">png_read_png</a>() or <a href="png.h.html#L1384">png_read_image</a>() while
+reading, and after <a href="png.h.html#L2325">png_write_png</a>() or <a href="png.h.html#L1400">png_write_image</a>() while writing.
 
-   int max_palette = <a href="png.h.html#L2646">png_get_palette_max</a>(png_ptr, info_ptr);
+   int max_palette = <a href="png.h.html#L2615">png_get_palette_max</a>(png_ptr, info_ptr);
 
 This will return the maximum palette index found in the image, or "-1" if
 the palette was not checked, or "0" if no palette was found.  Note that this
@@ -82,13 +82,13 @@ We moved the png_strlen(), png_memcpy(), png_memset(), and png_memcmp()
 macros into a private header file (pngpriv.h) that is not accessible to
 applications.
 
-In <a href="png.h.html#L2121">png_get_iCCP</a>, the type of "profile" was changed from png_charpp
-to png_bytepp, and in <a href="png.h.html#L2127">png_set_iCCP</a>, from png_charp to png_const_bytep.
+In <a href="png.h.html#L2090">png_get_iCCP</a>, the type of "profile" was changed from png_charpp
+to png_bytepp, and in <a href="png.h.html#L2096">png_set_iCCP</a>, from png_charp to png_const_bytep.
 
 There are changes of form in png.h, including new and changed macros to
 declare parts of the API.  Some API functions with arguments that are
 pointers to data not modified within the function have been corrected to
-declare these arguments with PNG_CONST.
+declare these arguments with const.
 
 Much of the internal use of C macros to control the library build has also
 changed and some of this is visible in the exported header files, in
@@ -99,7 +99,7 @@ application code.  (It is extremely rare for an application to do this.)
 Any program that compiled against libpng 1.4 and did not use deprecated
 features or access internal library structures should compile and work
 against libpng 1.5, except for the change in the prototype for
-<a href="png.h.html#L2121">png_get_iCCP</a>() and <a href="png.h.html#L2127">png_set_iCCP</a>() API functions mentioned above.
+<a href="png.h.html#L2090">png_get_iCCP</a>() and <a href="png.h.html#L2096">png_set_iCCP</a>() API functions mentioned above.
 
 libpng 1.5.0 adds PNG_ PASS macros to help in the reading and writing of
 interlaced images.  The macros return the number of rows and columns in
@@ -122,7 +122,7 @@ uses floating point arithmetic (the default) or fixed point arithmetic
 internally for performance critical calculations such as gamma correction.
 In some cases, the gamma calculations may produce slightly different
 results.  This has changed the results in png_rgb_to_gray and in alpha
-composition (<a href="png.h.html#L1330">png_set_background</a> for example). This applies even if the
+composition (<a href="png.h.html#L1299">png_set_background</a> for example). This applies even if the
 original image was already linear (gamma == 1.0) and, therefore, it is
 not necessary to linearize the image.  This is because libpng has *not*
 been changed to optimize that case correctly, yet.
@@ -131,7 +131,7 @@ Fixed point support for the sCAL chunk comes with an important caveat;
 the sCAL specification uses a decimal encoding of floating point values
 and the accuracy of PNG fixed point values is insufficient for
 representation of these values. Consequently a "string" API
-(<a href="png.h.html#L2196">png_get_sCAL_s</a> and <a href="png.h.html#L2205">png_set_sCAL_s</a>) is the only reliable way of reading
+(<a href="png.h.html#L2165">png_get_sCAL_s</a> and <a href="png.h.html#L2174">png_set_sCAL_s</a>) is the only reliable way of reading
 arbitrary sCAL chunks in the absence of either the floating point API or
 internal floating point calculations.  Starting with libpng-1.5.0, both
 of these functions are present when PNG_sCAL_SUPPORTED is defined.  Prior
@@ -178,14 +178,14 @@ macro became PNG_READ_SCALE_16_TO_8_SUPPORTED, and the PNG_READ_16_TO_8
 macro became PNG_READ_STRIP_16_TO_8_SUPPORTED, to enable the two
 png_set_*_16_to_8() functions separately.
 
-Prior to libpng-1.5.4, the <a href="png.h.html#L2392">png_set_user_limits</a>() function could only be
+Prior to libpng-1.5.4, the <a href="png.h.html#L2361">png_set_user_limits</a>() function could only be
 used to reduce the width and height limits from the value of
 PNG_USER_WIDTH_MAX and PNG_USER_HEIGHT_MAX, although this document said
 that it could be used to override them.  Now this function will reduce or
 increase the limits.
 
 Starting in libpng-1.5.22, default user limits were established. These
-can be overridden by application calls to <a href="png.h.html#L2392">png_set_user_limits</a>(),
+can be overridden by application calls to <a href="png.h.html#L2361">png_set_user_limits</a>(),
 png_set_user_chunk_cache_max(), and/or png_set_user_malloc_max().
 The limits are now
                              max possible  default
@@ -194,8 +194,8 @@ The limits are now
    png_user_chunk_cache_max  0 (unlimited) 1000
    png_user_chunk_malloc_max 0 (unlimited) 8,000,000
 
-The <a href="png.h.html#L3253">png_set_option</a>() function (and the "options" member of the png struct) was
-added to libpng-1.5.15, with option <a href="png.h.html#L3234">PNG_ARM_NEON</a>.
+The <a href="png.h.html#L3222">png_set_option</a>() function (and the "options" member of the png struct) was
+added to libpng-1.5.15, with option <a href="png.h.html#L3203">PNG_ARM_NEON</a>.
 
 The library now supports a complete fixed point implementation and can
 thus be used on systems that have no floating point support or very

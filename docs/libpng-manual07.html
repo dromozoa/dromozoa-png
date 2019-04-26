@@ -25,20 +25,20 @@
 
 <h1>VII. MNG support</h1>
 
-<pre>VII.  MNG support
+<pre>VII. MNG support
 
 The MNG specification (available at http://www.libpng.org/pub/mng) allows
 certain extensions to PNG for PNG images that are embedded in MNG datastreams.
 Libpng can support some of these extensions.  To enable them, use the
-<a href="png.h.html#L2371">png_permit_mng_features</a>() function:
+<a href="png.h.html#L2340">png_permit_mng_features</a>() function:
 
-   feature_set = <a href="png.h.html#L2371">png_permit_mng_features</a>(png_ptr, mask)
+   feature_set = <a href="png.h.html#L2340">png_permit_mng_features</a>(png_ptr, mask)
 
    mask is a png_uint_32 containing the bitwise OR of the
         features you want to enable.  These include
-        <a href="png.h.html#L888">PNG_FLAG_MNG_EMPTY_PLTE</a>
-        <a href="png.h.html#L889">PNG_FLAG_MNG_FILTER_64</a>
-        <a href="png.h.html#L890">PNG_ALL_MNG_FEATURES</a>
+        <a href="png.h.html#L857">PNG_FLAG_MNG_EMPTY_PLTE</a>
+        <a href="png.h.html#L858">PNG_FLAG_MNG_FILTER_64</a>
+        <a href="png.h.html#L859">PNG_ALL_MNG_FEATURES</a>
 
    feature_set is a png_uint_32 that is the bitwise AND of
       your mask with the set of MNG features that is
