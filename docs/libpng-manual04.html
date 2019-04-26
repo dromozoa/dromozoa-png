@@ -41,7 +41,7 @@ custom writing functions.  See the discussion under Customizing libpng.
     FILE *fp = fopen(file_name, "wb");
 
     if (!fp)
-       return (ERROR);
+       return ERROR;
 
 Next, png_struct and png_info need to be allocated and initialized.
 As these can be both relatively large, you may not want to store these
@@ -52,18 +52,18 @@ both "png_ptr"; you can call them anything you like, such as
 "read_ptr" and "write_ptr".  Look at pngtest.c, for example.
 
     png_structp png_ptr = png_create_write_struct
-       (<a href="png.h.html#L312">PNG_LIBPNG_VER_STRING</a>, (png_voidp)user_error_ptr,
+       (<a href="png.h.html#L281">PNG_LIBPNG_VER_STRING</a>, (png_voidp)user_error_ptr,
         user_error_fn, user_warning_fn);
 
     if (!png_ptr)
-       return (ERROR);
+       return ERROR;
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr)
     {
-       <a href="png.h.html#L1451">png_destroy_write_struct</a>(&amp;png_ptr,
+       <a href="png.h.html#L1420">png_destroy_write_struct</a>(&amp;png_ptr,
            (png_infopp)NULL);
-       return (ERROR);
+       return ERROR;
     }
 
 If you want to use your own memory allocation routines,
@@ -71,7 +71,7 @@ define PNG_USER_MEM_SUPPORTED and use
 png_create_write_struct_2() instead of png_create_write_struct():
 
     png_structp png_ptr = png_create_write_struct_2
-       (<a href="png.h.html#L312">PNG_LIBPNG_VER_STRING</a>, (png_voidp)user_error_ptr,
+       (<a href="png.h.html#L281">PNG_LIBPNG_VER_STRING</a>, (png_voidp)user_error_ptr,
         user_error_fn, user_warning_fn, (png_voidp)
         user_mem_ptr, user_malloc_fn, user_free_fn);
 
@@ -88,9 +88,9 @@ section below for more information on the libpng error handling.
 
     if (setjmp(png_jmpbuf(png_ptr)))
     {
-    <a href="png.h.html#L1451">png_destroy_write_struct</a>(&amp;png_ptr, &amp;info_ptr);
+    <a href="png.h.html#L1420">png_destroy_write_struct</a>(&amp;png_ptr, &amp;info_ptr);
        fclose(fp);
-       return (ERROR);
+       return ERROR;
     }
     ...
     return;
@@ -109,9 +109,9 @@ a benign error.  This is enabled by default because this condition is an
 error according to the PNG specification, Clause 11.3.2, but the error can
 be ignored in each png_ptr with
 
-   <a href="png.h.html#L2643">png_set_check_for_invalid_index</a>(png_ptr, 0);
+   <a href="png.h.html#L2612">png_set_check_for_invalid_index</a>(png_ptr, 0);
 
-If the error is ignored, or if <a href="png.h.html#L1835">png_benign_error</a>() treats it as a warning,
+If the error is ignored, or if <a href="png.h.html#L1804">png_benign_error</a>() treats it as a warning,
 any invalid pixels are written as-is by the encoder, resulting in an
 invalid PNG datastream as output.  In this case the application is
 responsible for ensuring that the pixel indexes are in range when it writes
@@ -119,18 +119,18 @@ a PLTE chunk with fewer entries than the bit depth would allow.
 
 Now you need to set up the output code.  The default for libpng is to
 use the C function fwrite().  If you use this, you will need to pass a
-valid FILE * in the function <a href="png.h.html#L1591">png_init_io</a>().  Be sure that the file is
+valid FILE * in the function <a href="png.h.html#L1560">png_init_io</a>().  Be sure that the file is
 opened in binary mode.  Again, if you wish to handle writing data in
 another way, see the discussion on libpng I/O handling in the Customizing
 Libpng section below.
 
-    <a href="png.h.html#L1591">png_init_io</a>(png_ptr, fp);
+    <a href="png.h.html#L1560">png_init_io</a>(png_ptr, fp);
 
 If you are embedding your PNG into a datastream such as MNG, and don't
 want libpng to write the 8-byte signature, or if you have already
 written the signature in your application, use
 
-    <a href="png.h.html#L937">png_set_sig_bytes</a>(png_ptr, 8);
+    <a href="png.h.html#L906">png_set_sig_bytes</a>(png_ptr, 8);
 
 to inform libpng that it should not write a signature.
 
@@ -151,7 +151,7 @@ You must supply a function
 
 To inform libpng about your function, use
 
-    <a href="png.h.html#L1631">png_set_write_status_fn</a>(png_ptr, write_row_callback);
+    <a href="png.h.html#L1600">png_set_write_status_fn</a>(png_ptr, write_row_callback);
 
 When this function is called the row has already been completely processed and
 it has also been written out.  The 'row' and 'pass' refer to the next row to be
@@ -165,7 +165,7 @@ need to know what the last pass is record (row,pass) from the callback and use
 the last recorded value each time.
 
 As with the user transform you can find the output row using the
-<a href="png.h.html#L2506">PNG_ROW_FROM_PASS_ROW</a> macro.
+<a href="png.h.html#L2475">PNG_ROW_FROM_PASS_ROW</a> macro.
 
 You now have the option of modifying how the compression library will
 run.  The following functions are mainly for testing, but may be useful
@@ -174,7 +174,7 @@ are willing to give up some compression, or if you want to get the
 maximum possible compression at the expense of slower writing.  If you
 have no special needs in this area, let the library do what it wants by
 not calling this function at all, as it has been tuned to deliver a good
-speed/compression ratio. The second parameter to <a href="png.h.html#L1486">png_set_filter</a>() is
+speed/compression ratio. The second parameter to <a href="png.h.html#L1455">png_set_filter</a>() is
 the filter method, for which the only valid values are 0 (as of the
 July 1999 PNG specification, version 1.2) or 64 (if you are writing
 a PNG datastream that is to be embedded in a MNG datastream).  The third
@@ -188,13 +188,13 @@ filter types.
        PNG_FILTER_VALUE_NAME or the bitwise OR of one
        or more PNG_FILTER_NAME masks.
      */
-    <a href="png.h.html#L1486">png_set_filter</a>(png_ptr, 0,
-       <a href="png.h.html#L1496">PNG_FILTER_NONE</a>  | <a href="png.h.html#L1507">PNG_FILTER_VALUE_NONE</a> |
-       <a href="png.h.html#L1497">PNG_FILTER_SUB</a>   | <a href="png.h.html#L1508">PNG_FILTER_VALUE_SUB</a>  |
-       <a href="png.h.html#L1498">PNG_FILTER_UP</a>    | <a href="png.h.html#L1509">PNG_FILTER_VALUE_UP</a>   |
-       <a href="png.h.html#L1499">PNG_FILTER_AVG</a>   | <a href="png.h.html#L1510">PNG_FILTER_VALUE_AVG</a>  |
-       <a href="png.h.html#L1500">PNG_FILTER_PAETH</a> | <a href="png.h.html#L1511">PNG_FILTER_VALUE_PAETH</a>|
-       <a href="png.h.html#L1502">PNG_ALL_FILTERS</a>  | <a href="png.h.html#L1501">PNG_FAST_FILTERS</a>);
+    <a href="png.h.html#L1455">png_set_filter</a>(png_ptr, 0,
+       <a href="png.h.html#L1465">PNG_FILTER_NONE</a>  | <a href="png.h.html#L1476">PNG_FILTER_VALUE_NONE</a> |
+       <a href="png.h.html#L1466">PNG_FILTER_SUB</a>   | <a href="png.h.html#L1477">PNG_FILTER_VALUE_SUB</a>  |
+       <a href="png.h.html#L1467">PNG_FILTER_UP</a>    | <a href="png.h.html#L1478">PNG_FILTER_VALUE_UP</a>   |
+       <a href="png.h.html#L1468">PNG_FILTER_AVG</a>   | <a href="png.h.html#L1479">PNG_FILTER_VALUE_AVG</a>  |
+       <a href="png.h.html#L1469">PNG_FILTER_PAETH</a> | <a href="png.h.html#L1480">PNG_FILTER_VALUE_PAETH</a>|
+       <a href="png.h.html#L1471">PNG_ALL_FILTERS</a>  | <a href="png.h.html#L1470">PNG_FAST_FILTERS</a>);
 
 If an application wants to start and stop using particular filters during
 compression, it should start out with all of the filters (to ensure that
@@ -206,7 +206,7 @@ datastream, the second parameter can be either 0 or 64.
 
 The png_set_compression_*() functions interface to the zlib compression
 library, and should mostly be ignored unless you really know what you are
-doing.  The only generally useful call is <a href="png.h.html#L1539">png_set_compression_level</a>()
+doing.  The only generally useful call is <a href="png.h.html#L1508">png_set_compression_level</a>()
 which changes how much time zlib spends on trying to compress the image
 data.  See the Compression Library (zlib.h and algorithm.txt, distributed
 with zlib) for details on the compression levels.
@@ -214,43 +214,43 @@ with zlib) for details on the compression levels.
     #include zlib.h
 
     /* Set the zlib compression level */
-    <a href="png.h.html#L1539">png_set_compression_level</a>(png_ptr,
+    <a href="png.h.html#L1508">png_set_compression_level</a>(png_ptr,
         Z_BEST_COMPRESSION);
 
     /* Set other zlib parameters for compressing IDAT */
-    <a href="png.h.html#L1542">png_set_compression_mem_level</a>(png_ptr, 8);
-    <a href="png.h.html#L1545">png_set_compression_strategy</a>(png_ptr,
+    <a href="png.h.html#L1511">png_set_compression_mem_level</a>(png_ptr, 8);
+    <a href="png.h.html#L1514">png_set_compression_strategy</a>(png_ptr,
         Z_DEFAULT_STRATEGY);
-    <a href="png.h.html#L1551">png_set_compression_window_bits</a>(png_ptr, 15);
-    <a href="png.h.html#L1554">png_set_compression_method</a>(png_ptr, 8);
-    <a href="png.h.html#L967">png_set_compression_buffer_size</a>(png_ptr, 8192)
+    <a href="png.h.html#L1520">png_set_compression_window_bits</a>(png_ptr, 15);
+    <a href="png.h.html#L1523">png_set_compression_method</a>(png_ptr, 8);
+    <a href="png.h.html#L936">png_set_compression_buffer_size</a>(png_ptr, 8192)
 
     /* Set zlib parameters for text compression
      * If you don't call these, the parameters
      * fall back on those defined for IDAT chunks
      */
-    <a href="png.h.html#L1563">png_set_text_compression_mem_level</a>(png_ptr, 8);
-    <a href="png.h.html#L1566">png_set_text_compression_strategy</a>(png_ptr,
+    <a href="png.h.html#L1532">png_set_text_compression_mem_level</a>(png_ptr, 8);
+    <a href="png.h.html#L1535">png_set_text_compression_strategy</a>(png_ptr,
         Z_DEFAULT_STRATEGY);
-    <a href="png.h.html#L1572">png_set_text_compression_window_bits</a>(png_ptr, 15);
-    <a href="png.h.html#L1575">png_set_text_compression_method</a>(png_ptr, 8);
+    <a href="png.h.html#L1541">png_set_text_compression_window_bits</a>(png_ptr, 15);
+    <a href="png.h.html#L1544">png_set_text_compression_method</a>(png_ptr, 8);
 
 Setting the contents of info for output
 
 You now need to fill in the png_info structure with all the data you
 wish to write before the actual image.  Note that the only thing you
 are allowed to write after the image is the text chunks and the time
-chunk (as of PNG Specification 1.2, anyway).  See <a href="png.h.html#L1434">png_write_end</a>() and
+chunk (as of PNG Specification 1.2, anyway).  See <a href="png.h.html#L1403">png_write_end</a>() and
 the latest PNG specification for more information on that.  If you
 wish to write them before the image, fill them in now, and flag that
 data as being valid.  If you want to wait until after the data, don't
-fill them until <a href="png.h.html#L1434">png_write_end</a>().  For all the fields in png_info and
+fill them until <a href="png.h.html#L1403">png_write_end</a>().  For all the fields in png_info and
 their data types, see png.h.  For explanations of what the fields
 contain, see the PNG specification.
 
 Some of the more important parts of the png_info are:
 
-    <a href="png.h.html#L2051">png_set_IHDR</a>(png_ptr, info_ptr, width, height,
+    <a href="png.h.html#L2020">png_set_IHDR</a>(png_ptr, info_ptr, width, height,
        bit_depth, color_type, interlace_type,
        compression_type, filter_method)
 
@@ -269,43 +269,43 @@ Some of the more important parts of the png_info are:
 
     color_type     - describes which color/alpha
                      channels are present.
-                     <a href="png.h.html#L699">PNG_COLOR_TYPE_GRAY</a>
+                     <a href="png.h.html#L668">PNG_COLOR_TYPE_GRAY</a>
                         (bit depths 1, 2, 4, 8, 16)
-                     <a href="png.h.html#L703">PNG_COLOR_TYPE_GRAY_ALPHA</a>
+                     <a href="png.h.html#L672">PNG_COLOR_TYPE_GRAY_ALPHA</a>
                         (bit depths 8, 16)
-                     <a href="png.h.html#L700">PNG_COLOR_TYPE_PALETTE</a>
+                     <a href="png.h.html#L669">PNG_COLOR_TYPE_PALETTE</a>
                         (bit depths 1, 2, 4, 8)
-                     <a href="png.h.html#L701">PNG_COLOR_TYPE_RGB</a>
+                     <a href="png.h.html#L670">PNG_COLOR_TYPE_RGB</a>
                         (bit_depths 8, 16)
-                     <a href="png.h.html#L702">PNG_COLOR_TYPE_RGB_ALPHA</a>
+                     <a href="png.h.html#L671">PNG_COLOR_TYPE_RGB_ALPHA</a>
                         (bit_depths 8, 16)
 
-                     <a href="png.h.html#L694">PNG_COLOR_MASK_PALETTE</a>
-                     <a href="png.h.html#L695">PNG_COLOR_MASK_COLOR</a>
-                     <a href="png.h.html#L696">PNG_COLOR_MASK_ALPHA</a>
+                     <a href="png.h.html#L663">PNG_COLOR_MASK_PALETTE</a>
+                     <a href="png.h.html#L664">PNG_COLOR_MASK_COLOR</a>
+                     <a href="png.h.html#L665">PNG_COLOR_MASK_ALPHA</a>
 
-    interlace_type - <a href="png.h.html#L718">PNG_INTERLACE_NONE</a> or
-                     <a href="png.h.html#L719">PNG_INTERLACE_ADAM7</a>
+    interlace_type - <a href="png.h.html#L687">PNG_INTERLACE_NONE</a> or
+                     <a href="png.h.html#L688">PNG_INTERLACE_ADAM7</a>
 
     compression_type - (must be
-                     <a href="png.h.html#L710">PNG_COMPRESSION_TYPE_DEFAULT</a>)
+                     <a href="png.h.html#L679">PNG_COMPRESSION_TYPE_DEFAULT</a>)
 
-    filter_method  - (must be <a href="png.h.html#L715">PNG_FILTER_TYPE_DEFAULT</a>
+    filter_method  - (must be <a href="png.h.html#L684">PNG_FILTER_TYPE_DEFAULT</a>
                      or, if you are writing a PNG to
                      be embedded in a MNG datastream,
                      can also be
-                     <a href="png.h.html#L714">PNG_INTRAPIXEL_DIFFERENCING</a>)
+                     <a href="png.h.html#L683">PNG_INTRAPIXEL_DIFFERENCING</a>)
 
-If you call <a href="png.h.html#L2051">png_set_IHDR</a>(), the call must appear before any of the
+If you call <a href="png.h.html#L2020">png_set_IHDR</a>(), the call must appear before any of the
 other png_set_*() functions, because they might require access to some of
 the IHDR settings.  The remaining png_set_*() functions can be called
 in any order.
 
 If you wish, you can reset the compression_type, interlace_type, or
-filter_method later by calling <a href="png.h.html#L2051">png_set_IHDR</a>() again; if you do this, the
+filter_method later by calling <a href="png.h.html#L2020">png_set_IHDR</a>() again; if you do this, the
 width, height, bit_depth, and color_type must be the same in each call.
 
-    <a href="png.h.html#L2095">png_set_PLTE</a>(png_ptr, info_ptr, palette,
+    <a href="png.h.html#L2064">png_set_PLTE</a>(png_ptr, info_ptr, palette,
        num_palette);
 
     palette        - the palette for the file
@@ -313,23 +313,23 @@ width, height, bit_depth, and color_type must be the same in each call.
     num_palette    - number of entries in the palette
 
 
-    <a href="png.h.html#L2033">png_set_gAMA</a>(png_ptr, info_ptr, file_gamma);
-    <a href="png.h.html#L2035">png_set_gAMA_fixed</a>(png_ptr, info_ptr, int_file_gamma);
+    <a href="png.h.html#L2002">png_set_gAMA</a>(png_ptr, info_ptr, file_gamma);
+    <a href="png.h.html#L2004">png_set_gAMA_fixed</a>(png_ptr, info_ptr, int_file_gamma);
 
     file_gamma     - the gamma at which the image was
-                     created (<a href="png.h.html#L763">PNG_INFO_gAMA</a>)
+                     created (<a href="png.h.html#L732">PNG_INFO_gAMA</a>)
 
     int_file_gamma - 100,000 times the gamma at which
                      the image was created
 
-    <a href="png.h.html#L1990">png_set_cHRM</a>(png_ptr, info_ptr,  white_x, white_y, red_x, red_y,
+    <a href="png.h.html#L1959">png_set_cHRM</a>(png_ptr, info_ptr,  white_x, white_y, red_x, red_y,
                      green_x, green_y, blue_x, blue_y)
-    <a href="png.h.html#L1994">png_set_cHRM_XYZ</a>(png_ptr, info_ptr, red_X, red_Y, red_Z, green_X,
+    <a href="png.h.html#L1963">png_set_cHRM_XYZ</a>(png_ptr, info_ptr, red_X, red_Y, red_Z, green_X,
                      green_Y, green_Z, blue_X, blue_Y, blue_Z)
-    <a href="png.h.html#L1998">png_set_cHRM_fixed</a>(png_ptr, info_ptr, int_white_x, int_white_y,
+    <a href="png.h.html#L1967">png_set_cHRM_fixed</a>(png_ptr, info_ptr, int_white_x, int_white_y,
                      int_red_x, int_red_y, int_green_x, int_green_y,
                      int_blue_x, int_blue_y)
-    <a href="png.h.html#L2004">png_set_cHRM_XYZ_fixed</a>(png_ptr, info_ptr, int_red_X, int_red_Y,
+    <a href="png.h.html#L1973">png_set_cHRM_XYZ_fixed</a>(png_ptr, info_ptr, int_red_X, int_red_Y,
                      int_red_Z, int_green_X, int_green_Y, int_green_Z,
                      int_blue_X, int_blue_Y, int_blue_Z)
 
@@ -344,10 +344,10 @@ width, height, bit_depth, and color_type must be the same in each call.
                      data.  The white point is simply the sum of the three end
                      points.
 
-    <a href="png.h.html#L2114">png_set_sRGB</a>(png_ptr, info_ptr, srgb_intent);
+    <a href="png.h.html#L2083">png_set_sRGB</a>(png_ptr, info_ptr, srgb_intent);
 
     srgb_intent    - the rendering intent
-                     (<a href="png.h.html#L774">PNG_INFO_sRGB</a>) The presence of
+                     (<a href="png.h.html#L743">PNG_INFO_sRGB</a>) The presence of
                      the sRGB chunk means that the pixel
                      data is in the sRGB color space.
                      This chunk also implies specific
@@ -357,17 +357,17 @@ width, height, bit_depth, and color_type must be the same in each call.
                      Color Consortium
                      (http://www.color.org).
                      It can be one of
-                     <a href="png.h.html#L748">PNG_sRGB_INTENT_SATURATION</a>,
-                     <a href="png.h.html#L746">PNG_sRGB_INTENT_PERCEPTUAL</a>,
-                     <a href="png.h.html#L749">PNG_sRGB_INTENT_ABSOLUTE</a>, or
-                     <a href="png.h.html#L747">PNG_sRGB_INTENT_RELATIVE</a>.
+                     <a href="png.h.html#L717">PNG_sRGB_INTENT_SATURATION</a>,
+                     <a href="png.h.html#L715">PNG_sRGB_INTENT_PERCEPTUAL</a>,
+                     <a href="png.h.html#L718">PNG_sRGB_INTENT_ABSOLUTE</a>, or
+                     <a href="png.h.html#L716">PNG_sRGB_INTENT_RELATIVE</a>.
 
 
-    <a href="png.h.html#L2116">png_set_sRGB_gAMA_and_cHRM</a>(png_ptr, info_ptr,
+    <a href="png.h.html#L2085">png_set_sRGB_gAMA_and_cHRM</a>(png_ptr, info_ptr,
        srgb_intent);
 
     srgb_intent    - the rendering intent
-                     (<a href="png.h.html#L774">PNG_INFO_sRGB</a>) The presence of the
+                     (<a href="png.h.html#L743">PNG_INFO_sRGB</a>) The presence of the
                      sRGB chunk means that the pixel
                      data is in the sRGB color space.
                      This function also causes gAMA and
@@ -375,13 +375,13 @@ width, height, bit_depth, and color_type must be the same in each call.
                      that are consistent with sRGB to be
                      written.
 
-    <a href="png.h.html#L2127">png_set_iCCP</a>(png_ptr, info_ptr, name, compression_type,
+    <a href="png.h.html#L2096">png_set_iCCP</a>(png_ptr, info_ptr, name, compression_type,
                        profile, proflen);
 
     name             - The profile name.
 
     compression_type - The compression type; always
-                       <a href="png.h.html#L709">PNG_COMPRESSION_TYPE_BASE</a> for PNG 1.0.
+                       <a href="png.h.html#L678">PNG_COMPRESSION_TYPE_BASE</a> for PNG 1.0.
                        You may give NULL to this argument to
                        ignore it.
 
@@ -390,58 +390,58 @@ width, height, bit_depth, and color_type must be the same in each call.
 
     proflen          - length of profile data in bytes.
 
-    <a href="png.h.html#L2104">png_set_sBIT</a>(png_ptr, info_ptr, sig_bit);
+    <a href="png.h.html#L2073">png_set_sBIT</a>(png_ptr, info_ptr, sig_bit);
 
     sig_bit        - the number of significant bits for
-                     (<a href="png.h.html#L764">PNG_INFO_sBIT</a>) each of the gray, red,
+                     (<a href="png.h.html#L733">PNG_INFO_sBIT</a>) each of the gray, red,
                      green, and blue channels, whichever are
                      appropriate for the given color type
                      (png_color_16)
 
-    <a href="png.h.html#L2177">png_set_tRNS</a>(png_ptr, info_ptr, trans_alpha,
+    <a href="png.h.html#L2146">png_set_tRNS</a>(png_ptr, info_ptr, trans_alpha,
        num_trans, trans_color);
 
     trans_alpha    - array of alpha (transparency)
-                     entries for palette (<a href="png.h.html#L767">PNG_INFO_tRNS</a>)
+                     entries for palette (<a href="png.h.html#L736">PNG_INFO_tRNS</a>)
 
     num_trans      - number of transparent entries
-                     (<a href="png.h.html#L767">PNG_INFO_tRNS</a>)
+                     (<a href="png.h.html#L736">PNG_INFO_tRNS</a>)
 
     trans_color    - graylevel or color sample values
                      (in order red, green, blue) of the
                      single transparent color for
-                     non-paletted images (<a href="png.h.html#L767">PNG_INFO_tRNS</a>)
+                     non-paletted images (<a href="png.h.html#L736">PNG_INFO_tRNS</a>)
 
-    <a href="png.h.html#L2020">png_set_eXIf_1</a>(png_ptr, info_ptr, num_exif, exif);
+    <a href="png.h.html#L1989">png_set_eXIf_1</a>(png_ptr, info_ptr, num_exif, exif);
 
     exif           - Exif profile (array of
-                     png_byte) (<a href="png.h.html#L779">PNG_INFO_eXIf</a>)
+                     png_byte) (<a href="png.h.html#L748">PNG_INFO_eXIf</a>)
 
-    <a href="png.h.html#L2042">png_set_hIST</a>(png_ptr, info_ptr, hist);
+    <a href="png.h.html#L2011">png_set_hIST</a>(png_ptr, info_ptr, hist);
 
     hist           - histogram of palette (array of
-                     png_uint_16) (<a href="png.h.html#L769">PNG_INFO_hIST</a>)
+                     png_uint_16) (<a href="png.h.html#L738">PNG_INFO_hIST</a>)
 
-    <a href="png.h.html#L2166">png_set_tIME</a>(png_ptr, info_ptr, mod_time);
+    <a href="png.h.html#L2135">png_set_tIME</a>(png_ptr, info_ptr, mod_time);
 
     mod_time       - time image was last modified
                      (PNG_VALID_tIME)
 
-    <a href="png.h.html#L1961">png_set_bKGD</a>(png_ptr, info_ptr, background);
+    <a href="png.h.html#L1930">png_set_bKGD</a>(png_ptr, info_ptr, background);
 
     background     - background color (of type
                      png_color_16p) (PNG_VALID_bKGD)
 
-    <a href="png.h.html#L2156">png_set_text</a>(png_ptr, info_ptr, text_ptr, num_text);
+    <a href="png.h.html#L2125">png_set_text</a>(png_ptr, info_ptr, text_ptr, num_text);
 
     text_ptr       - array of png_text holding image
                      comments
 
     text_ptr[i].compression - type of compression used
-                 on "text" <a href="png.h.html#L619">PNG_TEXT_COMPRESSION_NONE</a>
-                           <a href="png.h.html#L620">PNG_TEXT_COMPRESSION_zTXt</a>
-                           <a href="png.h.html#L621">PNG_ITXT_COMPRESSION_NONE</a>
-                           <a href="png.h.html#L622">PNG_ITXT_COMPRESSION_zTXt</a>
+                 on "text" <a href="png.h.html#L588">PNG_TEXT_COMPRESSION_NONE</a>
+                           <a href="png.h.html#L589">PNG_TEXT_COMPRESSION_zTXt</a>
+                           <a href="png.h.html#L590">PNG_ITXT_COMPRESSION_NONE</a>
+                           <a href="png.h.html#L591">PNG_ITXT_COMPRESSION_zTXt</a>
     text_ptr[i].key   - keyword for comment.  Must contain
                  1-79 characters.
     text_ptr[i].text  - text comments for current
@@ -461,12 +461,12 @@ width, height, bit_depth, and color_type must be the same in each call.
     libpng-1.4.0 the library was built by default without
     iTXt support. Also note that when iTXt is supported,
     they contain NULL pointers when the "compression"
-    field contains <a href="png.h.html#L619">PNG_TEXT_COMPRESSION_NONE</a> or
-    <a href="png.h.html#L620">PNG_TEXT_COMPRESSION_zTXt</a>.
+    field contains <a href="png.h.html#L588">PNG_TEXT_COMPRESSION_NONE</a> or
+    <a href="png.h.html#L589">PNG_TEXT_COMPRESSION_zTXt</a>.
 
     num_text       - number of comments
 
-    <a href="png.h.html#L2138">png_set_sPLT</a>(png_ptr, info_ptr, &amp;palette_ptr,
+    <a href="png.h.html#L2107">png_set_sPLT</a>(png_ptr, info_ptr, &amp;palette_ptr,
        num_spalettes);
 
     palette_ptr    - array of png_sPLT_struct structures
@@ -475,7 +475,7 @@ width, height, bit_depth, and color_type must be the same in each call.
     num_spalettes  - number of palette structures to be
                      added.
 
-    <a href="png.h.html#L2063">png_set_oFFs</a>(png_ptr, info_ptr, offset_x, offset_y,
+    <a href="png.h.html#L2032">png_set_oFFs</a>(png_ptr, info_ptr, offset_x, offset_y,
         unit_type);
 
     offset_x  - positive offset from the left
@@ -484,9 +484,9 @@ width, height, bit_depth, and color_type must be the same in each call.
     offset_y  - positive offset from the top
                      edge of the screen
 
-    unit_type - <a href="png.h.html#L723">PNG_OFFSET_PIXEL</a>, <a href="png.h.html#L724">PNG_OFFSET_MICROMETER</a>
+    unit_type - <a href="png.h.html#L692">PNG_OFFSET_PIXEL</a>, <a href="png.h.html#L693">PNG_OFFSET_MICROMETER</a>
 
-    <a href="png.h.html#L2088">png_set_pHYs</a>(png_ptr, info_ptr, res_x, res_y,
+    <a href="png.h.html#L2057">png_set_pHYs</a>(png_ptr, info_ptr, res_x, res_y,
         unit_type);
 
     res_x       - pixels/unit physical resolution
@@ -495,10 +495,10 @@ width, height, bit_depth, and color_type must be the same in each call.
     res_y       - pixels/unit physical resolution
                   in y direction
 
-    unit_type   - <a href="png.h.html#L741">PNG_RESOLUTION_UNKNOWN</a>,
-                  <a href="png.h.html#L742">PNG_RESOLUTION_METER</a>
+    unit_type   - <a href="png.h.html#L710">PNG_RESOLUTION_UNKNOWN</a>,
+                  <a href="png.h.html#L711">PNG_RESOLUTION_METER</a>
 
-    <a href="png.h.html#L2200">png_set_sCAL</a>(png_ptr, info_ptr, unit, width, height)
+    <a href="png.h.html#L2169">png_set_sCAL</a>(png_ptr, info_ptr, unit, width, height)
 
     unit        - physical scale units (an integer)
 
@@ -507,7 +507,7 @@ width, height, bit_depth, and color_type must be the same in each call.
     height      - height of a pixel in physical scale units
                   (width and height are doubles)
 
-    <a href="png.h.html#L2205">png_set_sCAL_s</a>(png_ptr, info_ptr, unit, width, height)
+    <a href="png.h.html#L2174">png_set_sCAL_s</a>(png_ptr, info_ptr, unit, width, height)
 
     unit        - physical scale units (an integer)
 
@@ -517,7 +517,7 @@ width, height, bit_depth, and color_type must be the same in each call.
     height      - height of a pixel in physical scale units
                  (width and height are strings like "2.54")
 
-    <a href="png.h.html#L2323">png_set_unknown_chunks</a>(png_ptr, info_ptr, &amp;unknowns,
+    <a href="png.h.html#L2292">png_set_unknown_chunks</a>(png_ptr, info_ptr, &amp;unknowns,
        num_unknowns)
 
     unknowns          - array of png_unknown_chunk
@@ -527,18 +527,18 @@ width, height, bit_depth, and color_type must be the same in each call.
     unknowns[i].size  - size of unknown chunk's data
     unknowns[i].location - position to write chunk in file
                            0: do not write chunk
-                           <a href="png.h.html#L675">PNG_HAVE_IHDR</a>: before PLTE
-                           <a href="png.h.html#L676">PNG_HAVE_PLTE</a>: before IDAT
-                           <a href="png.h.html#L677">PNG_AFTER_IDAT</a>: after IDAT
+                           <a href="png.h.html#L644">PNG_HAVE_IHDR</a>: before PLTE
+                           <a href="png.h.html#L645">PNG_HAVE_PLTE</a>: before IDAT
+                           <a href="png.h.html#L646">PNG_AFTER_IDAT</a>: after IDAT
 
 The "location" member is set automatically according to
 what part of the output file has already been written.
-You can change its value after calling <a href="png.h.html#L2323">png_set_unknown_chunks</a>()
+You can change its value after calling <a href="png.h.html#L2292">png_set_unknown_chunks</a>()
 as demonstrated in pngtest.c.  Within each of the "locations",
 the chunks are sequenced according to their position in the
 structure (that is, the value of "i", which is the order in which
 the chunk was either read from the input file or defined with
-<a href="png.h.html#L2323">png_set_unknown_chunks</a>).
+<a href="png.h.html#L2292">png_set_unknown_chunks</a>).
 
 A quick word about text and num_text.  text is an array of png_text
 structures.  num_text is the number of valid structures in the array.
@@ -549,16 +549,16 @@ The compression types have the same valid numbers as the compression
 types of the image data.  Currently, the only valid number is zero.
 However, you can store text either compressed or uncompressed, unlike
 images, which always have to be compressed.  So if you don't want the
-text compressed, set the compression type to <a href="png.h.html#L619">PNG_TEXT_COMPRESSION_NONE</a>.
+text compressed, set the compression type to <a href="png.h.html#L588">PNG_TEXT_COMPRESSION_NONE</a>.
 Because tEXt and zTXt chunks don't have a language field, if you
-specify <a href="png.h.html#L619">PNG_TEXT_COMPRESSION_NONE</a> or <a href="png.h.html#L620">PNG_TEXT_COMPRESSION_zTXt</a>
+specify <a href="png.h.html#L588">PNG_TEXT_COMPRESSION_NONE</a> or <a href="png.h.html#L589">PNG_TEXT_COMPRESSION_zTXt</a>
 any language code or translated keyword will not be written out.
 
 Until text gets around a few hundred bytes, it is not worth compressing it.
 After the text has been written out to the file, the compression type
-is set to <a href="png.h.html#L617">PNG_TEXT_COMPRESSION_NONE_WR</a> or <a href="png.h.html#L618">PNG_TEXT_COMPRESSION_zTXt_WR</a>,
+is set to <a href="png.h.html#L586">PNG_TEXT_COMPRESSION_NONE_WR</a> or <a href="png.h.html#L587">PNG_TEXT_COMPRESSION_zTXt_WR</a>,
 so that it isn't written out again at the end (in case you are calling
-<a href="png.h.html#L1434">png_write_end</a>() with the same struct).
+<a href="png.h.html#L1403">png_write_end</a>() with the same struct).
 
 The keywords that are given in the PNG Specification are:
 
@@ -605,8 +605,8 @@ Compressed pairs must have a text string, as only the text string
 is compressed anyway, so the compression would be meaningless.
 
 PNG supports modification time via the png_time structure.  Two
-conversion routines are provided, <a href="png.h.html#L1077">png_convert_from_time_t</a>() for
-time_t and <a href="png.h.html#L1073">png_convert_from_struct_tm</a>() for struct tm.  The
+conversion routines are provided, <a href="png.h.html#L1046">png_convert_from_time_t</a>() for
+time_t and <a href="png.h.html#L1042">png_convert_from_struct_tm</a>() for struct tm.  The
 time_t routine uses gmtime().  You don't have to use either of
 these, but if you wish to fill in the png_time structure directly,
 you should provide the time in universal time (GMT) if possible
@@ -625,17 +625,17 @@ tEXt chunk use RFC 1123 format dates (e.g. "22 May 1997 18:07:10 GMT"),
 although this isn't a requirement.  Unlike the tIME chunk, the
 "Creation Time" tEXt chunk is not expected to be automatically changed
 by the software.  To facilitate the use of RFC 1123 dates, a function
-<a href="png.h.html#L1067">png_convert_to_rfc1123_buffer</a>(buffer, png_timep) is provided to
+<a href="png.h.html#L1036">png_convert_to_rfc1123_buffer</a>(buffer, png_timep) is provided to
 convert from PNG time to an RFC 1123 format string.  The caller must provide
 a writeable buffer of at least 29 bytes.
 
 Writing unknown chunks
 
-You can use the <a href="png.h.html#L2323">png_set_unknown_chunks</a> function to queue up private chunks
+You can use the <a href="png.h.html#L2292">png_set_unknown_chunks</a> function to queue up private chunks
 for writing.  You give it a chunk name, location, raw data, and a size.  You
-also must use <a href="png.h.html#L2310">png_set_keep_unknown_chunks</a>() to ensure that libpng will
+also must use <a href="png.h.html#L2279">png_set_keep_unknown_chunks</a>() to ensure that libpng will
 handle them.  That's all there is to it.  The chunks will be written by the
-next following <a href="png.h.html#L1046">png_write_info_before_PLTE</a>, <a href="png.h.html#L1048">png_write_info</a>, or <a href="png.h.html#L1434">png_write_end</a>
+next following <a href="png.h.html#L1015">png_write_info_before_PLTE</a>, <a href="png.h.html#L1017">png_write_info</a>, or <a href="png.h.html#L1403">png_write_end</a>
 function, depending upon the specified location.  Any chunks previously
 read into the info structure's unknown-chunk list will also be written out
 in a sequence that satisfies the PNG specification's ordering rules.
@@ -648,28 +648,28 @@ Here is an example of writing two private chunks, prVt and miNE:
     strcpy((char *) unk_chunk[0].name, "prVt";
     unk_chunk[0].data = (unsigned char *) "PRIVATE DATA";
     unk_chunk[0].size = strlen(unk_chunk[0].data)+1;
-    unk_chunk[0].location = <a href="png.h.html#L675">PNG_HAVE_IHDR</a>;
+    unk_chunk[0].location = <a href="png.h.html#L644">PNG_HAVE_IHDR</a>;
     strcpy((char *) unk_chunk[1].name, "miNE";
     unk_chunk[1].data = (unsigned char *) "MY CHUNK DATA";
     unk_chunk[1].size = strlen(unk_chunk[0].data)+1;
-    unk_chunk[1].location = <a href="png.h.html#L677">PNG_AFTER_IDAT</a>;
-    <a href="png.h.html#L2323">png_set_unknown_chunks</a>(write_ptr, write_info_ptr,
+    unk_chunk[1].location = <a href="png.h.html#L646">PNG_AFTER_IDAT</a>;
+    <a href="png.h.html#L2292">png_set_unknown_chunks</a>(write_ptr, write_info_ptr,
         unk_chunk, 2);
     /* Needed because miNE is not safe-to-copy */
-    <a href="png.h.html#L2310">png_set_keep_unknown_chunks</a>(png, <a href="png.h.html#L2379">PNG_HANDLE_CHUNK_ALWAYS</a>,
+    <a href="png.h.html#L2279">png_set_keep_unknown_chunks</a>(png, <a href="png.h.html#L2348">PNG_HANDLE_CHUNK_ALWAYS</a>,
        (png_bytep) "miNE", 1);
-    # if <a href="png.h.html#L352">PNG_LIBPNG_VER</a> &lt; 10600
+    # if <a href="png.h.html#L321">PNG_LIBPNG_VER</a> &lt; 10600
       /* Deal with unknown chunk location bug in 1.5.x and earlier */
-      <a href="png.h.html#L2335">png_set_unknown_chunk_location</a>(png, info, 0, <a href="png.h.html#L675">PNG_HAVE_IHDR</a>);
-      <a href="png.h.html#L2335">png_set_unknown_chunk_location</a>(png, info, 1, <a href="png.h.html#L677">PNG_AFTER_IDAT</a>);
+      <a href="png.h.html#L2304">png_set_unknown_chunk_location</a>(png, info, 0, <a href="png.h.html#L644">PNG_HAVE_IHDR</a>);
+      <a href="png.h.html#L2304">png_set_unknown_chunk_location</a>(png, info, 1, <a href="png.h.html#L646">PNG_AFTER_IDAT</a>);
     # endif
-    # if <a href="png.h.html#L352">PNG_LIBPNG_VER</a> &lt; 10500
-      /* <a href="png.h.html#L677">PNG_AFTER_IDAT</a> writes two copies of the chunk prior to libpng-1.5.0,
+    # if <a href="png.h.html#L321">PNG_LIBPNG_VER</a> &lt; 10500
+      /* <a href="png.h.html#L646">PNG_AFTER_IDAT</a> writes two copies of the chunk prior to libpng-1.5.0,
        * one before IDAT and another after IDAT, so don't use it; only use
-       * <a href="png.h.html#L675">PNG_HAVE_IHDR</a> location.  This call resets the location previously
-       * set by assignment and <a href="png.h.html#L2335">png_set_unknown_chunk_location</a>() for chunk 1.
+       * <a href="png.h.html#L644">PNG_HAVE_IHDR</a> location.  This call resets the location previously
+       * set by assignment and <a href="png.h.html#L2304">png_set_unknown_chunk_location</a>() for chunk 1.
        */
-      <a href="png.h.html#L2335">png_set_unknown_chunk_location</a>(png, info, 1, <a href="png.h.html#L675">PNG_HAVE_IHDR</a>);
+      <a href="png.h.html#L2304">png_set_unknown_chunk_location</a>(png, info, 1, <a href="png.h.html#L644">PNG_HAVE_IHDR</a>);
     # endif
     #endif
 
@@ -681,75 +681,75 @@ You can use the high-level interface if your image data is present
 in the info structure.  All defined output
 transformations are permitted, enabled by the following masks.
 
-    <a href="png.h.html#L863">PNG_TRANSFORM_IDENTITY</a>      No transformation
-    <a href="png.h.html#L866">PNG_TRANSFORM_PACKING</a>       Pack 1, 2 and 4-bit samples
-    <a href="png.h.html#L867">PNG_TRANSFORM_PACKSWAP</a>      Change order of packed
+    <a href="png.h.html#L832">PNG_TRANSFORM_IDENTITY</a>      No transformation
+    <a href="png.h.html#L835">PNG_TRANSFORM_PACKING</a>       Pack 1, 2 and 4-bit samples
+    <a href="png.h.html#L836">PNG_TRANSFORM_PACKSWAP</a>      Change order of packed
                                 pixels to LSB first
-    <a href="png.h.html#L869">PNG_TRANSFORM_INVERT_MONO</a>   Invert monochrome images
-    <a href="png.h.html#L870">PNG_TRANSFORM_SHIFT</a>         Normalize pixels to the
+    <a href="png.h.html#L838">PNG_TRANSFORM_INVERT_MONO</a>   Invert monochrome images
+    <a href="png.h.html#L839">PNG_TRANSFORM_SHIFT</a>         Normalize pixels to the
                                 sBIT depth
-    <a href="png.h.html#L871">PNG_TRANSFORM_BGR</a>           Flip RGB to BGR, RGBA
+    <a href="png.h.html#L840">PNG_TRANSFORM_BGR</a>           Flip RGB to BGR, RGBA
                                 to BGRA
-    <a href="png.h.html#L872">PNG_TRANSFORM_SWAP_ALPHA</a>    Flip RGBA to ARGB or GA
+    <a href="png.h.html#L841">PNG_TRANSFORM_SWAP_ALPHA</a>    Flip RGBA to ARGB or GA
                                 to AG
-    <a href="png.h.html#L874">PNG_TRANSFORM_INVERT_ALPHA</a>  Change alpha from opacity
+    <a href="png.h.html#L843">PNG_TRANSFORM_INVERT_ALPHA</a>  Change alpha from opacity
                                 to transparency
-    <a href="png.h.html#L873">PNG_TRANSFORM_SWAP_ENDIAN</a>   Byte-swap 16-bit samples
-    <a href="png.h.html#L875">PNG_TRANSFORM_STRIP_FILLER</a>        Strip out filler
+    <a href="png.h.html#L842">PNG_TRANSFORM_SWAP_ENDIAN</a>   Byte-swap 16-bit samples
+    <a href="png.h.html#L844">PNG_TRANSFORM_STRIP_FILLER</a>        Strip out filler
                                       bytes (deprecated).
-    <a href="png.h.html#L877">PNG_TRANSFORM_STRIP_FILLER_BEFORE</a> Strip out leading
+    <a href="png.h.html#L846">PNG_TRANSFORM_STRIP_FILLER_BEFORE</a> Strip out leading
                                       filler bytes
-    <a href="png.h.html#L878">PNG_TRANSFORM_STRIP_FILLER_AFTER</a>  Strip out trailing
+    <a href="png.h.html#L847">PNG_TRANSFORM_STRIP_FILLER_AFTER</a>  Strip out trailing
                                       filler bytes
 
 If you have valid image data in the info structure (you can use
-<a href="png.h.html#L1886">png_set_rows</a>() to put image data in the info structure), simply do this:
+<a href="png.h.html#L1855">png_set_rows</a>() to put image data in the info structure), simply do this:
 
-    <a href="png.h.html#L2356">png_write_png</a>(png_ptr, info_ptr, png_transforms, NULL)
+    <a href="png.h.html#L2325">png_write_png</a>(png_ptr, info_ptr, png_transforms, NULL)
 
 where png_transforms is an integer containing the bitwise OR of some set of
-transformation flags.  This call is equivalent to <a href="png.h.html#L1048">png_write_info</a>(),
+transformation flags.  This call is equivalent to <a href="png.h.html#L1017">png_write_info</a>(),
 followed the set of transformations indicated by the transform mask,
-then <a href="png.h.html#L1431">png_write_image</a>(), and finally <a href="png.h.html#L1434">png_write_end</a>().
+then <a href="png.h.html#L1400">png_write_image</a>(), and finally <a href="png.h.html#L1403">png_write_end</a>().
 
 (The final parameter of this call is not yet used.  Someday it might point
 to transformation parameters required by some future output transform.)
 
 You must use png_transforms and not call any png_set_transform() functions
-when you use <a href="png.h.html#L2356">png_write_png</a>().
+when you use <a href="png.h.html#L2325">png_write_png</a>().
 
 The low-level write interface
 
 If you are going the low-level route instead, you are now ready to
 write all the file information up to the actual image data.  You do
-this with a call to <a href="png.h.html#L1048">png_write_info</a>().
+this with a call to <a href="png.h.html#L1017">png_write_info</a>().
 
-    <a href="png.h.html#L1048">png_write_info</a>(png_ptr, info_ptr);
+    <a href="png.h.html#L1017">png_write_info</a>(png_ptr, info_ptr);
 
 Note that there is one transformation you may need to do before
-<a href="png.h.html#L1048">png_write_info</a>().  In PNG files, the alpha channel in an image is the
+<a href="png.h.html#L1017">png_write_info</a>().  In PNG files, the alpha channel in an image is the
 level of opacity.  If your data is supplied as a level of transparency,
 you can invert the alpha channel before you write it, so that 0 is
 fully transparent and 255 (in 8-bit or paletted images) or 65535
 (in 16-bit images) is fully opaque, with
 
-    <a href="png.h.html#L1271">png_set_invert_alpha</a>(png_ptr);
+    <a href="png.h.html#L1240">png_set_invert_alpha</a>(png_ptr);
 
-This must appear before <a href="png.h.html#L1048">png_write_info</a>() instead of later with the
+This must appear before <a href="png.h.html#L1017">png_write_info</a>() instead of later with the
 other transformations because in the case of paletted images the tRNS
 chunk data has to be inverted before the tRNS chunk is written.  If
 your image is not a paletted image, the tRNS data (which in such cases
 represents a single color to be rendered as transparent) won't need to
 be changed, and you can safely do this transformation after your
-<a href="png.h.html#L1048">png_write_info</a>() call.
+<a href="png.h.html#L1017">png_write_info</a>() call.
 
 If you need to write a private chunk that you want to appear before
 the PLTE chunk when PLTE is present, you can write the PNG info in
 two steps, and insert code to write your own chunk between them:
 
-    <a href="png.h.html#L1046">png_write_info_before_PLTE</a>(png_ptr, info_ptr);
-    <a href="png.h.html#L2323">png_set_unknown_chunks</a>(png_ptr, info_ptr, ...);
-    <a href="png.h.html#L1048">png_write_info</a>(png_ptr, info_ptr);
+    <a href="png.h.html#L1015">png_write_info_before_PLTE</a>(png_ptr, info_ptr);
+    <a href="png.h.html#L2292">png_set_unknown_chunks</a>(png_ptr, info_ptr, ...);
+    <a href="png.h.html#L1017">png_write_info</a>(png_ptr, info_ptr);
 
 After you've written the file information, you can set up the library
 to handle any special transformations of the image data.  The various
@@ -766,10 +766,10 @@ the library to strip input data that has 4 or 8 bytes per pixel down
 to 3 or 6 bytes (or strip 2 or 4-byte grayscale+filler data to 1 or 2
 bytes per pixel).
 
-    <a href="png.h.html#L1276">png_set_filler</a>(png_ptr, 0, <a href="png.h.html#L1279">PNG_FILLER_BEFORE</a>);
+    <a href="png.h.html#L1245">png_set_filler</a>(png_ptr, 0, <a href="png.h.html#L1248">PNG_FILLER_BEFORE</a>);
 
-where the 0 is unused, and the location is either <a href="png.h.html#L1279">PNG_FILLER_BEFORE</a> or
-<a href="png.h.html#L1280">PNG_FILLER_AFTER</a>, depending upon whether the filler byte in the pixel
+where the 0 is unused, and the location is either <a href="png.h.html#L1248">PNG_FILLER_BEFORE</a> or
+<a href="png.h.html#L1249">PNG_FILLER_AFTER</a>, depending upon whether the filler byte in the pixel
 is stored XRGB or RGBX.
 
 PNG files pack pixels of bit depths 1, 2, and 4 into bytes as small as
@@ -777,14 +777,14 @@ they can, resulting in, for example, 8 pixels per byte for 1 bit files.
 If the data is supplied at 1 pixel per byte, use this code, which will
 correctly pack the pixels into a single byte:
 
-    <a href="png.h.html#L1293">png_set_packing</a>(png_ptr);
+    <a href="png.h.html#L1262">png_set_packing</a>(png_ptr);
 
 PNG files reduce possible bit depths to 1, 2, 4, 8, and 16.  If your
 data is of another bit depth, you can write an sBIT chunk into the
 file so that decoders can recover the original data if desired.
 
     /* Set the true bit depth of the image data */
-    if (color_type &amp; <a href="png.h.html#L695">PNG_COLOR_MASK_COLOR</a>)
+    if (color_type &amp; <a href="png.h.html#L664">PNG_COLOR_MASK_COLOR</a>)
     {
        sig_bit.red = true_bit_depth;
        sig_bit.green = true_bit_depth;
@@ -796,19 +796,19 @@ file so that decoders can recover the original data if desired.
        sig_bit.gray = true_bit_depth;
     }
 
-    if (color_type &amp; <a href="png.h.html#L696">PNG_COLOR_MASK_ALPHA</a>)
+    if (color_type &amp; <a href="png.h.html#L665">PNG_COLOR_MASK_ALPHA</a>)
     {
        sig_bit.alpha = true_bit_depth;
     }
 
-    <a href="png.h.html#L2104">png_set_sBIT</a>(png_ptr, info_ptr, &amp;sig_bit);
+    <a href="png.h.html#L2073">png_set_sBIT</a>(png_ptr, info_ptr, &amp;sig_bit);
 
 If the data is stored in the row buffer in a bit depth other than
 one supported by PNG (e.g. 3 bit data in the range 0-7 for a 4-bit PNG),
 this will scale the values to appear to be the correct bit depth as
 is required by PNG.
 
-    <a href="png.h.html#L1304">png_set_shift</a>(png_ptr, &amp;sig_bit);
+    <a href="png.h.html#L1273">png_set_shift</a>(png_ptr, &amp;sig_bit);
 
 PNG files store 16-bit pixels in network byte order (big-endian,
 ie. most significant bits first).  This code would be used if they are
@@ -816,30 +816,30 @@ supplied the other way (little-endian, i.e. least significant bits
 first, the way PCs store them):
 
     if (bit_depth &gt; 8)
-       <a href="png.h.html#L1288">png_set_swap</a>(png_ptr);
+       <a href="png.h.html#L1257">png_set_swap</a>(png_ptr);
 
 If you are using packed-pixel images (1, 2, or 4 bits/pixel), and you
 need to change the order the pixels are packed into bytes, you can use:
 
     if (bit_depth &lt; 8)
-       <a href="png.h.html#L1299">png_set_packswap</a>(png_ptr);
+       <a href="png.h.html#L1268">png_set_packswap</a>(png_ptr);
 
 PNG files store 3 color pixels in red, green, blue order.  This code
 would be used if they are supplied as blue, green, red:
 
-    <a href="png.h.html#L1097">png_set_bgr</a>(png_ptr);
+    <a href="png.h.html#L1066">png_set_bgr</a>(png_ptr);
 
 PNG files describe monochrome as black being zero and white being
 one. This code would be used if the pixels are supplied with this reversed
 (black being one and white being zero):
 
-    <a href="png.h.html#L1321">png_set_invert_mono</a>(png_ptr);
+    <a href="png.h.html#L1290">png_set_invert_mono</a>(png_ptr);
 
 Finally, you can write your own transformation function if none of
 the existing ones meets your needs.  This is done by setting a callback
 with
 
-    <a href="png.h.html#L1648">png_set_write_user_transform_fn</a>(png_ptr,
+    <a href="png.h.html#L1617">png_set_write_user_transform_fn</a>(png_ptr,
        write_transform_fn);
 
 You must supply the function
@@ -852,12 +852,12 @@ before any of the other transformations are processed.  If supported
 libpng also supplies an information routine that may be called from
 your callback:
 
-   <a href="png.h.html#L1673">png_get_current_row_number</a>(png_ptr);
-   <a href="png.h.html#L1674">png_get_current_pass_number</a>(png_ptr);
+   <a href="png.h.html#L1642">png_get_current_row_number</a>(png_ptr);
+   <a href="png.h.html#L1643">png_get_current_pass_number</a>(png_ptr);
 
 This returns the current row passed to the transform.  With interlaced
 images the value returned is the row in the input sub-image image.  Use
-<a href="png.h.html#L2506">PNG_ROW_FROM_PASS_ROW</a>(row, pass) and <a href="png.h.html#L2508">PNG_COL_FROM_PASS_COL</a>(col, pass) to
+<a href="png.h.html#L2475">PNG_ROW_FROM_PASS_ROW</a>(row, pass) and <a href="png.h.html#L2477">PNG_COL_FROM_PASS_COL</a>(col, pass) to
 find the output pixel (x,y) given an interlaced sub-image pixel (row,col,pass).
 
 The discussion of interlace handling above contains more information on how to
@@ -866,33 +866,33 @@ use these values.
 You can also set up a pointer to a user structure for use by your
 callback function.
 
-    <a href="png.h.html#L1653">png_set_user_transform_info</a>(png_ptr, user_ptr, 0, 0);
+    <a href="png.h.html#L1622">png_set_user_transform_info</a>(png_ptr, user_ptr, 0, 0);
 
 The user_channels and user_depth parameters of this function are ignored
 when writing; you can set them to zero as shown.
 
-You can retrieve the pointer via the function <a href="png.h.html#L1657">png_get_user_transform_ptr</a>().
+You can retrieve the pointer via the function <a href="png.h.html#L1626">png_get_user_transform_ptr</a>().
 For example:
 
     voidp write_user_transform_ptr =
-       <a href="png.h.html#L1657">png_get_user_transform_ptr</a>(png_ptr);
+       <a href="png.h.html#L1626">png_get_user_transform_ptr</a>(png_ptr);
 
 It is possible to have libpng flush any pending output, either manually,
 or automatically after a certain number of lines have been written.  To
 flush the output stream a single time call:
 
-    <a href="png.h.html#L1391">png_write_flush</a>(png_ptr);
+    <a href="png.h.html#L1360">png_write_flush</a>(png_ptr);
 
 and to have libpng flush the output stream periodically after a certain
 number of scanlines have been written, call:
 
-    <a href="png.h.html#L1389">png_set_flush</a>(png_ptr, nrows);
+    <a href="png.h.html#L1358">png_set_flush</a>(png_ptr, nrows);
 
-Note that the distance between rows is from the last time <a href="png.h.html#L1391">png_write_flush</a>()
+Note that the distance between rows is from the last time <a href="png.h.html#L1360">png_write_flush</a>()
 was called, or the first row of the image if it has never been called.
-So if you write 50 lines, and then <a href="png.h.html#L1389">png_set_flush</a> 25, it will flush the
+So if you write 50 lines, and then <a href="png.h.html#L1358">png_set_flush</a> 25, it will flush the
 output on the next scanline, and every 25 lines thereafter, unless
-<a href="png.h.html#L1391">png_write_flush</a>() is called before 25 more lines have been written.
+<a href="png.h.html#L1360">png_write_flush</a>() is called before 25 more lines have been written.
 If nrows is too small (less than about 10 lines for a 640 pixel wide
 RGB image) the image compression may decrease noticeably (although this
 may be acceptable for real-time applications).  Infrequent flushing will
@@ -903,13 +903,13 @@ Writing the image data
 
 That's it for the transformations.  Now you can write the image data.
 The simplest way to do this is in one function call.  If you have the
-whole image in memory, you can just call <a href="png.h.html#L1431">png_write_image</a>() and libpng
+whole image in memory, you can just call <a href="png.h.html#L1400">png_write_image</a>() and libpng
 will write the image.  You will need to pass in an array of pointers to
 each row.  This function automatically handles interlacing, so you don't
-need to call <a href="png.h.html#L1316">png_set_interlace_handling</a>() or call this function multiple
-times, or any of that other stuff necessary with <a href="png.h.html#L1427">png_write_rows</a>().
+need to call <a href="png.h.html#L1285">png_set_interlace_handling</a>() or call this function multiple
+times, or any of that other stuff necessary with <a href="png.h.html#L1396">png_write_rows</a>().
 
-    <a href="png.h.html#L1431">png_write_image</a>(png_ptr, row_pointers);
+    <a href="png.h.html#L1400">png_write_image</a>(png_ptr, row_pointers);
 
 where row_pointers is:
 
@@ -918,20 +918,20 @@ where row_pointers is:
 You can point to void or char or whatever you use for pixels.
 
 If you don't want to write the whole image at once, you can
-use <a href="png.h.html#L1427">png_write_rows</a>() instead.  If the file is not interlaced,
+use <a href="png.h.html#L1396">png_write_rows</a>() instead.  If the file is not interlaced,
 this is simple:
 
-    <a href="png.h.html#L1427">png_write_rows</a>(png_ptr, row_pointers,
+    <a href="png.h.html#L1396">png_write_rows</a>(png_ptr, row_pointers,
        number_of_rows);
 
-row_pointers is the same as in the <a href="png.h.html#L1431">png_write_image</a>() call.
+row_pointers is the same as in the <a href="png.h.html#L1400">png_write_image</a>() call.
 
 If you are just writing one row at a time, you can do this with
 a single row_pointer instead of an array of row_pointers:
 
     png_bytep row_pointer = row;
 
-    <a href="png.h.html#L1419">png_write_row</a>(png_ptr, row_pointer);
+    <a href="png.h.html#L1388">png_write_row</a>(png_ptr, row_pointer);
 
 When the file is interlaced, things can get a good deal more complicated.
 The only currently (as of the PNG Specification version 1.2, dated July
@@ -942,21 +942,21 @@ yourself.  If you want to build them yourself, see the PNG specification
 for details of which pixels to write when.
 
 If you don't want libpng to handle the interlacing details, just
-use <a href="png.h.html#L1316">png_set_interlace_handling</a>() and call <a href="png.h.html#L1427">png_write_rows</a>() the
+use <a href="png.h.html#L1285">png_set_interlace_handling</a>() and call <a href="png.h.html#L1396">png_write_rows</a>() the
 correct number of times to write all the sub-images
-(<a href="png.h.html#L1316">png_set_interlace_handling</a>() returns the number of sub-images.)
+(<a href="png.h.html#L1285">png_set_interlace_handling</a>() returns the number of sub-images.)
 
 If you want libpng to build the sub-images, call this before you start
 writing any rows:
 
-    number_of_passes = <a href="png.h.html#L1316">png_set_interlace_handling</a>(png_ptr);
+    number_of_passes = <a href="png.h.html#L1285">png_set_interlace_handling</a>(png_ptr);
 
 This will return the number of passes needed.  Currently, this is seven,
 but may change if another interlace type is added.
 
 Then write the complete image number_of_passes times.
 
-    <a href="png.h.html#L1427">png_write_rows</a>(png_ptr, row_pointers, number_of_rows);
+    <a href="png.h.html#L1396">png_write_rows</a>(png_ptr, row_pointers, number_of_rows);
 
 Think carefully before you write an interlaced image.  Typically code that
 reads such images reads all the image data into memory, uncompressed, before
@@ -967,13 +967,13 @@ adjacent pixels and these are not available until all the passes have been
 read.
 
 If you do write an interlaced image you will hardly ever need to handle
-the interlacing yourself.  Call <a href="png.h.html#L1316">png_set_interlace_handling</a>() and use the
+the interlacing yourself.  Call <a href="png.h.html#L1285">png_set_interlace_handling</a>() and use the
 approach described above.
 
 The only time it is conceivable that you will really need to write an
 interlaced image pass-by-pass is when you have read one pass by pass and
 made some pixel-by-pixel transformation to it, as described in the read
-code above.  In this case use the <a href="png.h.html#L2497">PNG_PASS_ROWS</a> and <a href="png.h.html#L2499">PNG_PASS_COLS</a> macros
+code above.  In this case use the <a href="png.h.html#L2466">PNG_PASS_ROWS</a> and <a href="png.h.html#L2468">PNG_PASS_COLS</a> macros
 to determine the size of each sub-image in turn and simply write the rows
 you obtained from the read code.
 
@@ -984,26 +984,26 @@ the file.  If you are interested in writing comments or time, you should
 pass an appropriately filled png_info pointer.  If you are not interested,
 you can pass NULL.
 
-    <a href="png.h.html#L1434">png_write_end</a>(png_ptr, info_ptr);
+    <a href="png.h.html#L1403">png_write_end</a>(png_ptr, info_ptr);
 
 When you are done, you can free all memory used by libpng like this:
 
-    <a href="png.h.html#L1451">png_destroy_write_struct</a>(&amp;png_ptr, &amp;info_ptr);
+    <a href="png.h.html#L1420">png_destroy_write_struct</a>(&amp;png_ptr, &amp;info_ptr);
 
 It is also possible to individually free the info_ptr members that
 point to libpng-allocated storage with the following function:
 
-    <a href="png.h.html#L1761">png_free_data</a>(png_ptr, info_ptr, mask, seq)
+    <a href="png.h.html#L1730">png_free_data</a>(png_ptr, info_ptr, mask, seq)
 
     mask  - identifies data to be freed, a mask
             containing the bitwise OR of one or
             more of
-              <a href="png.h.html#L1789">PNG_FREE_PLTE</a>, <a href="png.h.html#L1790">PNG_FREE_TRNS</a>,
-              <a href="png.h.html#L1779">PNG_FREE_HIST</a>, <a href="png.h.html#L1780">PNG_FREE_ICCP</a>,
-              <a href="png.h.html#L1783">PNG_FREE_PCAL</a>, <a href="png.h.html#L1782">PNG_FREE_ROWS</a>,
-              <a href="png.h.html#L1784">PNG_FREE_SCAL</a>, <a href="png.h.html#L1781">PNG_FREE_SPLT</a>,
-              <a href="png.h.html#L1791">PNG_FREE_TEXT</a>, <a href="png.h.html#L1786">PNG_FREE_UNKN</a>,
-            or simply <a href="png.h.html#L1793">PNG_FREE_ALL</a>
+              <a href="png.h.html#L1758">PNG_FREE_PLTE</a>, <a href="png.h.html#L1759">PNG_FREE_TRNS</a>,
+              <a href="png.h.html#L1748">PNG_FREE_HIST</a>, <a href="png.h.html#L1749">PNG_FREE_ICCP</a>,
+              <a href="png.h.html#L1752">PNG_FREE_PCAL</a>, <a href="png.h.html#L1751">PNG_FREE_ROWS</a>,
+              <a href="png.h.html#L1753">PNG_FREE_SCAL</a>, <a href="png.h.html#L1750">PNG_FREE_SPLT</a>,
+              <a href="png.h.html#L1760">PNG_FREE_TEXT</a>, <a href="png.h.html#L1755">PNG_FREE_UNKN</a>,
+            or simply <a href="png.h.html#L1762">PNG_FREE_ALL</a>
 
     seq   - sequence number of item to be freed
             (-1 for all items)
@@ -1018,33 +1018,33 @@ sPLT, only the n'th item in the structure is freed, where n is "seq".
 
 If you allocated data such as a palette that you passed in to libpng
 with png_set_*, you must not free it until just before the call to
-<a href="png.h.html#L1451">png_destroy_write_struct</a>().
+<a href="png.h.html#L1420">png_destroy_write_struct</a>().
 
 The default behavior is only to free data that was allocated internally
 by libpng.  This can be changed, so that libpng will not free the data,
 or so that it will free data that was allocated by the user with png_malloc()
 or png_calloc() and passed in via a png_set_*() function, with
 
-    <a href="png.h.html#L1771">png_data_freer</a>(png_ptr, info_ptr, freer, mask)
+    <a href="png.h.html#L1740">png_data_freer</a>(png_ptr, info_ptr, freer, mask)
 
     freer  - one of
-               <a href="png.h.html#L1775">PNG_DESTROY_WILL_FREE_DATA</a>
-               <a href="png.h.html#L1776">PNG_SET_WILL_FREE_DATA</a>
-               <a href="png.h.html#L1777">PNG_USER_WILL_FREE_DATA</a>
+               <a href="png.h.html#L1744">PNG_DESTROY_WILL_FREE_DATA</a>
+               <a href="png.h.html#L1745">PNG_SET_WILL_FREE_DATA</a>
+               <a href="png.h.html#L1746">PNG_USER_WILL_FREE_DATA</a>
 
     mask   - which data elements are affected
-             same choices as in <a href="png.h.html#L1761">png_free_data</a>()
+             same choices as in <a href="png.h.html#L1730">png_free_data</a>()
 
 For example, to transfer responsibility for some data from a read structure
 to a write structure, you could use
 
-    <a href="png.h.html#L1771">png_data_freer</a>(read_ptr, read_info_ptr,
-       <a href="png.h.html#L1777">PNG_USER_WILL_FREE_DATA</a>,
-       <a href="png.h.html#L1789">PNG_FREE_PLTE</a>|PNG_FREE_tRNS|PNG_FREE_hIST)
+    <a href="png.h.html#L1740">png_data_freer</a>(read_ptr, read_info_ptr,
+       <a href="png.h.html#L1746">PNG_USER_WILL_FREE_DATA</a>,
+       <a href="png.h.html#L1758">PNG_FREE_PLTE</a>|PNG_FREE_tRNS|PNG_FREE_hIST)
 
-    <a href="png.h.html#L1771">png_data_freer</a>(write_ptr, write_info_ptr,
-       <a href="png.h.html#L1775">PNG_DESTROY_WILL_FREE_DATA</a>,
-       <a href="png.h.html#L1789">PNG_FREE_PLTE</a>|PNG_FREE_tRNS|PNG_FREE_hIST)
+    <a href="png.h.html#L1740">png_data_freer</a>(write_ptr, write_info_ptr,
+       <a href="png.h.html#L1744">PNG_DESTROY_WILL_FREE_DATA</a>,
+       <a href="png.h.html#L1758">PNG_FREE_PLTE</a>|PNG_FREE_tRNS|PNG_FREE_hIST)
 
 thereby briefly reassigning responsibility for freeing to the user but
 immediately afterwards reassigning it once more to the write_destroy
@@ -1057,14 +1057,14 @@ You can call this function before calling after the png_set_*() functions
 to control whether the user or png_destroy_*() is supposed to free the data.
 When the user assumes responsibility for libpng-allocated data, the
 application must use
-<a href="png.h.html#L1758">png_free</a>() to free it, and when the user transfers responsibility to libpng
+<a href="png.h.html#L1727">png_free</a>() to free it, and when the user transfers responsibility to libpng
 for data that the user has allocated, the user must have used png_malloc()
 or png_calloc() to allocate it.
 
 If you allocated text_ptr.text, text_ptr.lang, and text_ptr.translated_keyword
 separately, do not transfer responsibility for freeing text_ptr to libpng,
 because when libpng fills a png_text structure it combines these members with
-the key member, and <a href="png.h.html#L1761">png_free_data</a>() will free only text_ptr.key.  Similarly,
+the key member, and <a href="png.h.html#L1730">png_free_data</a>() will free only text_ptr.key.  Similarly,
 if you transfer responsibility for free'ing text_ptr from libpng to your
 application, your application must not separately free those members.
 For a more compact example of writing a PNG image, see the file example.c.
