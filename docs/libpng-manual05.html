@@ -34,12 +34,12 @@ in-memory bitmap formats or to be written from the same formats.  If these
 formats do not accommodate your needs then you can, and should, use the more
 sophisticated APIs above - these support a wide variety of in-memory formats
 and a wide variety of sophisticated transformations to those formats as well
-as a wide variety of APIs to manipulate ancilliary information.
+as a wide variety of APIs to manipulate ancillary information.
 
 To read a PNG file using the simplified API:
 
   1) Declare a 'png_image' structure (see below) on the stack, set the
-     version field to <a href="png.h.html#L2700">PNG_IMAGE_VERSION</a> and the 'opaque' pointer to NULL
+     version field to <a href="png.h.html#L2669">PNG_IMAGE_VERSION</a> and the 'opaque' pointer to NULL
      (this is REQUIRED, your program may crash if you don't do it.)
 
   2) Call the appropriate png_image_begin_read... function.
@@ -48,13 +48,13 @@ To read a PNG file using the simplified API:
 
   4) Allocate a buffer for the image and, if required, the color-map.
 
-  5) Call <a href="png.h.html#L3026">png_image_finish_read</a> to read the image and, if required, the
+  5) Call <a href="png.h.html#L2995">png_image_finish_read</a> to read the image and, if required, the
      color-map into your buffers.
 
 There are no restrictions on the format of the PNG input itself; all valid
 color types, bit depths, and interlace methods are acceptable, and the
 input image is transformed as necessary to the requested in-memory format
-during the <a href="png.h.html#L3026">png_image_finish_read</a>() step.  The only caveat is that if you
+during the <a href="png.h.html#L2995">png_image_finish_read</a>() step.  The only caveat is that if you
 request a color-mapped image from a PNG that is full-color or makes
 complex use of an alpha channel the transformation is extremely lossy and the
 result may look terrible.
@@ -76,8 +76,8 @@ png_image is a structure that describes the in-memory format of an image
 when it is being read or defines the in-memory format of an image that you
 need to write.  The "png_image" structure contains the following members:
 
-   png_controlp opaque  Initialize to NULL, free with <a href="png.h.html#L3061">png_image_free</a>
-   png_uint_32  version Set to <a href="png.h.html#L2700">PNG_IMAGE_VERSION</a>
+   png_controlp opaque  Initialize to NULL, free with <a href="png.h.html#L3030">png_image_free</a>
+   png_uint_32  version Set to <a href="png.h.html#L2669">PNG_IMAGE_VERSION</a>
    png_uint_32  width   Image width in pixels (columns)
    png_uint_32  height  Image height in pixels (rows)
    png_uint_32  format  Image format as defined below
@@ -124,7 +124,7 @@ the native byte order of the platform on which the application is running.
 All channels can be converted to the original value by dividing by 65535; all
 channels are linear.  Color channels use the RGB encoding (RGB end-points) of
 the sRGB specification.  This encoding is identified by the
-<a href="png.h.html#L2811">PNG_FORMAT_FLAG_LINEAR</a> flag below.
+<a href="png.h.html#L2780">PNG_FORMAT_FLAG_LINEAR</a> flag below.
 
 When the simplified API needs to convert between sRGB and linear colorspaces,
 the actual sRGB transfer curve defined in the sRGB specification (see the
@@ -157,7 +157,7 @@ add new flags.
 When reading or writing color-mapped images the format should be set to the
 format of the entries in the color-map then png_image_{read,write}_colormap
 called to read or write the color-map and set the format correctly for the
-image data.  Do not set the <a href="png.h.html#L2812">PNG_FORMAT_FLAG_COLORMAP</a> bit directly!
+image data.  Do not set the <a href="png.h.html#L2781">PNG_FORMAT_FLAG_COLORMAP</a> bit directly!
 
 NOTE: libpng can be built with particular features disabled. If you see
 compiler errors because the definition of one of the following flags has been
@@ -169,12 +169,12 @@ appropriate "_SUPPORTED" macro, one of:
 
    PNG_SIMPLIFIED_{READ,WRITE}_{BGR,AFIRST}_SUPPORTED
 
-   <a href="png.h.html#L2809">PNG_FORMAT_FLAG_ALPHA</a>    format with an alpha channel
-   <a href="png.h.html#L2810">PNG_FORMAT_FLAG_COLOR</a>    color format: otherwise grayscale
-   <a href="png.h.html#L2811">PNG_FORMAT_FLAG_LINEAR</a>   2-byte channels else 1-byte
-   <a href="png.h.html#L2812">PNG_FORMAT_FLAG_COLORMAP</a> image data is color-mapped
-   <a href="png.h.html#L2815">PNG_FORMAT_FLAG_BGR</a>      BGR colors, else order is RGB
-   <a href="png.h.html#L2819">PNG_FORMAT_FLAG_AFIRST</a>   alpha channel comes first
+   <a href="png.h.html#L2778">PNG_FORMAT_FLAG_ALPHA</a>    format with an alpha channel
+   <a href="png.h.html#L2779">PNG_FORMAT_FLAG_COLOR</a>    color format: otherwise grayscale
+   <a href="png.h.html#L2780">PNG_FORMAT_FLAG_LINEAR</a>   2-byte channels else 1-byte
+   <a href="png.h.html#L2781">PNG_FORMAT_FLAG_COLORMAP</a> image data is color-mapped
+   <a href="png.h.html#L2784">PNG_FORMAT_FLAG_BGR</a>      BGR colors, else order is RGB
+   <a href="png.h.html#L2788">PNG_FORMAT_FLAG_AFIRST</a>   alpha channel comes first
 
 Supported formats are as follows.  Future versions of libpng may support more
 formats; for compatibility with older versions simply check if the format
@@ -183,15 +183,15 @@ of the components of the pixels of the image.
 
 First the single byte (sRGB) formats:
 
-   <a href="png.h.html#L2828">PNG_FORMAT_GRAY</a>
-   <a href="png.h.html#L2829">PNG_FORMAT_GA</a>
-   <a href="png.h.html#L2830">PNG_FORMAT_AG</a>
-   <a href="png.h.html#L2831">PNG_FORMAT_RGB</a>
-   <a href="png.h.html#L2832">PNG_FORMAT_BGR</a>
-   <a href="png.h.html#L2833">PNG_FORMAT_RGBA</a>
-   <a href="png.h.html#L2834">PNG_FORMAT_ARGB</a>
-   <a href="png.h.html#L2835">PNG_FORMAT_BGRA</a>
-   <a href="png.h.html#L2836">PNG_FORMAT_ABGR</a>
+   <a href="png.h.html#L2797">PNG_FORMAT_GRAY</a>
+   <a href="png.h.html#L2798">PNG_FORMAT_GA</a>
+   <a href="png.h.html#L2799">PNG_FORMAT_AG</a>
+   <a href="png.h.html#L2800">PNG_FORMAT_RGB</a>
+   <a href="png.h.html#L2801">PNG_FORMAT_BGR</a>
+   <a href="png.h.html#L2802">PNG_FORMAT_RGBA</a>
+   <a href="png.h.html#L2803">PNG_FORMAT_ARGB</a>
+   <a href="png.h.html#L2804">PNG_FORMAT_BGRA</a>
+   <a href="png.h.html#L2805">PNG_FORMAT_ABGR</a>
 
 Then the linear 2-byte formats.  When naming these "Y" is used to
 indicate a luminance (gray) channel.  The component order within the pixel
@@ -200,29 +200,29 @@ components in the linear format.  The components are 16-bit integers in
 the native byte order for your platform, and there is no provision for
 swapping the bytes to a different endian condition.
 
-   <a href="png.h.html#L2841">PNG_FORMAT_LINEAR_Y</a>
-   <a href="png.h.html#L2842">PNG_FORMAT_LINEAR_Y_ALPHA</a>
-   <a href="png.h.html#L2843">PNG_FORMAT_LINEAR_RGB</a>
-   <a href="png.h.html#L2844">PNG_FORMAT_LINEAR_RGB_ALPHA</a>
+   <a href="png.h.html#L2810">PNG_FORMAT_LINEAR_Y</a>
+   <a href="png.h.html#L2811">PNG_FORMAT_LINEAR_Y_ALPHA</a>
+   <a href="png.h.html#L2812">PNG_FORMAT_LINEAR_RGB</a>
+   <a href="png.h.html#L2813">PNG_FORMAT_LINEAR_RGB_ALPHA</a>
 
 With color-mapped formats the image data is one byte for each pixel. The byte
 is an index into the color-map which is formatted as above.  To obtain a
 color-mapped format it is sufficient just to add the PNG_FOMAT_FLAG_COLORMAP
 to one of the above definitions, or you can use one of the definitions below.
 
-   <a href="png.h.html#L2852">PNG_FORMAT_RGB_COLORMAP</a>
-   <a href="png.h.html#L2853">PNG_FORMAT_BGR_COLORMAP</a>
-   <a href="png.h.html#L2854">PNG_FORMAT_RGBA_COLORMAP</a>
-   <a href="png.h.html#L2855">PNG_FORMAT_ARGB_COLORMAP</a>
-   <a href="png.h.html#L2856">PNG_FORMAT_BGRA_COLORMAP</a>
-   <a href="png.h.html#L2857">PNG_FORMAT_ABGR_COLORMAP</a>
+   <a href="png.h.html#L2821">PNG_FORMAT_RGB_COLORMAP</a>
+   <a href="png.h.html#L2822">PNG_FORMAT_BGR_COLORMAP</a>
+   <a href="png.h.html#L2823">PNG_FORMAT_RGBA_COLORMAP</a>
+   <a href="png.h.html#L2824">PNG_FORMAT_ARGB_COLORMAP</a>
+   <a href="png.h.html#L2825">PNG_FORMAT_BGRA_COLORMAP</a>
+   <a href="png.h.html#L2826">PNG_FORMAT_ABGR_COLORMAP</a>
 
 PNG_IMAGE macros
 
 These are convenience macros to derive information from a png_image
 structure.  The PNG_IMAGE_SAMPLE_ macros return values appropriate to the
 actual image sample values - either the entries in the color-map or the
-pixels in the image.  The <a href="png.h.html#L2910">PNG_IMAGE_PIXEL_</a> macros return corresponding values
+pixels in the image.  The <a href="png.h.html#L2879">PNG_IMAGE_PIXEL_</a> macros return corresponding values
 for the pixels and will always return 1 for color-mapped formats.  The
 remaining macros return information about the rows in the image and the
 complete image.
@@ -233,32 +233,32 @@ macros can be used in array declarations and case labels where required.
 Similarly the macros are also pre-processor constants (sizeof is not used) so
 they can be used in #if tests.
 
-  <a href="png.h.html#L2877">PNG_IMAGE_SAMPLE_CHANNELS</a>(fmt)
+  <a href="png.h.html#L2846">PNG_IMAGE_SAMPLE_CHANNELS</a>(fmt)
     Returns the total number of channels in a given format: 1..4
 
-  <a href="png.h.html#L2881">PNG_IMAGE_SAMPLE_COMPONENT_SIZE</a>(fmt)
+  <a href="png.h.html#L2850">PNG_IMAGE_SAMPLE_COMPONENT_SIZE</a>(fmt)
     Returns the size in bytes of a single component of a pixel or color-map
     entry (as appropriate) in the image: 1 or 2.
 
-  <a href="png.h.html#L2887">PNG_IMAGE_SAMPLE_SIZE</a>(fmt)
+  <a href="png.h.html#L2856">PNG_IMAGE_SAMPLE_SIZE</a>(fmt)
     This is the size of the sample data for one sample.  If the image is
     color-mapped it is the size of one color-map entry (and image pixels are
     one byte in size), otherwise it is the size of one image pixel.
 
-  <a href="png.h.html#L2894">PNG_IMAGE_MAXIMUM_COLORMAP_COMPONENTS</a>(fmt)
+  <a href="png.h.html#L2863">PNG_IMAGE_MAXIMUM_COLORMAP_COMPONENTS</a>(fmt)
     The maximum size of the color-map required by the format expressed in a
     count of components.  This can be used to compile-time allocate a
     color-map:
 
-    png_uint_16 colormap[<a href="png.h.html#L2894">PNG_IMAGE_MAXIMUM_COLORMAP_COMPONENTS</a>(linear_fmt)];
+    png_uint_16 colormap[<a href="png.h.html#L2863">PNG_IMAGE_MAXIMUM_COLORMAP_COMPONENTS</a>(linear_fmt)];
 
-    png_byte colormap[<a href="png.h.html#L2894">PNG_IMAGE_MAXIMUM_COLORMAP_COMPONENTS</a>(sRGB_fmt)];
+    png_byte colormap[<a href="png.h.html#L2863">PNG_IMAGE_MAXIMUM_COLORMAP_COMPONENTS</a>(sRGB_fmt)];
 
-    Alternatively use the <a href="png.h.html#L2956">PNG_IMAGE_COLORMAP_SIZE</a> macro below to use the
+    Alternatively use the <a href="png.h.html#L2925">PNG_IMAGE_COLORMAP_SIZE</a> macro below to use the
     information from one of the png_image_begin_read_ APIs and dynamically
     allocate the required memory.
 
-  <a href="png.h.html#L2956">PNG_IMAGE_COLORMAP_SIZE</a>(fmt)
+  <a href="png.h.html#L2925">PNG_IMAGE_COLORMAP_SIZE</a>(fmt)
    The size of the color-map required by the format; this is the size of the
    color-map buffer passed to the png_image_{read,write}_colormap APIs. It is
    a fixed number determined by the format so can easily be allocated on the
@@ -266,42 +266,42 @@ they can be used in #if tests.
 
 Corresponding information about the pixels
 
-  <a href="png.h.html#L2913">PNG_IMAGE_PIXEL_CHANNELS</a>(fmt)
+  <a href="png.h.html#L2882">PNG_IMAGE_PIXEL_CHANNELS</a>(fmt)
    The number of separate channels (components) in a pixel; 1 for a
    color-mapped image.
 
-  <a href="png.h.html#L2919">PNG_IMAGE_PIXEL_COMPONENT_SIZE</a>(fmt)\
+  <a href="png.h.html#L2888">PNG_IMAGE_PIXEL_COMPONENT_SIZE</a>(fmt)\
    The size, in bytes, of each component in a pixel; 1 for a color-mapped
    image.
 
-  <a href="png.h.html#L2925">PNG_IMAGE_PIXEL_SIZE</a>(fmt)
+  <a href="png.h.html#L2894">PNG_IMAGE_PIXEL_SIZE</a>(fmt)
    The size, in bytes, of a complete pixel; 1 for a color-mapped image.
 
 Information about the whole row, or whole image
 
-  <a href="png.h.html#L2929">PNG_IMAGE_ROW_STRIDE</a>(image)
+  <a href="png.h.html#L2898">PNG_IMAGE_ROW_STRIDE</a>(image)
    Returns the total number of components in a single row of the image; this
    is the minimum 'row stride', the minimum count of components between each
    row.  For a color-mapped image this is the minimum number of bytes in a
    row.
 
    If you need the stride measured in bytes, row_stride_bytes is
-   <a href="png.h.html#L2929">PNG_IMAGE_ROW_STRIDE</a>(image) * <a href="png.h.html#L2919">PNG_IMAGE_PIXEL_COMPONENT_SIZE</a>(fmt)
+   <a href="png.h.html#L2898">PNG_IMAGE_ROW_STRIDE</a>(image) * <a href="png.h.html#L2888">PNG_IMAGE_PIXEL_COMPONENT_SIZE</a>(fmt)
    plus any padding bytes that your application might need, for example
    to start the next row on a 4-byte boundary.
 
-  <a href="png.h.html#L2941">PNG_IMAGE_BUFFER_SIZE</a>(image, row_stride)
+  <a href="png.h.html#L2910">PNG_IMAGE_BUFFER_SIZE</a>(image, row_stride)
    Return the size, in bytes, of an image buffer given a png_image and a row
    stride - the number of components to leave space for in each row.
 
-  <a href="png.h.html#L2950">PNG_IMAGE_SIZE</a>(image)
+  <a href="png.h.html#L2919">PNG_IMAGE_SIZE</a>(image)
    Return the size, in bytes, of the image in memory given just a png_image;
    the row stride is the minimum stride required for the image.
 
-  <a href="png.h.html#L2956">PNG_IMAGE_COLORMAP_SIZE</a>(image)
+  <a href="png.h.html#L2925">PNG_IMAGE_COLORMAP_SIZE</a>(image)
    Return the size, in bytes, of the color-map of this image.  If the image
    format is not a color-map format this will return a size sufficient for
-   256 entries in the given format; check <a href="png.h.html#L2812">PNG_FORMAT_FLAG_COLORMAP</a> if
+   256 entries in the given format; check <a href="png.h.html#L2781">PNG_FORMAT_FLAG_COLORMAP</a> if
    you don't want to allocate a color-map in this case.
 
 PNG_IMAGE_FLAG_*
@@ -309,11 +309,11 @@ PNG_IMAGE_FLAG_*
 Flags containing additional information about the image are held in
 the 'flags' field of png_image.
 
-  <a href="png.h.html#L2969">PNG_IMAGE_FLAG_COLORSPACE_NOT_sRGB</a> == 0x01
-    This indicates the the RGB values of the in-memory bitmap do not
+  <a href="png.h.html#L2938">PNG_IMAGE_FLAG_COLORSPACE_NOT_sRGB</a> == 0x01
+    This indicates that the RGB values of the in-memory bitmap do not
     correspond to the red, green and blue end-points defined by sRGB.
 
-  <a href="png.h.html#L2974">PNG_IMAGE_FLAG_FAST</a> == 0x02
+  <a href="png.h.html#L2943">PNG_IMAGE_FLAG_FAST</a> == 0x02
    On write emphasise speed over compression; the resultant PNG file will be
    larger but will be produced significantly faster, particular for large
    images.  Do not use this option for images which will be distributed, only
@@ -323,7 +323,7 @@ the 'flags' field of png_image.
    more compressible images the PNG file can be 10 times larger with only a
    slight speed gain.
 
-  <a href="png.h.html#L2985">PNG_IMAGE_FLAG_16BIT_sRGB</a> == 0x04
+  <a href="png.h.html#L2954">PNG_IMAGE_FLAG_16BIT_sRGB</a> == 0x04
     On read if the image is a 16-bit per component image and there is no gAMA
     or sRGB chunk assume that the components are sRGB encoded.  Notice that
     images output by the simplified API always have gamma information; setting
@@ -345,23 +345,23 @@ READ APIs
    The png_image passed to the read APIs must have been initialized by setting
    the png_controlp field 'opaque' to NULL (or, better, memset the whole thing.)
 
-   int <a href="png.h.html#L3011">png_image_begin_read_from_file</a>( png_imagep image,
+   int <a href="png.h.html#L2980">png_image_begin_read_from_file</a>( png_imagep image,
      const char *file_name)
 
      The named file is opened for read and the image header
      is filled in from the PNG header in the file.
 
-   int <a href="png.h.html#L3017">png_image_begin_read_from_stdio</a> (png_imagep image,
+   int <a href="png.h.html#L2986">png_image_begin_read_from_stdio</a> (png_imagep image,
      FILE* file)
 
       The PNG header is read from the stdio FILE object.
 
-   int <a href="png.h.html#L3022">png_image_begin_read_from_memory</a>(png_imagep image,
-      png_const_voidp memory, png_size_t size)
+   int <a href="png.h.html#L2991">png_image_begin_read_from_memory</a>(png_imagep image,
+      png_const_voidp memory, size_t size)
 
       The PNG header is read from the given memory buffer.
 
-   int <a href="png.h.html#L3026">png_image_finish_read</a>(png_imagep image,
+   int <a href="png.h.html#L2995">png_image_finish_read</a>(png_imagep image,
       png_colorp background, void *buffer,
       png_int_32 row_stride, void *colormap));
 
@@ -384,7 +384,7 @@ READ APIs
       For linear output removing the alpha channel is always done
       by compositing on black.
 
-   void <a href="png.h.html#L3061">png_image_free</a>(png_imagep image)
+   void <a href="png.h.html#L3030">png_image_free</a>(png_imagep image)
 
       Free any data allocated by libpng in image-&gt;opaque,
       setting the pointer to NULL.  May be called at any time
@@ -400,30 +400,30 @@ WRITE APIS
 For write you must initialize a png_image structure to describe the image to
 be written:
 
-   version: must be set to <a href="png.h.html#L2700">PNG_IMAGE_VERSION</a>
+   version: must be set to <a href="png.h.html#L2669">PNG_IMAGE_VERSION</a>
    opaque: must be initialized to NULL
    width: image width in pixels
    height: image height in rows
    format: the format of the data you wish to write
    flags: set to 0 unless one of the defined flags applies; set
-      <a href="png.h.html#L2969">PNG_IMAGE_FLAG_COLORSPACE_NOT_sRGB</a> for color format images
+      <a href="png.h.html#L2938">PNG_IMAGE_FLAG_COLORSPACE_NOT_sRGB</a> for color format images
       where the RGB values do not correspond to the colors in sRGB.
    colormap_entries: set to the number of entries in the color-map (0 to 256)
 
-   int <a href="png.h.html#L3085">png_image_write_to_file</a>, (png_imagep image,
+   int <a href="png.h.html#L3054">png_image_write_to_file</a>, (png_imagep image,
       const char *file, int convert_to_8bit, const void *buffer,
       png_int_32 row_stride, const void *colormap));
 
       Write the image to the named file.
 
-   int <a href="png.h.html#L3117">png_image_write_to_memory</a> (png_imagep image, void *memory,
+   int <a href="png.h.html#L3086">png_image_write_to_memory</a> (png_imagep image, void *memory,
       png_alloc_size_t * PNG_RESTRICT memory_bytes,
       int convert_to_8_bit, const void *buffer, ptrdiff_t row_stride,
       const void *colormap));
 
       Write the image to memory.
 
-   int <a href="png.h.html#L3090">png_image_write_to_stdio</a>(png_imagep image, FILE *file,
+   int <a href="png.h.html#L3059">png_image_write_to_stdio</a>(png_imagep image, FILE *file,
       int convert_to_8_bit, const void *buffer,
       png_int_32 row_stride, const void *colormap)
 

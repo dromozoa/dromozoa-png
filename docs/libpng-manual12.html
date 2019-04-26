@@ -25,7 +25,7 @@
 
 <h1>XII. Changes to Libpng from version 1.5.x to 1.6.x</h1>
 
-<pre>XII.  Changes to Libpng from version 1.5.x to 1.6.x
+<pre>XII. Changes to Libpng from version 1.5.x to 1.6.x
 
 A "simplified API" has been added (see documentation in png.h and a simple
 example in contrib/examples/pngtopng.c).  The new publicly visible API
@@ -38,15 +38,15 @@ includes the following:
      png_control
      png_image
    read functions
-     <a href="png.h.html#L3011">png_image_begin_read_from_file</a>()
-     <a href="png.h.html#L3017">png_image_begin_read_from_stdio</a>()
-     <a href="png.h.html#L3022">png_image_begin_read_from_memory</a>()
-     <a href="png.h.html#L3026">png_image_finish_read</a>()
-     <a href="png.h.html#L3061">png_image_free</a>()
+     <a href="png.h.html#L2980">png_image_begin_read_from_file</a>()
+     <a href="png.h.html#L2986">png_image_begin_read_from_stdio</a>()
+     <a href="png.h.html#L2991">png_image_begin_read_from_memory</a>()
+     <a href="png.h.html#L2995">png_image_finish_read</a>()
+     <a href="png.h.html#L3030">png_image_free</a>()
    write functions
-     <a href="png.h.html#L3085">png_image_write_to_file</a>()
-     <a href="png.h.html#L3117">png_image_write_to_memory</a>()
-     <a href="png.h.html#L3090">png_image_write_to_stdio</a>()
+     <a href="png.h.html#L3054">png_image_write_to_file</a>()
+     <a href="png.h.html#L3086">png_image_write_to_memory</a>()
+     <a href="png.h.html#L3059">png_image_write_to_stdio</a>()
 
 Starting with libpng-1.6.0, you can configure libpng to prefix all exported
 symbols, using the PNG_PREFIX macro.
@@ -60,14 +60,14 @@ the '#include "png.h"' directive.
 The following API are now DEPRECATED:
    png_info_init_3()
    png_convert_to_rfc1123() which has been replaced
-     with <a href="png.h.html#L1067">png_convert_to_rfc1123_buffer</a>()
+     with <a href="png.h.html#L1036">png_convert_to_rfc1123_buffer</a>()
    png_malloc_default()
    png_free_default()
    png_reset_zstream()
 
 The following have been removed:
    png_get_io_chunk_name(), which has been replaced
-     with <a href="png.h.html#L2449">png_get_io_chunk_type</a>().  The new
+     with <a href="png.h.html#L2418">png_get_io_chunk_type</a>().  The new
      function returns a 32-bit integer instead of
      a string.
    The png_sizeof(), png_strlen(), png_memcpy(), png_memcmp(), and
@@ -87,15 +87,15 @@ by a flag so that 'small size_t' systems can select it if necessary.
 Error detection in some chunks has improved; in particular the iCCP chunk
 reader now does pretty complete validation of the basic format.  Some bad
 profiles that were previously accepted are now accepted with a warning or
-rejected, depending upon the <a href="png.h.html#L1844">png_set_benign_errors</a>() setting, in particular
+rejected, depending upon the <a href="png.h.html#L1813">png_set_benign_errors</a>() setting, in particular
 the very old broken Microsoft/HP 3144-byte sRGB profile.  Starting with
 libpng-1.6.11, recognizing and checking sRGB profiles can be avoided by
 means of
 
-    #if defined(<a href="png.h.html#L3237">PNG_SKIP_sRGB_CHECK_PROFILE</a>) &amp;&amp; \
+    #if defined(<a href="png.h.html#L3206">PNG_SKIP_sRGB_CHECK_PROFILE</a>) &amp;&amp; \
         defined(PNG_SET_OPTION_SUPPORTED)
-       <a href="png.h.html#L3253">png_set_option</a>(png_ptr, <a href="png.h.html#L3237">PNG_SKIP_sRGB_CHECK_PROFILE</a>,
-           <a href="png.h.html#L3251">PNG_OPTION_ON</a>);
+       <a href="png.h.html#L3222">png_set_option</a>(png_ptr, <a href="png.h.html#L3206">PNG_SKIP_sRGB_CHECK_PROFILE</a>,
+           <a href="png.h.html#L3220">PNG_OPTION_ON</a>);
     #endif
 
 It's not a good idea to do this if you are using the "simplified API",
@@ -118,8 +118,8 @@ an empty language field or an empty translated keyword.  Both of these
 are allowed by the PNG specification, so these warnings are no longer issued.
 
 The library now issues an error if the application attempts to set a
-transform after it calls <a href="png.h.html#L1398">png_read_update_info</a>() or if it attempts to call
-both <a href="png.h.html#L1398">png_read_update_info</a>() and <a href="png.h.html#L1395">png_start_read_image</a>() or to call either
+transform after it calls <a href="png.h.html#L1367">png_read_update_info</a>() or if it attempts to call
+both <a href="png.h.html#L1367">png_read_update_info</a>() and <a href="png.h.html#L1364">png_start_read_image</a>() or to call either
 of them more than once.
 
 The default condition for benign_errors is now to treat benign errors as
@@ -130,7 +130,7 @@ gray are used when gamma correction happens. As with previous versions of
 the library the results are numerically very incorrect in this case.
 
 There are some minor arithmetic changes in some transforms such as
-<a href="png.h.html#L1330">png_set_background</a>(), that might be detected by certain regression tests.
+<a href="png.h.html#L1299">png_set_background</a>(), that might be detected by certain regression tests.
 
 Unknown chunk handling has been improved internally, without any API change.
 This adds more correct option control of the unknown handling, corrects
@@ -150,8 +150,8 @@ Libpng-1.6.3 and later calculate their own safe CMF from the image dimensions,
 provide a way to revert to the libpng-1.5.x behavior (ignoring the CMF bytes
 and using a 32-kbyte sliding window), by using
 
-    <a href="png.h.html#L3253">png_set_option</a>(png_ptr, <a href="png.h.html#L3236">PNG_MAXIMUM_INFLATE_WINDOW</a>,
-        <a href="png.h.html#L3251">PNG_OPTION_ON</a>);
+    <a href="png.h.html#L3222">png_set_option</a>(png_ptr, <a href="png.h.html#L3205">PNG_MAXIMUM_INFLATE_WINDOW</a>,
+        <a href="png.h.html#L3220">PNG_OPTION_ON</a>);
 
 and provide a tool (contrib/tools/pngfix) for rewriting a PNG file while
 optimizing the CMF bytes in its IDAT chunk correctly.
@@ -176,7 +176,7 @@ Starting with libpng-1.6.18, a PNG_RELEASE_BUILD macro was added, which allows
 library builders to control compilation for an installed system (a release build).
 It can be set for testing debug or beta builds to ensure that they will compile
 when the build type is switched to RC or STABLE. In essence this overrides the
-<a href="png.h.html#L344">PNG_LIBPNG_BUILD_BASE_TYPE</a> definition which is not directly user controllable.
+<a href="png.h.html#L312">PNG_LIBPNG_BUILD_BASE_TYPE</a> definition which is not directly user controllable.
 
 Starting with libpng-1.6.19, attempting to set an over-length PLTE chunk
 is an error. Previously this requirement of the PNG specification was not

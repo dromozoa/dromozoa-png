@@ -25,7 +25,7 @@
 
 <h1>VIII. Changes to Libpng from version 0.88</h1>
 
-<pre>VIII.  Changes to Libpng from version 0.88
+<pre>VIII. Changes to Libpng from version 0.88
 
 It should be noted that versions of libpng later than 0.96 are not
 distributed by the original libpng author, Guy Schalnat, nor by
@@ -47,8 +47,8 @@ use of custom error handling routines during the initialization, which
 the old functions do not.  The functions png_read_destroy() and
 png_write_destroy() do not actually free the memory that libpng
 allocated for these structs, but just reset the data structures, so they
-can be used instead of <a href="png.h.html#L1447">png_destroy_read_struct</a>() and
-<a href="png.h.html#L1451">png_destroy_write_struct</a>() if you feel there is too much system overhead
+can be used instead of <a href="png.h.html#L1416">png_destroy_read_struct</a>() and
+<a href="png.h.html#L1420">png_destroy_write_struct</a>() if you feel there is too much system overhead
 allocating and freeing the png_struct for each image read.
 
 Setting the error callbacks via png_set_message_fn() before
@@ -56,7 +56,7 @@ png_read_init() as was suggested in libpng-0.88 is no longer supported
 because this caused applications that do not use custom error functions
 to fail if the png_ptr was not initialized to zero.  It is still possible
 to set the error callbacks AFTER png_read_init(), or to change them with
-<a href="png.h.html#L1602">png_set_error_fn</a>(), which is essentially the same function, but with a new
+<a href="png.h.html#L1571">png_set_error_fn</a>(), which is essentially the same function, but with a new
 name to force compilation errors with applications that try to use the old
 method.
 
@@ -66,7 +66,7 @@ however, iTXt support was not enabled by default.
 Starting with version 1.0.7, you can find out which version of the library
 you are using at run-time:
 
-   png_uint_32 libpng_vn = <a href="png.h.html#L932">png_access_version_number</a>();
+   png_uint_32 libpng_vn = <a href="png.h.html#L901">png_access_version_number</a>();
 
 The number libpng_vn is constructed from the major version, minor
 version with leading zero, and release number with leading zero,
@@ -78,7 +78,7 @@ before you've created one.
 You can also check which version of png.h you used when compiling your
 application:
 
-   png_uint_32 application_vn = <a href="png.h.html#L352">PNG_LIBPNG_VER</a>;
+   png_uint_32 application_vn = <a href="png.h.html#L321">PNG_LIBPNG_VER</a>;
 
 </pre>
 </div>
