@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "dromozoa-png"
-version = "1.3-1"
+version = "1.4-1"
 source = {
-  url = "https://github.com/dromozoa/dromozoa-png/archive/v1.3.tar.gz";
-  file = "dromozoa-png-1.3.tar.gz";
+  url = "https://github.com/dromozoa/dromozoa-png/archive/v1.4.tar.gz";
+  file = "dromozoa-png-1.4.tar.gz";
 }
 description = {
   summary = "Lua bindings for libpng";
