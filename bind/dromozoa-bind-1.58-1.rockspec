@@ -1,14 +1,14 @@
 rockspec_format = "3.0"
-package = "dromozoa-png"
-version = "1.4-1"
+package = "dromozoa-bind"
+version = "1.58-1"
 source = {
-  url = "https://github.com/dromozoa/dromozoa-png/archive/v1.4.tar.gz";
-  file = "dromozoa-png-1.4.tar.gz";
+  url = "https://github.com/dromozoa/dromozoa-bind/archive/v1.58.tar.gz";
+  file = "dromozoa-bind-1.58.tar.gz";
 }
 description = {
-  summary = "Lua bindings for libpng";
+  summary = "Helper library for creating bindings between C++ and Lua";
   license = "GPL-3";
-  homepage = "https://github.com/dromozoa/dromozoa-png/";
+  homepage = "https://github.com/dromozoa/dromozoa-bind/";
   maintainer = "Tomoyuki Fujimori <moyu@dromozoa.com>";
 }
 test = {
@@ -21,6 +21,7 @@ build = {
     CFLAGS = "$(CFLAGS)";
     LIBFLAG = "$(LIBFLAG)";
     LUA_INCDIR = "$(LUA_INCDIR)";
+    LUA_LIBDIR = "$(LUA_LIBDIR)";
   };
   install_variables = {
     LIBDIR = "$(LIBDIR)";
